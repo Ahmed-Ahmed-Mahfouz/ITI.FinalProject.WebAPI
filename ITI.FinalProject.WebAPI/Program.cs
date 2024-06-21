@@ -1,4 +1,8 @@
 
+using Application;
+using Domain;
+using Infrastructure;
+
 namespace ITI.FinalProject.WebAPI
 {
     public class Program
@@ -6,6 +10,8 @@ namespace ITI.FinalProject.WebAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddApplication().AddInfrastructure();
 
             // Add services to the container.
 
@@ -29,6 +35,7 @@ namespace ITI.FinalProject.WebAPI
 
 
             app.MapControllers();
+
 
             app.Run();
         }
