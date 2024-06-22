@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class State
+    public enum PaymentTypes
     {
-        public int id { get; set; }
-        public string name { get; set; }
-        public Status status { get; set; }
+        Prepaid = 0,
+        CashOnDelivery = 1,
+        CreditCard = 2,
     }
 }

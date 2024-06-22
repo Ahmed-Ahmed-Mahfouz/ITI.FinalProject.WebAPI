@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Enums
+namespace Domain.Entities
 {
-    public enum PowerTypes
+    public enum ShippingTypes
     {
-        Create = 0,
-        Read = 1,
-        update = 2,
-        Delete = 3
+        Ordinary = 0,
+        Within24Hours = 1,
+        Within15Days = 2,
     }
 }

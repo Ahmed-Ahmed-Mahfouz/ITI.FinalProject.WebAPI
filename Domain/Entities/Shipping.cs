@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Shipping
+    internal class Shipping
     {
-        public int Id { get; set; }
-        public string Type { get; set; }
-        public decimal Price { get; set; }
     }
 }
