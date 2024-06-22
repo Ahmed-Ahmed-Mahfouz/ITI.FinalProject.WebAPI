@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,5 +24,6 @@ namespace Domain.Entities
         public int Merchant_Id { get; set; }
         public int Governorate_Id { get; set; }
         public int City_Id { get; set; }
+        public OrderStatus Status { get; set; }
     }
 }
