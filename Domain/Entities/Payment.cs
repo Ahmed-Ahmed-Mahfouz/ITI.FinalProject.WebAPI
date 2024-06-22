@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,9 @@ namespace Domain.Entities
 {
     public class Payment
     {
-        public int Id { get; set; }
-        public string Type { get; set; }
+        public int id { get; set; }
+        public PaymentTypes paymentType { get; set; }
+        public List<Order> paymentorders { get; set;}
+
     }
 }

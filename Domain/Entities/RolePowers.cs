@@ -9,12 +9,13 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    internal class RolePowers
+    public class RolePowers
     {
-        [Key]
-        //[ForeignKey()]
-        public Guid RoleId { get; set; }
+        
+        [ForeignKey("ApplicationRoles")]
+        public string RoleId { get; set; }
         public PowerTypes Power { get; set; }
+        public ApplicationRoles ApplicationRoles { get; set; }
     }
 
 }

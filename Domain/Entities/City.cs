@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Enums;
 
 namespace Domain.Entities
 {
@@ -13,5 +15,13 @@ namespace Domain.Entities
         public Status status { get; set; }
         public decimal normalShippingCost { get; set; }
         public decimal pickupShippingCost { get; set;}
+        [ForeignKey("state")]
+        public int stateId { get; set; }
+
+        public Branch branch { get; set; }
+        public Governorate state { get; set; }
+        public List<Merchant> cityMerchants { get; set; }
+        public List<Order> cityOrders { get; set; }
+
     }
 }

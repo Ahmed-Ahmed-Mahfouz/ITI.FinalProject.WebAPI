@@ -1,24 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Enums;
 
-
 namespace Domain.Entities
 {
-    public class Branch
+    public class Governorate
     {
         public int id { get; set; }
         public string name { get; set; }
         public Status status { get; set; }
-        public DateTime addingDate { get; set; }
-        [ForeignKey("city")]
-        public int cityId { get; set; }
-        
-        public City city { get; set; }
-        public List<Employee> employees { get; set; }   
+
+        public List<City> cities { get; set; }
+        public List<Merchant> governorateMerchants { get; set; }
+        public List<GovernorateRepresentatives> representatives { get; set; }
+        public List<Order> governorateOrders { get; set; }
     }
 }
