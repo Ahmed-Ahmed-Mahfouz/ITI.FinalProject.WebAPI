@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace Domain.Enums
 {
-    public enum Status
+    public enum UserType
     {
-        inactive,
-        active
+        employee,
+        merchant,
+        representative
     }
 }
