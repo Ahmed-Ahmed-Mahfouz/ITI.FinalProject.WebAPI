@@ -8,8 +8,8 @@ namespace Domain.Enums
 {
     public enum ShippingTypes
     {
-        Ordinary = 0,
-        Within24Hours = 1,
-        Within15Days = 2,
+        Ordinary,
+        Within24Hours,
+        Within15Days,
     }
 }

@@ -14,9 +14,9 @@ namespace Domain.Entities
 
         [ForeignKey("user")]
         [Key]
-        public string userId { get; set; }
-        
-        
+        public string userId { get; set; } = string.Empty;
+
+
         public ApplicationUser user { get; set; }
     }
 }

@@ -9,16 +9,16 @@ namespace Domain.Enums
     public enum OrderStatus
     {
         New,
-        pending ,
-        representativeDelivered,
-        delivered ,
-        unreachable ,
-        delayed,
-        partialyDelivered,
-        cancelled,
-        rejectedWithPayment,
-        rejectedWithPartialyPayment,
-        rejectedWithoutPayment
+        Pending ,
+        RepresentativeDelivered,
+        Delivered ,
+        Unreachable ,
+        Delayed,
+        PartialyDelivered,
+        Cancelled,
+        RejectedWithPayment,
+        RejectedWithPartialyPayment,
+        RejectedWithoutPayment
 
     }
 }

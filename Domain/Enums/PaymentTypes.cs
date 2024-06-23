@@ -8,8 +8,8 @@ namespace Domain.Enums
 {
     public enum PaymentTypes
     {
-        Prepaid = 0,
-        CashOnDelivery = 1,
-        CreditCard = 2,
+        Prepaid,
+        CashOnDelivery,
+        CreditCard,
     }
 }

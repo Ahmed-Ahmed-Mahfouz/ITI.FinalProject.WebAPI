@@ -8,8 +8,8 @@ namespace Domain.Enums
 {
     public enum UserType
     {
-        employee,
-        merchant,
-        representative
+        Employee,
+        Merchant,
+        Representative
     }
 }

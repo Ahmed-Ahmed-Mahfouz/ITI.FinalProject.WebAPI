@@ -264,8 +264,8 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("GovernorateId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("RefusedOrderPercentage")
-                        .HasColumnType("int");
+                    b.Property<decimal?>("RefusedOrderPercentage")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("StoreName")
                         .HasColumnType("nvarchar(max)");
@@ -444,15 +444,10 @@ namespace Infrastructure.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("ShippingId")
-                        .HasColumnType("int");
-
                     b.Property<int>("ShippingType")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ShippingId");
 
                     b.ToTable("Shippings");
                 });
@@ -579,7 +574,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.City", "city")
                         .WithOne("branch")
                         .HasForeignKey("Domain.Entities.Branch", "cityId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("city");
@@ -590,7 +585,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Governorate", "state")
                         .WithMany("cities")
                         .HasForeignKey("stateId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("state");
@@ -616,13 +611,13 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Governorate", "governorate")
                         .WithMany("representatives")
                         .HasForeignKey("governorateId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Representative", "representative")
                         .WithMany("governorates")
                         .HasForeignKey("representativeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("governorate");
@@ -634,7 +629,8 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.City", "city")
                         .WithMany("cityMerchants")
-                        .HasForeignKey("CityId");
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Domain.Entities.Governorate", "governorate")
                         .WithMany("governorateMerchants")
@@ -658,31 +654,31 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.City", "city")
                         .WithMany("cityOrders")
                         .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Governorate", "governorate")
                         .WithMany("governorateOrders")
                         .HasForeignKey("GovernorateId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Merchant", "merchant")
                         .WithMany("orders")
                         .HasForeignKey("MerchantId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Payment", "payment")
                         .WithMany("paymentorders")
                         .HasForeignKey("paymentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Shipping", "shipping")
-                        .WithMany()
+                        .WithMany("orders")
                         .HasForeignKey("shippingId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("city");
@@ -701,7 +697,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Order", "order")
                         .WithMany("products")
                         .HasForeignKey("orderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("order");
@@ -727,13 +723,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("ApplicationRoles");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Shipping", b =>
-                {
-                    b.HasOne("Domain.Entities.Shipping", null)
-                        .WithMany("shippingList")
-                        .HasForeignKey("ShippingId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -846,7 +835,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Shipping", b =>
                 {
-                    b.Navigation("shippingList");
+                    b.Navigation("orders");
                 });
 #pragma warning restore 612, 618
         }

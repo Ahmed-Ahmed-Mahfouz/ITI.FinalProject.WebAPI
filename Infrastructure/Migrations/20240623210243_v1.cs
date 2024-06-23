@@ -59,17 +59,11 @@ namespace Infrastructure.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ShippingType = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ShippingId = table.Column<int>(type: "int", nullable: true)
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Shippings", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Shippings_Shippings_ShippingId",
-                        column: x => x.ShippingId,
-                        principalTable: "Shippings",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -130,8 +124,7 @@ namespace Infrastructure.Migrations
                         name: "FK_Cities_Governorates_stateId",
                         column: x => x.stateId,
                         principalTable: "Governorates",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -152,8 +145,7 @@ namespace Infrastructure.Migrations
                         name: "FK_Branches_Cities_cityId",
                         column: x => x.cityId,
                         principalTable: "Cities",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -311,7 +303,7 @@ namespace Infrastructure.Migrations
                     GovernorateId = table.Column<int>(type: "int", nullable: true),
                     CityId = table.Column<int>(type: "int", nullable: true),
                     CostperRefusedOrder = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RefusedOrderPercentage = table.Column<int>(type: "int", nullable: true)
+                    RefusedOrderPercentage = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -384,32 +376,27 @@ namespace Infrastructure.Migrations
                         name: "FK_Orders_Cities_CityId",
                         column: x => x.CityId,
                         principalTable: "Cities",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                     table.ForeignKey(
                         name: "FK_Orders_Governorates_GovernorateId",
                         column: x => x.GovernorateId,
                         principalTable: "Governorates",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                     table.ForeignKey(
                         name: "FK_Orders_Merchants_MerchantId",
                         column: x => x.MerchantId,
                         principalTable: "Merchants",
-                        principalColumn: "userId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "userId");
                     table.ForeignKey(
                         name: "FK_Orders_Payments_paymentId",
                         column: x => x.paymentId,
                         principalTable: "Payments",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                     table.ForeignKey(
                         name: "FK_Orders_Shippings_shippingId",
                         column: x => x.shippingId,
                         principalTable: "Shippings",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -426,14 +413,12 @@ namespace Infrastructure.Migrations
                         name: "FK_GovernorateRepresentatives_Governorates_governorateId",
                         column: x => x.governorateId,
                         principalTable: "Governorates",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                     table.ForeignKey(
                         name: "FK_GovernorateRepresentatives_Representatives_representativeId",
                         column: x => x.representativeId,
                         principalTable: "Representatives",
-                        principalColumn: "userId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "userId");
                 });
 
             migrationBuilder.CreateTable(
@@ -454,8 +439,7 @@ namespace Infrastructure.Migrations
                         name: "FK_Products_Orders_orderId",
                         column: x => x.orderId,
                         principalTable: "Orders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -567,11 +551,6 @@ namespace Infrastructure.Migrations
                 name: "IX_RolePowers_RoleId",
                 table: "RolePowers",
                 column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Shippings_ShippingId",
-                table: "Shippings",
-                column: "ShippingId");
         }
 
         /// <inheritdoc />

@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace Domain.Enums
 {
-    public enum Status
+    public enum PowerTypes
     {
-        Inactive,
-        Active
+        Create,
+        Read,
+        Update,
+        Delete,
     }
 }
