@@ -1,7 +1,11 @@
 
 using Application;
 using Domain;
+using Domain.Entities;
 using Infrastructure;
+using Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace ITI.FinalProject.WebAPI
 {
@@ -11,7 +15,7 @@ namespace ITI.FinalProject.WebAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddApplication().AddInfrastructure();
+            builder.Services.AddApplication().AddInfrastructure(builder.Configuration);
 
             // Add services to the container.
 
@@ -19,7 +23,7 @@ namespace ITI.FinalProject.WebAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
+                        
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
