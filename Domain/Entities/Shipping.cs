@@ -12,7 +12,6 @@ namespace Domain.Entities
         public int Id { get; set; }
         public ShippingTypes ShippingType { get; set; }
         public decimal Price { get; set; }
-        //public List<Shipping> shippingList { get; set; }
         public List<Order> orders { get; set; }
     }
 }
