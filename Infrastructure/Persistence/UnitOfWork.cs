@@ -2,6 +2,7 @@
 using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Infrastructure.Persistence.Repositories;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,9 +37,20 @@ namespace Infrastructure.Persistence
         //    } 
         //}
 
+<<<<<<< Updated upstream
         public async Task<bool> SaveChanges()
         {
             try
+=======
+        public async Task<int> SaveChangesAsync()
+        {
+            return await context.SaveChangesAsync();
+        }
+
+        private IGenericRepository<T> repository;
+
+        public IGenericRepository<T> Repository { get 
+>>>>>>> Stashed changes
             {
                 await context.SaveChangesAsync();
 

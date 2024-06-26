@@ -37,9 +37,7 @@ namespace ITI.FinalProject.WebAPI
 
             app.UseAuthorization();
 
-
             app.MapControllers();
-
 
             app.Run();
         }
