@@ -129,17 +129,17 @@ namespace Infrastructure.Persistence.Repositories
             return false;
         }
 
-        public async Task<bool> SaveChanges()
-        {
-            try
-            {
-                await db.SaveChangesAsync();
+        //public async Task<bool> SaveChanges()
+        //{
+        //    try
+        //    {
+        //        await db.SaveChangesAsync();
 
-                return true;
-            }
-            catch (Exception) { }
+        //        return true;
+        //    }
+        //    catch (Exception) { }
 
-            return false;
-        }
+        //    return false;
+        //}
     }
 }
