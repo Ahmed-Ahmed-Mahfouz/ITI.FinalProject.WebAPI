@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces
 {
-    public interface IUnitOfWork<T> where T : class
+    public interface IUnitOfWork //where T : class
     {
-        //public IGenericRepository<T> GetGenericRepository<T>() where T : class;
-        public IGenericRepository<T> Repository { get; }
+        public IGenericRepository<T> GetGenericRepository<T>() where T : class;
+        //public IGenericRepository<T> Repository { get; }
+
+        public Task<bool> SaveChanges();
     }
 }
