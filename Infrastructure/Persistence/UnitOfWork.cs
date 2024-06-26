@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Persistence
 {
-    public class UnitOfWork<T> : IUnitOfWork<T> where T : class
+    public class UnitOfWork : IUnitOfWork //<T> where T : class
     {
         private readonly ShippingContext context;
 
@@ -20,20 +20,33 @@ namespace Infrastructure.Persistence
             this.context = context;
         }
 
-        //public IGenericRepository<T> GetGenericRepository<T>() where T : class
-        //{
-        //    return new GenericRepository<T>(context);
+        public IGenericRepository<T> GetGenericRepository<T>() where T : class
+        {
+            return new GenericRepository<T>(context);
+        }
+
+        //private IGenericRepository<Governorate> repository;
+
+        //public IGenericRepository<T> Repository { get 
+        //    {
+
+        //        repository ??= new GenericRepository<T>(context);
+
+        //        return repository;
+        //    } 
         //}
 
-        private IGenericRepository<T> repository;
-
-        public IGenericRepository<T> Repository { get 
+        public async Task<bool> SaveChanges()
+        {
+            try
             {
+                await context.SaveChangesAsync();
 
-                repository ??= new GenericRepository<T>(context);
+                return true;
+            }
+            catch (Exception) { }
 
-                return repository;
-            } 
+            return false;
         }
     }
 }

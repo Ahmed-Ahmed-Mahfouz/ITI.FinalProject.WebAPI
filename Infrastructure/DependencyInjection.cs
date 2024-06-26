@@ -21,18 +21,18 @@ namespace Infrastructure
             services.AddDbContext<ShippingContext>(options => options.UseSqlServer(configuration.GetConnectionString("con")));
             services.AddIdentityCore<ApplicationUser>().AddRoles<ApplicationRoles>().AddEntityFrameworkStores<ShippingContext>();
 
-            services.AddScoped<IUnitOfWork<Employee>, UnitOfWork<Employee>>();
-            services.AddScoped<IUnitOfWork<Merchant>, UnitOfWork<Merchant>>();
-            services.AddScoped<IUnitOfWork<Representative>, UnitOfWork<Representative>>();
-            services.AddScoped<IUnitOfWork<City>, UnitOfWork<City>>();
-            services.AddScoped<IUnitOfWork<Branch>, UnitOfWork<Branch>>();
-            services.AddScoped<IUnitOfWork<Governorate>, UnitOfWork<Governorate>>();
-            services.AddScoped<IUnitOfWork<GovernorateRepresentatives>, UnitOfWork<GovernorateRepresentatives>>();
-            services.AddScoped<IUnitOfWork<Order>, UnitOfWork<Order>>();
-            services.AddScoped<IUnitOfWork<Product>, UnitOfWork<Product>>();
-            services.AddScoped<IUnitOfWork<Payment>, UnitOfWork<Payment>>();
-            services.AddScoped<IUnitOfWork<RolePowers>, UnitOfWork<RolePowers>>();
-            services.AddScoped<IUnitOfWork<Shipping>, UnitOfWork<Shipping>>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            //services.AddScoped<IUnitOfWork<Merchant>, UnitOfWork<Merchant>>();
+            //services.AddScoped<IUnitOfWork<Representative>, UnitOfWork<Representative>>();
+            //services.AddScoped<IUnitOfWork<City>, UnitOfWork<City>>();
+            //services.AddScoped<IUnitOfWork<Branch>, UnitOfWork<Branch>>();
+            //services.AddScoped<IUnitOfWork<Governorate>, UnitOfWork<Governorate>>();
+            //services.AddScoped<IUnitOfWork<GovernorateRepresentatives>, UnitOfWork<GovernorateRepresentatives>>();
+            //services.AddScoped<IUnitOfWork<Order>, UnitOfWork<Order>>();
+            //services.AddScoped<IUnitOfWork<Product>, UnitOfWork<Product>>();
+            //services.AddScoped<IUnitOfWork<Payment>, UnitOfWork<Payment>>();
+            //services.AddScoped<IUnitOfWork<RolePowers>, UnitOfWork<RolePowers>>();
+            //services.AddScoped<IUnitOfWork<Shipping>, UnitOfWork<Shipping>>();
 
             return services;
         }
