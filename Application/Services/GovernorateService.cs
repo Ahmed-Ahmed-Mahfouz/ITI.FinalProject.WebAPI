@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class GovernorateService: IGenericService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO>
+    public class GovernorateService: IGenericService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int>
     {
         private readonly IUnitOfWork unit;
         private readonly IGenericRepository<Governorate> repository;
@@ -68,7 +68,7 @@ namespace Application.Services
             return MapGovernorate(governorate);
         }
 
-        public bool InsertObject(GovernorateInsertDTO governorateDTO)
+        public Task<bool> InsertObject(GovernorateInsertDTO governorateDTO)
         {
             var governorate = new Governorate()
             {
@@ -78,10 +78,10 @@ namespace Application.Services
 
             var result = repository.Add(governorate);
 
-            return result;
+            return Task.FromResult(result);
         }
 
-        public bool UpdateObject(GovernorateUpdateDTO governorateDTO)
+        public Task<bool> UpdateObject(GovernorateUpdateDTO governorateDTO)
         {
             var governorate = new Governorate()
             {
@@ -92,7 +92,7 @@ namespace Application.Services
 
             var result = repository.Edit(governorate);
 
-            return result;
+            return Task.FromResult(result);
         }
 
         public async Task<bool> DeleteObject(int governorateId)
