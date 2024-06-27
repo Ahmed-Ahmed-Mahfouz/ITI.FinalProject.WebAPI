@@ -24,6 +24,9 @@ namespace Application
 
             services.AddAutoMapper(typeof(Mappings.MappingProfile));
             services.AddScoped<IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO>, OrderService>();
+            services.AddScoped<IGenericService<Product, DisplayProductDTO, InsertProductDTO, UpdateProductDTO>, ProductService>();
+            services.AddScoped<IGenericService<Shipping, DisplayShippingDTO, InsertShippingDTO, UpdateShippingDTO>, ShippingService>();
+            services.AddScoped<IGenericService<Payment, DisplayPaymentDTO, InsertPaymentDTO, UpdatePaymentDTO>, PaymentService>();
             return services;
         }
     }
