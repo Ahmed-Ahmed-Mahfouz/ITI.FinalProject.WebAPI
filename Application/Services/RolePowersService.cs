@@ -21,7 +21,7 @@ namespace Application.Services
         private readonly RoleManager<ApplicationRoles> roleManager;
         private readonly IGenericRepository<RolePowers> repository;
 
-        public RolePowersService(IUnitOfWork<RolePowers> unit)
+        public RolePowersService(IUnitOfWork unit, RoleManager<ApplicationRoles> roleManager)
         {
             this.unit = unit;
             this.roleManager = roleManager;

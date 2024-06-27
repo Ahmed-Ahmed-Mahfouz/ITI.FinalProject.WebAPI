@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class PaymentService : IGenericService<Payment, DisplayPaymentDTO, InsertPaymentDTO, UpdatePaymentDTO>
+    public class PaymentService : IGenericService<Payment, DisplayPaymentDTO, InsertPaymentDTO, UpdatePaymentDTO, int>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -64,19 +64,33 @@ namespace Application.Services
             return _mapper.Map<DisplayPaymentDTO>(payment);
         }
 
-        public bool InsertObject(InsertPaymentDTO paymentDTO)
+        public async Task<bool> InsertObject(InsertPaymentDTO paymentDTO)
         {
             var payment = _mapper.Map<Payment>(paymentDTO);
             _repository.Add(payment);
             return true;
         }
 
-        public bool UpdateObject(UpdatePaymentDTO paymentDTO)
+        public async Task<bool> UpdateObject(UpdatePaymentDTO paymentDTO)
         {
             var payment = _mapper.Map<Payment>(paymentDTO);
             _repository.Edit(payment);
             return true;
         }
+
+        //public bool InsertObject(InsertPaymentDTO paymentDTO)
+        //{
+        //    var payment = _mapper.Map<Payment>(paymentDTO);
+        //    _repository.Add(payment);
+        //    return true;
+        //}
+
+        //public bool UpdateObject(UpdatePaymentDTO paymentDTO)
+        //{
+        //    var payment = _mapper.Map<Payment>(paymentDTO);
+        //    _repository.Edit(payment);
+        //    return true;
+        //}
 
         public async Task<bool> DeleteObject(int paymentId)
         {
