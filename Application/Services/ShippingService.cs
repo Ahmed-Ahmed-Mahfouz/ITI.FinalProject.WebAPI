@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class ShippingService : IGenericService<Shipping, DisplayShippingDTO, InsertShippingDTO, UpdateShippingDTO>
+    public class ShippingService : IGenericService<Shipping, DisplayShippingDTO, InsertShippingDTO, UpdateShippingDTO, int>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -64,19 +64,33 @@ namespace Application.Services
             return _mapper.Map<DisplayShippingDTO>(shipping);
         }
 
-        public bool InsertObject(InsertShippingDTO shippingDTO)
+        public async Task<bool> InsertObject(InsertShippingDTO shippingDTO)
         {
             var shipping = _mapper.Map<Shipping>(shippingDTO);
             _repository.Add(shipping);
             return true;
         }
 
-        public bool UpdateObject(UpdateShippingDTO shippingDTO)
+        public async Task<bool> UpdateObject(UpdateShippingDTO shippingDTO)
         {
             var shipping = _mapper.Map<Shipping>(shippingDTO);
             _repository.Edit(shipping);
             return true;
         }
+
+        //public bool InsertObject(InsertShippingDTO shippingDTO)
+        //{
+        //    var shipping = _mapper.Map<Shipping>(shippingDTO);
+        //    _repository.Add(shipping);
+        //    return true;
+        //}
+
+        //public bool UpdateObject(UpdateShippingDTO shippingDTO)
+        //{
+        //    var shipping = _mapper.Map<Shipping>(shippingDTO);
+        //    _repository.Edit(shipping);
+        //    return true;
+        //}
 
         public async Task<bool> DeleteObject(int shippingId)
         {

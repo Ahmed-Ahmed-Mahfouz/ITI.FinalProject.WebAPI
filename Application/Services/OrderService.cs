@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class OrderService : IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO>
+    public class OrderService : IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -63,19 +63,33 @@ namespace Application.Services
             return _mapper.Map<DisplayOrderDTO>(order);
         }
 
-        public bool InsertObject(InsertOrderDTO orderDTO)
+        public async Task<bool> InsertObject(InsertOrderDTO orderDTO)
         {
             var order = _mapper.Map<Order>(orderDTO);
             _repository.Add(order);
             return true;
         }
 
-        public bool UpdateObject(UpdateOrderDTO orderDTO)
+        public async Task<bool> UpdateObject(UpdateOrderDTO orderDTO)
         {
             var order = _mapper.Map<Order>(orderDTO);
             _repository.Edit(order);
             return true;
         }
+
+        //public bool InsertObject(InsertOrderDTO orderDTO)
+        //{
+        //    var order = _mapper.Map<Order>(orderDTO);
+        //    _repository.Add(order);
+        //    return true;
+        //}
+
+        //public bool UpdateObject(UpdateOrderDTO orderDTO)
+        //{
+        //    var order = _mapper.Map<Order>(orderDTO);
+        //    _repository.Edit(order);
+        //    return true;
+        //}
 
         public async Task<bool> DeleteObject(int orderId)
         {

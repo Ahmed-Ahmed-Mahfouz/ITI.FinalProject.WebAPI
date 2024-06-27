@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class ProductService : IGenericService<Product, DisplayProductDTO, InsertProductDTO, UpdateProductDTO>
+    public class ProductService : IGenericService<Product, DisplayProductDTO, InsertProductDTO, UpdateProductDTO, int>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -62,19 +62,33 @@ namespace Application.Services
             return _mapper.Map<DisplayProductDTO>(product);
         }
 
-        public bool InsertObject(InsertProductDTO productDTO)
+        public async Task<bool> InsertObject(InsertProductDTO productDTO)
         {
             var product = _mapper.Map<Product>(productDTO);
             _repository.Add(product);
             return true;
         }
 
-        public bool UpdateObject(UpdateProductDTO productDTO)
+        public async Task<bool> UpdateObject(UpdateProductDTO productDTO)
         {
             var product = _mapper.Map<Product>(productDTO);
             _repository.Edit(product);
             return true;
         }
+
+        //public bool InsertObject(InsertProductDTO productDTO)
+        //{
+        //    var product = _mapper.Map<Product>(productDTO);
+        //    _repository.Add(product);
+        //    return true;
+        //}
+
+        //public bool UpdateObject(UpdateProductDTO productDTO)
+        //{
+        //    var product = _mapper.Map<Product>(productDTO);
+        //    _repository.Edit(product);
+        //    return true;
+        //}
 
         public async Task<bool> DeleteObject(int productId)
         {
