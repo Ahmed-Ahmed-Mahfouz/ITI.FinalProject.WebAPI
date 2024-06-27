@@ -37,20 +37,9 @@ namespace Infrastructure.Persistence
         //    } 
         //}
 
-<<<<<<< Updated upstream
         public async Task<bool> SaveChanges()
         {
             try
-=======
-        public async Task<int> SaveChangesAsync()
-        {
-            return await context.SaveChangesAsync();
-        }
-
-        private IGenericRepository<T> repository;
-
-        public IGenericRepository<T> Repository { get 
->>>>>>> Stashed changes
             {
                 await context.SaveChangesAsync();
 

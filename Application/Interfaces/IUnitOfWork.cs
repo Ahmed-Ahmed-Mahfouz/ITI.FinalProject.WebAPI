@@ -9,15 +9,11 @@ namespace Application.Interfaces
 {
     public interface IUnitOfWork //where T : class
     {
-<<<<<<< Updated upstream
         public IGenericRepository<T> GetGenericRepository<T>() where T : class;
         //public IGenericRepository<T> Repository { get; }
 
         public Task<bool> SaveChanges();
-=======
         //public IGenericRepository<T> GetGenericRepository<T>() where T : class;
-        public IGenericRepository<T> Repository { get; }
-        Task<int> SaveChangesAsync();
->>>>>>> Stashed changes
+        //public IGenericRepository<T> Repository { get; }
     }
 }

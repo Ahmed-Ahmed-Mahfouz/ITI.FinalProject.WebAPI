@@ -2,6 +2,8 @@
 using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.Interfaces;
+using Application.Interfaces.ApplicationServices;
+using Application.Interfaces.Repositories;
 using AutoMapper;
 using Domain.Entities;
 using System;
@@ -12,49 +14,79 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class OrderService : IOrderService
+    public class OrderService : IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO>
     {
-        private readonly IUnitOfWork<Order> _orderUnitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IGenericRepository<Order> _repository;
 
-        public OrderService(IUnitOfWork<Order> orderUnitOfWork, IMapper mapper)
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _orderUnitOfWork = orderUnitOfWork;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _repository = _unitOfWork.GetGenericRepository<Order>();
         }
-        public async Task<DisplayOrderDTO> CreateOrderAsync(InsertOrderDTO insertOrderDto)
+
+        public async Task<List<DisplayOrderDTO>> GetAllObjects()
         {
-            var order = _mapper.Map<Order>(insertOrderDto);
-            _orderUnitOfWork.Repository.Add(order);
-            await _orderUnitOfWork.SaveChangesAsync();
+            var orders = await _repository.GetAllElements();
+            return _mapper.Map<List<DisplayOrderDTO>>(orders);
+        }
+
+        public async Task<List<DisplayOrderDTO>> GetAllObjects(params System.Linq.Expressions.Expression<Func<Order, object>>[] includes)
+        {
+            var orders = await _repository.GetAllElements(includes);
+            return _mapper.Map<List<DisplayOrderDTO>>(orders);
+        }
+
+        public async Task<DisplayOrderDTO?> GetObject(System.Linq.Expressions.Expression<Func<Order, bool>> filter)
+        {
+            var order = await _repository.GetElement(filter);
             return _mapper.Map<DisplayOrderDTO>(order);
         }
 
-        public async Task DeleteOrderByIdAsync(int id)
+        public async Task<DisplayOrderDTO?> GetObject(System.Linq.Expressions.Expression<Func<Order, bool>> filter, params System.Linq.Expressions.Expression<Func<Order, object>>[] includes)
         {
-            var order = await _orderUnitOfWork.Repository.GetElement(o => o.Id == id);
-            _orderUnitOfWork.Repository.Delete(order);
-            await _orderUnitOfWork.SaveChangesAsync();
+            var order = await _repository.GetElement(filter, includes);
+            return _mapper.Map<DisplayOrderDTO>(order);
         }
 
-        public async Task<IEnumerable<DisplayOrderDTO>> GetAllOrdersAsync()
+        public async Task<DisplayOrderDTO?> GetObjectWithoutTracking(System.Linq.Expressions.Expression<Func<Order, bool>> filter)
         {
-            var orders = await _orderUnitOfWork.Repository.GetAllElements();
-            return _mapper.Map<IEnumerable<DisplayOrderDTO>>(orders);
+            var order = await _repository.GetElementWithoutTracking(filter);
+            return _mapper.Map<DisplayOrderDTO>(order);
         }
 
-        public Task<DisplayOrderDTO> GetOrderByIdAsync(int id)
+        public async Task<DisplayOrderDTO?> GetObjectWithoutTracking(System.Linq.Expressions.Expression<Func<Order, bool>> filter, params System.Linq.Expressions.Expression<Func<Order, object>>[] includes)
         {
-            var order = _orderUnitOfWork.Repository.GetElement(o => o.Id == id);
-            return Task.FromResult(_mapper.Map<DisplayOrderDTO>(order));
+            var order = await _repository.GetElementWithoutTracking(filter, includes);
+            return _mapper.Map<DisplayOrderDTO>(order);
         }
 
-        public Task<DisplayOrderDTO> UpdateOrderAsync(UpdateOrderDTO updateOrderDto)
+        public bool InsertObject(InsertOrderDTO orderDTO)
         {
-            var order = _mapper.Map<Order>(updateOrderDto);
-            _orderUnitOfWork.Repository.Edit(order);
-            _orderUnitOfWork.SaveChangesAsync();
-            return Task.FromResult(_mapper.Map<DisplayOrderDTO>(order));
+            var order = _mapper.Map<Order>(orderDTO);
+            _repository.Add(order);
+            return true;
+        }
+
+        public bool UpdateObject(UpdateOrderDTO orderDTO)
+        {
+            var order = _mapper.Map<Order>(orderDTO);
+            _repository.Edit(order);
+            return true;
+        }
+
+        public async Task<bool> DeleteObject(int orderId)
+        {
+            var order = await _repository.GetElement(x => x.Id == orderId);
+            _repository.Delete(order);
+            return true;
+        }
+
+        public async Task<bool> SaveChangesForObject()
+        {
+            return await _unitOfWork.SaveChanges();
         }
     }
 }
