@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces.ApplicationServices
 {
-    public interface IGenericService<T1, T2, T3, T4> where T1 : class where T2 : class where T3 : class where T4 : class
+    public interface IGenericService<T1, T2, T3, T4, T5> where T1 : class where T2 : class where T3 : class where T4 : class
     {
         public Task<List<T2>> GetAllObjects();
 
@@ -25,11 +25,11 @@ namespace Application.Interfaces.ApplicationServices
 
         public Task<T2?> GetObjectWithoutTracking(Expression<Func<T1, bool>> filter, params Expression<Func<T1, object>>[] includes);
 
-        public bool InsertObject(T3 ObjectDTO);
+        public Task<bool> InsertObject(T3 ObjectDTO);
 
-        public bool UpdateObject(T4 ObjectDTO);
+        public Task<bool> UpdateObject(T4 ObjectDTO);
 
-        public Task<bool> DeleteObject(int ObjectId);
+        public Task<bool> DeleteObject(T5 ObjectId);
 
         public Task<bool> SaveChangesForObject();
     }
