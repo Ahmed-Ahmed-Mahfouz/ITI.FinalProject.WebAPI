@@ -15,9 +15,9 @@ namespace Application.Services
 {
     internal class RolePowersService : IGenericService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO>
     {
-        private readonly IUnitOfWork<RolePowers> unit;
+        private readonly IUnitOfWork unit;
 
-        public RolePowersService(IUnitOfWork<RolePowers> unit)
+        public RolePowersService(IUnitOfWork unit)
         {
             this.unit = unit;
         }

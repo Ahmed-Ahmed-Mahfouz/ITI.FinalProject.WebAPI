@@ -11,9 +11,9 @@ namespace Application.Services
 {
     public class GovernorateRepresentativeService
     {
-        private readonly IUnitOfWork<GovernorateRepresentatives> unit;
+        private readonly IUnitOfWork unit;
 
-        public GovernorateRepresentativeService(IUnitOfWork<GovernorateRepresentatives> unit)
+        public GovernorateRepresentativeService(IUnitOfWork unit)
         {
             this.unit = unit;
         }

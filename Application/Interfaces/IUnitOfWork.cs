@@ -13,5 +13,7 @@ namespace Application.Interfaces
         //public IGenericRepository<T> Repository { get; }
 
         public Task<bool> SaveChanges();
+        //public IGenericRepository<T> GetGenericRepository<T>() where T : class;
+        //public IGenericRepository<T> Repository { get; }
     }
 }
