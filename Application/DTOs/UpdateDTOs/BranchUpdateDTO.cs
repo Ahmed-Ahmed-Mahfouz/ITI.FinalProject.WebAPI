@@ -9,6 +9,7 @@ namespace Application.DTOs.UpdateDTOs
 {
     public class BranchUpdateDTO
     {
+        public int id { get; set; }
         public string name { get; set; }
         public Status status { get; set; }
         public DateTime addingDate { get; set; }

@@ -18,7 +18,7 @@ namespace Infrastructure.Persistence.Repositories
             this.db = db;
         }
 
-        public async Task<List<T>> GetAllElements()
+        public async Task<List<T>> GetAllElements(Expression<Func<Application.DTOs.DisplayDTOs.BranchDisplayDTO, object>>[] includes)
         {
             return await db.Set<T>().ToListAsync();
         }

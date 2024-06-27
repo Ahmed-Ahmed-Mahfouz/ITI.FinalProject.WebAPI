@@ -9,7 +9,6 @@ namespace Application.DTOs.InsertDTOs
 {
     public class BranchInsertDTO
     {
-        public int id { get; set; }
         public string name { get; set; }
         public Status status { get; set; }
         public DateTime addingDate { get; set; }
