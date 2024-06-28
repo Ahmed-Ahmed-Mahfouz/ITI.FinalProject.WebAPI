@@ -14,7 +14,7 @@ using Domain.Entities;
 
 namespace Domain.Services
 {
-    public class CityService : IGenericService<City,CityDisplayDTO,CityInsertDTO,CityUpdateDTO>
+    public class CityService : IGenericService<City,CityDisplayDTO,CityInsertDTO,CityUpdateDTO,int>
     {
         public IGenericRepository<City> CityRepo;
         public CityService( IUnitOfWork unit)
@@ -176,7 +176,7 @@ namespace Domain.Services
             return CityDTO;
         }
 
-        public bool InsertObject(CityInsertDTO ObjectDTO)
+        public async Task<bool> InsertObject(CityInsertDTO ObjectDTO)
         {
             City City = new City() {
                    id = 0,
@@ -196,7 +196,7 @@ namespace Domain.Services
             throw new NotImplementedException();
         }
 
-        public bool UpdateObject(CityUpdateDTO ObjectDTO)
+        public async Task<bool> UpdateObject(CityUpdateDTO ObjectDTO)
         {
             //City? City = CityRepo.GetElement(b => b.id == ObjectDTO.id);
             //if(City == null)

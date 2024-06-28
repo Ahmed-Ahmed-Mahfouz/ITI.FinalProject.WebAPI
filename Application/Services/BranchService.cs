@@ -14,7 +14,7 @@ using Domain.Entities;
 
 namespace Domain.Services
 {
-    public class BranchService : IGenericService<Branch,BranchDisplayDTO,BranchInsertDTO,BranchUpdateDTO>
+    public class BranchService : IGenericService<Branch,BranchDisplayDTO,BranchInsertDTO,BranchUpdateDTO,int>
     {
         public IGenericRepository<Branch> branchRepo;
         public BranchService( IUnitOfWork unit)
@@ -142,7 +142,7 @@ namespace Domain.Services
             return branchDTO;
         }
 
-        public bool InsertObject(BranchInsertDTO ObjectDTO)
+        public async Task<bool> InsertObject(BranchInsertDTO ObjectDTO)
         {
             Branch branch = new Branch() {
                    id = 0,
@@ -152,7 +152,8 @@ namespace Domain.Services
                    status = ObjectDTO.status
                    
             };
-            return branchRepo.Add(branch);
+            bool result=  branchRepo.Add(branch);
+            return result;
 
         }
 
@@ -161,14 +162,14 @@ namespace Domain.Services
             throw new NotImplementedException();
         }
 
-        public bool UpdateObject(BranchUpdateDTO ObjectDTO)
+        public async Task<bool> UpdateObject(BranchUpdateDTO ObjectDTO)
         {
-            //Branch? branch = branchRepo.GetElement(b => b.id == ObjectDTO.id);
-            //if(branch == null)
-            //{
-            //    return false;
-            //}
-            Branch branch = new Branch();
+            Branch? branch = await branchRepo.GetElement(b => b.id == ObjectDTO.id);
+            if (branch == null)
+            {
+                return false;
+            }
+            //Branch branch = new Branch();
             branch.id = ObjectDTO.id;
             branch.name = ObjectDTO.name;
             branch.addingDate = ObjectDTO.addingDate;
@@ -188,7 +189,6 @@ namespace Domain.Services
             return branchRepo.Delete(branch);
         }
 
-
-
+        
     }
 }
