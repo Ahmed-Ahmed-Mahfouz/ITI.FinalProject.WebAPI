@@ -16,6 +16,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TimeOfAddtion = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -352,7 +353,7 @@ namespace Infrastructure.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Client_Name = table.Column<int>(type: "int", nullable: false),
+                    Client_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Phone2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -430,6 +431,9 @@ namespace Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Weight = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ProductStatus = table.Column<int>(type: "int", nullable: false),
+                    StatusNote = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     orderId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

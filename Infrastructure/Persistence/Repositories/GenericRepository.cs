@@ -129,6 +129,21 @@ namespace Infrastructure.Persistence.Repositories
             return false;
         }
 
+        public Task<bool> AddAsync(T element)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> EditAsync(T element)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteAsync(T element)
+        {
+            throw new NotImplementedException();
+        }
+
         //public async Task<bool> SaveChanges()
         //{
         //    try

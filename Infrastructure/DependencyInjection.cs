@@ -18,7 +18,10 @@ namespace Infrastructure
        
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ShippingContext>(options => options.UseSqlServer(configuration.GetConnectionString("con")));
+            services.AddDbContext<ShippingContext>(options =>
+                options.UseSqlServer(configuration.GetConnectionString("con"),
+                    b => b.MigrationsAssembly("Infrastructure"))); 
+
             services.AddIdentityCore<ApplicationUser>().AddRoles<ApplicationRoles>().AddEntityFrameworkStores<ShippingContext>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();

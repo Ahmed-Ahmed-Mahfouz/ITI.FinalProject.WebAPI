@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ShippingContext))]
-    [Migration("20240623210243_v1")]
+    [Migration("20240628200402_v1")]
     partial class v1
     {
         /// <inheritdoc />
@@ -41,6 +41,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("TimeOfAddtion")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -293,8 +296,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("CityId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Client_Name")
-                        .HasColumnType("int");
+                    b.Property<string>("Client_Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -388,8 +392,17 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProductStatus")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<string>("StatusNote")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Weight")
                         .HasColumnType("decimal(18,2)");

@@ -39,6 +39,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<DateTime>("TimeOfAddtion")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
@@ -386,8 +389,17 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProductStatus")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<string>("StatusNote")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Weight")
                         .HasColumnType("decimal(18,2)");

@@ -23,19 +23,20 @@ namespace Application.Mappings
 
             // Product Mappings
             CreateMap<Product, DisplayProductDTO>()
-                .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.order.Client_Name));
+                .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.order.Client_Name))
+                .ForMember(dest => dest.ProductStatus, opt => opt.MapFrom(src => src.ProductStatus.ToString()));
             CreateMap<InsertProductDTO, Product>();
             CreateMap<UpdateProductDTO, Product>();
 
             // Payment Mappings
             CreateMap<Payment, DisplayPaymentDTO>()
-                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentType));
+                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentType.ToString()));
             CreateMap<InsertPaymentDTO, Payment>();
             CreateMap<UpdatePaymentDTO, Payment>();
 
             // Shipping Mappings
             CreateMap<Shipping, DisplayShippingDTO>()
-                .ForMember(dest => dest.ShippingMethod, opt => opt.MapFrom(src => src.ShippingType));
+                .ForMember(dest => dest.ShippingMethod, opt => opt.MapFrom(src => src.ShippingType.ToString()));
             CreateMap<InsertShippingDTO, Shipping>();
             CreateMap<UpdateShippingDTO, Shipping>();
 
