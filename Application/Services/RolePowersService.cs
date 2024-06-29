@@ -46,12 +46,22 @@ namespace Application.Services
         {
             var rolePower = await repository.GetElement(filter);
 
+            if (rolePower == null)
+            {
+                return null;
+            }
+
             return await MapRolePower(rolePower);
         }
 
         public async Task<RolePowersDTO?> GetObject(Expression<Func<RolePowers, bool>> filter, params Expression<Func<RolePowers, object>>[] includes)
         {
             var rolePower = await repository.GetElement(filter, includes);
+
+            if (rolePower == null)
+            {
+                return null;
+            }
 
             return await MapRolePower(rolePower);
         }
@@ -60,12 +70,22 @@ namespace Application.Services
         {
             var rolePower = await repository.GetElementWithoutTracking(filter);
 
+            if (rolePower == null)
+            {
+                return null;
+            }
+
             return await MapRolePower(rolePower);
         }
 
         public async Task<RolePowersDTO?> GetObjectWithoutTracking(Expression<Func<RolePowers, bool>> filter, params Expression<Func<RolePowers, object>>[] includes)
         {
             var rolePower = await repository.GetElementWithoutTracking(filter, includes);
+
+            if (rolePower == null)
+            {
+                return null;
+            }
 
             return await MapRolePower(rolePower);
         }
@@ -204,7 +224,7 @@ namespace Application.Services
             return rolePowersDTO;
         }
 
-        private async Task<RolePowersDTO> MapRolePower(RolePowers? rolePower)
+        private async Task<RolePowersDTO> MapRolePower(RolePowers rolePower)
         {
             var role = await roleManager.FindByIdAsync(rolePower.RoleId);
 
