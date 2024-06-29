@@ -80,7 +80,7 @@ namespace Application.Services
 
         public async Task<bool> DeleteObject(int paymentId)
         {
-            var payment = await _repository.GetElement(x => x.id == paymentId);
+            var payment = await _repository.GetElement(x => x.Id == paymentId);
             var result = _repository.Delete(payment);
             return result;
         }

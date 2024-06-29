@@ -46,33 +46,33 @@ namespace Infrastructure.Persistence
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Order>()
-                .HasOne(o => o.city)
+                .HasOne(o => o.City)
                 .WithMany(c => c.cityOrders)
                 .HasForeignKey(o => o.CityId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Order>()
-                .HasOne(o => o.governorate)
+                .HasOne(o => o.Governorate)
                 .WithMany(g => g.governorateOrders)
                 .HasForeignKey(o => o.GovernorateId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Order>()
-                .HasOne(o => o.merchant)
+                .HasOne(o => o.Merchant)
                 .WithMany(m => m.orders)
                 .HasForeignKey(o => o.MerchantId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Order>()
-                .HasOne(o => o.shipping)
-                .WithMany(s => s.orders)
-                .HasForeignKey(o => o.shippingId)
+                .HasOne(o => o.Shipping)
+                .WithMany(s => s.Orders)
+                .HasForeignKey(o => o.ShippingId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Order>()
-                .HasOne(o => o.payment)
-                .WithMany(p => p.paymentorders)
-                .HasForeignKey(o => o.paymentId)
+                .HasOne(o => o.Payment)
+                .WithMany(p => p.PaymentOrders)
+                .HasForeignKey(o => o.PaymentId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Merchant>()
@@ -94,9 +94,9 @@ namespace Infrastructure.Persistence
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Product>()
-                .HasOne(p => p.order)
-                .WithMany(o => o.products)
-                .HasForeignKey(m => m.orderId)
+                .HasOne(p => p.Order)
+                .WithMany(o => o.Products)
+                .HasForeignKey(m => m.OrderId)
                 .OnDelete(DeleteBehavior.NoAction);
         }
 

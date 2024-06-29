@@ -12,25 +12,25 @@ namespace Application.Mappings
         {
             // Order Mappings
             CreateMap<Order, DisplayOrderDTO>()
-                .ForMember(dest => dest.StoreName, opt => opt.MapFrom(src => src.merchant.StoreName))
-                .ForMember(dest => dest.GovernorateName, opt => opt.MapFrom(src => src.governorate.name))
-                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.city.name))
-                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.payment.paymentType))
-                .ForMember(dest => dest.ShippingMethod, opt => opt.MapFrom(src => src.shipping.ShippingType))
+                .ForMember(dest => dest.MerchantName, opt => opt.MapFrom(src => src.Merchant.StoreName))
+                .ForMember(dest => dest.GovernorateName, opt => opt.MapFrom(src => src.Governorate.name))
+                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.City.name))
+                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.Payment.PaymentType))
+                .ForMember(dest => dest.ShippingMethod, opt => opt.MapFrom(src => src.Shipping.ShippingType))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
             CreateMap<InsertOrderDTO, Order>();
             CreateMap<UpdateOrderDTO, Order>();
 
             // Product Mappings
             CreateMap<Product, DisplayProductDTO>()
-                .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.order.Client_Name))
+                .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Order.ClientName))
                 .ForMember(dest => dest.ProductStatus, opt => opt.MapFrom(src => src.ProductStatus));
             CreateMap<InsertProductDTO, Product>();
             CreateMap<UpdateProductDTO, Product>();
 
             // Payment Mappings
             CreateMap<Payment, DisplayPaymentDTO>()
-                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentType));
+                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.PaymentType));
             CreateMap<InsertPaymentDTO, Payment>();
             CreateMap<UpdatePaymentDTO, Payment>();
 

@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.DisplayDTOs;
 using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
+using Application.Interfaces;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +14,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int> _orderService;
-        public OrdersController(IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int> orderService)
+        private readonly IOrderService _orderServicePagination;
+        public OrdersController(IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int> orderService, IOrderService orderServicePagination)
         {
             _orderService = orderService;
+            _orderServicePagination = orderServicePagination;
         }
 
         // GET: api/Orders
@@ -23,17 +26,22 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(404, "There weren't any orders in the database", Type = typeof(void))]
         [SwaggerResponse(200, "Returns A list of orders", Type = typeof(List<DisplayOrderDTO>))]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DisplayOrderDTO>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var orders = await _orderService.GetAllObjects();
+            var (orders, totalOrders) = await _orderServicePagination.GetPaginatedOrders(pageNumber, pageSize);
 
-            if(orders == null || orders.Count == 0)
+            if (orders == null || orders.Count == 0)
             {
                 return NotFound();
             }
 
+            var totalPages = (int)Math.Ceiling(totalOrders / (double)pageSize);
+            Response.Headers.Add("X-Total-Count", totalOrders.ToString());
+            Response.Headers.Add("X-Total-Pages", totalPages.ToString());
+
             return Ok(orders);
         }
+
 
         // GET: api/Orders/5
         [SwaggerOperation(Summary = "This Endpoint returns the specified order")]

@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Application.Interfaces;
+using Application.Services;
 
 namespace Infrastructure
 {

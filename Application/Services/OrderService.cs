@@ -14,17 +14,19 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class OrderService : IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int>
+    public class OrderService : IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int>, IOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IGenericRepository<Order> _repository;
+        private readonly IOrderRepository _orderRepository;
 
-        public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IOrderRepository orderRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _repository = _unitOfWork.GetGenericRepository<Order>();
+            _orderRepository = orderRepository;
         }
 
         public async Task<List<DisplayOrderDTO>> GetAllObjects()
@@ -87,6 +89,14 @@ namespace Application.Services
         public async Task<bool> SaveChangesForObject()
         {
             return await _unitOfWork.SaveChanges();
+        }
+
+        public async Task<(List<DisplayOrderDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        {
+            var totalOrders = await _orderRepository.Count(); 
+            var orders = await _orderRepository.GetPaginatedElements(pageNumber, pageSize); 
+            var mappedOrders = _mapper.Map<List<DisplayOrderDTO>>(orders);
+            return (mappedOrders, totalOrders);
         }
     }
 }

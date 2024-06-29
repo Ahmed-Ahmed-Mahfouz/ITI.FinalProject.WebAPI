@@ -42,7 +42,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(200, "Returns the specified payment", Type = typeof(DisplayPaymentDTO))]
         public async Task<ActionResult<DisplayPaymentDTO>> GetPayment(int id)
         {
-            var payment = await _paymentService.GetObject(p => p.id == id);
+            var payment = await _paymentService.GetObject(p => p.Id == id);
 
             if (payment == null)
             {
@@ -84,7 +84,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return BadRequest();
             }
 
-            var success = await _paymentService.GetObjectWithoutTracking(p => p.id == id);
+            var success = await _paymentService.GetObjectWithoutTracking(p => p.Id == id);
 
             if (success == null)
             {
@@ -110,7 +110,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePayment(int id)
         {
-            var success = await _paymentService.GetObjectWithoutTracking(p => p.id == id);
+            var success = await _paymentService.GetObjectWithoutTracking(p => p.Id == id);
 
             if (success == null)
             {

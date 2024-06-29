@@ -9,9 +9,9 @@ namespace Domain.Entities
 {
     public class Payment
     {
-        public int id { get; set; }
-        public PaymentTypes paymentType { get; set; }
-        public List<Order> paymentorders { get; set;}
+        public int Id { get; set; }
+        public PaymentTypes PaymentType { get; set; }
+        public List<Order> PaymentOrders { get; set;}
 
     }
 }

@@ -44,13 +44,13 @@ namespace Infrastructure.Migrations
                 name: "Payments",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    paymentType = table.Column<int>(type: "int", nullable: false)
+                    PaymentType = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Payments", x => x.id);
+                    table.PrimaryKey("PK_Payments", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -59,8 +59,8 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ShippingType = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ShippingType = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -353,21 +353,21 @@ namespace Infrastructure.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Client_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClientName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Phone2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Total_Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Total_Weight = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     VillageAndStreet = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ShippingToVillage = table.Column<bool>(type: "bit", nullable: true),
+                    OrderMoneyReceived = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    ShippingMoneyReceived = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     MerchantId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     GovernorateId = table.Column<int>(type: "int", nullable: false),
                     CityId = table.Column<int>(type: "int", nullable: false),
-                    paymentId = table.Column<int>(type: "int", nullable: false),
-                    shippingId = table.Column<int>(type: "int", nullable: false),
+                    PaymentId = table.Column<int>(type: "int", nullable: false),
+                    ShippingId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -389,13 +389,13 @@ namespace Infrastructure.Migrations
                         principalTable: "Merchants",
                         principalColumn: "userId");
                     table.ForeignKey(
-                        name: "FK_Orders_Payments_paymentId",
-                        column: x => x.paymentId,
+                        name: "FK_Orders_Payments_PaymentId",
+                        column: x => x.PaymentId,
                         principalTable: "Payments",
-                        principalColumn: "id");
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Orders_Shippings_shippingId",
-                        column: x => x.shippingId,
+                        name: "FK_Orders_Shippings_ShippingId",
+                        column: x => x.ShippingId,
                         principalTable: "Shippings",
                         principalColumn: "Id");
                 });
@@ -432,16 +432,16 @@ namespace Infrastructure.Migrations
                     Weight = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ProductStatus = table.Column<int>(type: "int", nullable: false),
                     StatusNote = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    orderId = table.Column<int>(type: "int", nullable: false)
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    ProductStatus = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Products_Orders_orderId",
-                        column: x => x.orderId,
+                        name: "FK_Products_Orders_OrderId",
+                        column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "Id");
                 });
@@ -537,19 +537,19 @@ namespace Infrastructure.Migrations
                 column: "MerchantId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_paymentId",
+                name: "IX_Orders_PaymentId",
                 table: "Orders",
-                column: "paymentId");
+                column: "PaymentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_shippingId",
+                name: "IX_Orders_ShippingId",
                 table: "Orders",
-                column: "shippingId");
+                column: "ShippingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_orderId",
+                name: "IX_Products_OrderId",
                 table: "Products",
-                column: "orderId");
+                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RolePowers_RoleId",

@@ -10,15 +10,20 @@ namespace Domain.Entities
 {
     public class Product
     {
+        // Properties
         public int Id { get; set; }
         public string Name { get; set; }
         public decimal Weight { get; set; }
         public int Quantity { get; set; }
         public decimal Price { get; set; }
-        public OrderStatus ProductStatus { get; set; }
         public string? StatusNote { get; set; }
+
+        // Foreign keys
         [ForeignKey("order")]
-        public int orderId { get; set; }
-        public Order order { get; set; }    
+        public int OrderId { get; set; }
+
+        // Navigation properties
+        public OrderStatus ProductStatus { get; set; }
+        public Order Order { get; set; }    
     }
 }
