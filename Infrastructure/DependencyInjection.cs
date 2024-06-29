@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Application.Interfaces;
 using Application.Services;
+using Application.Interfaces.Repositories;
+using Infrastructure.Persistence.Repositories;
 
 namespace Infrastructure
 {
@@ -23,6 +25,7 @@ namespace Infrastructure
             services.AddIdentityCore<ApplicationUser>().AddRoles<ApplicationRoles>().AddEntityFrameworkStores<ShippingContext>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
             //services.AddScoped<IUnitOfWork<Merchant>, UnitOfWork<Merchant>>();
             //services.AddScoped<IUnitOfWork<Representative>, UnitOfWork<Representative>>();
             //services.AddScoped<IUnitOfWork<City>, UnitOfWork<City>>();
