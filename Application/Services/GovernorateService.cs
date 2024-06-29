@@ -44,12 +44,22 @@ namespace Application.Services
         {
             var governorate = await repository.GetElement(filter);
 
+            if (governorate == null)
+            {
+                return null;
+            }
+
             return MapGovernorate(governorate);
         }
 
         public async Task<GovernorateDTO?> GetObject(Expression<Func<Governorate, bool>> filter, params Expression<Func<Governorate, object>>[] includes)
         {
             var governorate = await repository.GetElement(filter, includes);
+
+            if (governorate == null)
+            {
+                return null;
+            }
 
             return MapGovernorate(governorate);
         }
@@ -58,6 +68,11 @@ namespace Application.Services
         {
             var governorate = await repository.GetElementWithoutTracking(filter);
 
+            if (governorate == null)
+            {
+                return null;
+            }
+
             return MapGovernorate(governorate);
         }
 
@@ -65,18 +80,26 @@ namespace Application.Services
         {
             var governorate = await repository.GetElementWithoutTracking(filter, includes);
 
+            if (governorate == null)
+            {
+                return null;
+            }
+
             return MapGovernorate(governorate);
         }
 
-        public Task<bool> InsertObject(GovernorateInsertDTO governorateDTO)
+        //public Task<bool> InsertObject(GovernorateInsertDTO governorateInsertDTO, out GovernorateDTO governorateDTO)
+        public Task<bool> InsertObject(GovernorateInsertDTO governorateInsertDTO)
         {
             var governorate = new Governorate()
             {
-                name = governorateDTO.name,
-                status = governorateDTO.status
+                name = governorateInsertDTO.name,
+                status = governorateInsertDTO.status
             };
 
             var result = repository.Add(governorate);
+
+            //governorateDTO = MapGovernorate(governorate);
 
             return Task.FromResult(result);
         }
