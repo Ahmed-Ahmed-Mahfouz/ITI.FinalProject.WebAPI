@@ -1,9 +1,11 @@
 ﻿using Application.DTOs;
 using Application.DTOs.DisplayDTOs;
+using Application.Services.Represntative;
 using Domain.DTO;
 using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +18,13 @@ namespace Domain.Services.RepresentativeRepo
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ShippingContext _context;
+        private readonly IRepresentativeService _representativeService;
 
-        public RepresentativeRepo(UserManager<ApplicationUser> userManager,ShippingContext context)
+        public RepresentativeRepo(UserManager<ApplicationUser> userManager,ShippingContext context,IRepresentativeService representativeService)
         {
             this._userManager = userManager;
             this._context = context;
+            this._representativeService = representativeService;
         }
         public async Task<ResultUser> AddUser(UserDto userDto)
         {
@@ -72,6 +76,19 @@ namespace Domain.Services.RepresentativeRepo
         {
            await _context.GovernorateRepresentatives.AddAsync(governorateRepresentatives);
             await _context.SaveChangesAsync();
+
+        }
+
+        public async Task<List<RepresentativeDisplayDTO>> GetAllRepresentative()
+        {
+           var representatives= await _context.Representatives.Include(x=>x.governorates).Include(x=>x.user).ToListAsync();
+            var representativesDtos = new List<RepresentativeDisplayDTO>();
+            foreach (var item in representatives)
+            {
+               representativesDtos.Add(_representativeService.MapToDTO(item));
+            }
+            return representativesDtos;
+
 
         }
     }

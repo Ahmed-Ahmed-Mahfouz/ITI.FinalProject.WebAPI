@@ -20,9 +20,9 @@ namespace ITI.FinalProject.WebAPI.Controllers
         {
             this._representativeRepo = representativeRepo;
         }
-        [HttpPost("AddRepresentative")]
 
-        public async Task<ActionResult> AddRepresentative([FromBody] RepresentativeInsertDTO RepresentativeInsertDTO)
+        [HttpPost("AddRepresentative")]
+        public async Task<ActionResult> AddRepresentative([FromBody] RepresentativeDisplayDTO RepresentativeInsertDTO)
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -76,6 +76,13 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
             }
 
+        }
+        
+        [HttpGet]
+        public async Task<ActionResult> GetAllRepresentative()
+        {
+            var representative=await _representativeRepo.GetAllRepresentative();
+            return Ok(representative);
         }
     }
 }

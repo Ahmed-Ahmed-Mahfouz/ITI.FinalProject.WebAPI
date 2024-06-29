@@ -15,5 +15,6 @@ namespace Domain.Services.RepresentativeRepo
         Task<ResultUser> AddUser(UserDto userDto);
         Task AddRepresentative(Representative representative);
         Task AddGovernRates(GovernorateRepresentatives governorateRepresentatives);
+        Task<List<RepresentativeDisplayDTO>> GetAllRepresentative();
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Application.DTOs;
-using Application.DTOs.InsertDTOs;
+using Application.DTOs.DisplayDTOs;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -14,22 +14,22 @@ namespace Application.Services.Represntative
     public class RepresentativeService : IRepresentativeService
     {
         
-        public RepresentativeInsertDTO MapToDTO(Representative representative)
+        public RepresentativeDisplayDTO MapToDTO(Representative representative)
         {
-            return new RepresentativeInsertDTO
+            return new RepresentativeDisplayDTO
             {
+                Id= representative.userId,
                 DiscountType = representative.DiscountType,
                 CompanyPercetage = representative.CompanyPercetage,
                 UserFullName = representative.user.FullName,
                 UserAddress = representative.user.Address,
+                Email= representative.user.Email,
                 UserPhoneNo = representative.user.PhoneNo,
                 UserStatus = representative.user.Status,
                 UserBranchId = representative.user.BranchId,
                 UserType = representative.user.UserType,
-                //Governorates = representative.governorates?.Select(g => new GovernorateRepresentativesDTO
-                //{
-                //    // Map properties from GovernorateRepresentatives to GovernorateRepresentativesDTO
-                //}).ToList()
+                GovernorateIds = representative.governorates.Select(x => x.governorateId).ToList()
+                
             };
         }
        

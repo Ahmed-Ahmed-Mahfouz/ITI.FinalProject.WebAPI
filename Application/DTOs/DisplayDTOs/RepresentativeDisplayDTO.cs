@@ -5,15 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.InsertDTOs
+namespace Application.DTOs.DisplayDTOs
 {
     public class RepresentativeDisplayDTO
     {
+        public string Id { get; set; }
         public string DiscountType { get; set; }
         public int CompanyPercetage { get; set; }
         public string UserFullName { get; set; }
         public string Email { get; set; }
-        public string Password { get; set; }
         public string UserAddress { get; set; }
         public string UserPhoneNo { get; set; }
         public Status UserStatus { get; set; }
