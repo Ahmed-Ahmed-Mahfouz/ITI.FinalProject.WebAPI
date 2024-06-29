@@ -66,14 +66,14 @@ namespace Application.Services
         public Task<bool> InsertObject(InsertOrderDTO orderDTO)
         {
             var order = _mapper.Map<Order>(orderDTO);
-            var result =  _repository.Add(order); // Assuming AddAsync is the async version of Add
+            var result =  _repository.Add(order); 
             return Task.FromResult(result);
         }
 
         public Task<bool> UpdateObject(UpdateOrderDTO orderDTO)
         {
             var order = _mapper.Map<Order>(orderDTO);
-            var result = _repository.Edit(order); // Assuming EditAsync is the async version of Edit
+            var result = _repository.Edit(order); 
             return Task.FromResult(result);
         }
 
