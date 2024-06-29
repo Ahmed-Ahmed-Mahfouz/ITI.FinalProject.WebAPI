@@ -19,6 +19,10 @@ namespace Application.Services
     public class MerchantService : IGenericRepository<Merchant ,MerchantResponseDto ,MerchantAddDto, MerchantUpdateDto , string >
     {
         private readonly IGenericRepository<Merchant> _MerchantRepository;
+
+    public class MerchantService : IMerchantService
+    {
+        private readonly IMerchantRepositories _MerchantRepository;
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
         public MerchantService(
