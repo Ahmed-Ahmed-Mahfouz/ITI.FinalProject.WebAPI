@@ -1,8 +1,10 @@
-﻿using Application.DTOs.DisplayDTOs;
+﻿using Application.DTOs;
+using Application.DTOs.InsertDTOs;
 using Domain.Entities;
-using Domain.Services;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,13 +13,13 @@ namespace Application.Services.Represntative
 {
     public class RepresentativeService : IRepresentativeService
     {
-        public RepresentativeDisplayDTO MapToDTO(Representative representative)
+        
+        public RepresentativeInsertDTO MapToDTO(Representative representative)
         {
-            return new RepresentativeDisplayDTO
+            return new RepresentativeInsertDTO
             {
                 DiscountType = representative.DiscountType,
                 CompanyPercetage = representative.CompanyPercetage,
-                UserId = representative.userId,
                 UserFullName = representative.user.FullName,
                 UserAddress = representative.user.Address,
                 UserPhoneNo = representative.user.PhoneNo,
@@ -31,5 +33,6 @@ namespace Application.Services.Represntative
             };
         }
        
+
     } 
 }

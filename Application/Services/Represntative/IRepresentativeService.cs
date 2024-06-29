@@ -1,4 +1,5 @@
-﻿using Application.DTOs.DisplayDTOs;
+﻿using Application.DTOs;
+using Application.DTOs.InsertDTOs;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace Application.Services.Represntative
 {
     public interface IRepresentativeService
     {
-        RepresentativeDisplayDTO MapToDTO(Representative representative);
+        RepresentativeInsertDTO MapToDTO(Representative representative);
+        
     }
 }

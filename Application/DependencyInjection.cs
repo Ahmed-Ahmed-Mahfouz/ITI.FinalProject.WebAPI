@@ -3,6 +3,7 @@ using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Application.Services;
+using Application.Services.Represntative;
 using Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -19,7 +20,6 @@ namespace Application
         {
             services.AddScoped<IGenericService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int>, GovernorateService>();
             services.AddScoped<IGenericService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string>, RolePowersService>();
-
             return services;
         }
     }

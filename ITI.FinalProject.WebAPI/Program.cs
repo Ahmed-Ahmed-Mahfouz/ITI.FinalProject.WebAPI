@@ -2,6 +2,7 @@
 using Application;
 using Domain;
 using Domain.Entities;
+using Domain.Services.RepresentativeRepo;
 using Infrastructure;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
@@ -16,7 +17,7 @@ namespace ITI.FinalProject.WebAPI
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddApplication().AddInfrastructure(builder.Configuration);
-
+            builder.Services.AddScoped<IRepresentativeRepo, RepresentativeRepo>();
             // Add services to the container.
 
             builder.Services.AddControllers();
