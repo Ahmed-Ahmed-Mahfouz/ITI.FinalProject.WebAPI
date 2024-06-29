@@ -11,13 +11,12 @@ namespace Application.DTOs.DisplayDTOs
 {
     public class CityDisplayDTO
     {
+        public int id {  get; set; }
         public string name { get; set; }
         public Status status { get; set; }
         public decimal normalShippingCost { get; set; }
         public decimal pickupShippingCost { get; set; }
         public int stateId { get; set; }
-        public string branchName { get; set; }
-        public List<Merchant> cityMerchants { get; set; }
-        public List<Order> cityOrders { get; set; }
+        
     }
 }

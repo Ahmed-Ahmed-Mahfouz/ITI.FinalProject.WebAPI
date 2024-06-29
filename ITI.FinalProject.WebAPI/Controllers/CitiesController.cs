@@ -18,10 +18,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
             CityServ = _CityServ;
         }
         [HttpGet]
-        public async Task<ActionResult> getAllCityes()
+        public async Task<ActionResult> getAllCities()
         {
-            List<CityDisplayDTO> Cityes = await CityServ.GetAllObjects();
-            return Ok(Cityes);
+            List<CityDisplayDTO> Cities = await CityServ.GetAllObjects();
+            return Ok(Cities);
 
         }
         [HttpGet("id")]
@@ -59,6 +59,21 @@ namespace ITI.FinalProject.WebAPI.Controllers
             return BadRequest();
 
 
+        }
+        [HttpPut("id")]
+        public async Task<ActionResult> updateCity(int id, CityUpdateDTO city)
+        {
+            if (city == null || id != city.id)
+            {
+                return BadRequest();
+            }
+
+            var result = await CityServ.UpdateObject(city);
+            if (result)
+            {
+                return Ok(city);
+            }
+            return BadRequest();
         }
 
     }

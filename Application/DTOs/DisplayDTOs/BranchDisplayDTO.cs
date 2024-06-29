@@ -11,6 +11,7 @@ namespace Application.DTOs.DisplayDTOs
 {
     public class BranchDisplayDTO
     {
+        public int id { get; set; }
         public string name { get; set; }
         public Status status { get; set; }
         public DateTime addingDate { get; set; }

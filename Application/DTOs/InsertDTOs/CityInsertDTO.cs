@@ -10,7 +10,7 @@ namespace Domain.Entities
 {
     public class CityInsertDTO
     {
-        public int id { get; set; }
+        
         public string name { get; set; }
         public Status status { get; set; }
         public decimal normalShippingCost { get; set; }

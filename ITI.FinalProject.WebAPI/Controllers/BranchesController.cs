@@ -60,6 +60,21 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
 
         }
+        [HttpPut("id")]
+        public async Task<ActionResult> updateBranch(int id,BranchUpdateDTO branch)
+        {
+            if(branch == null || id != branch.id)
+            {
+                return BadRequest();
+            }
+
+            var result=await branchServ.UpdateObject(branch);
+            if(result)
+            {
+                return Ok(branch);
+            }
+            return BadRequest();
+        }
 
     }
 }

@@ -20,7 +20,7 @@ namespace Domain.Services
         public IUnitOfWork unit;
         public BranchService( IUnitOfWork _unit)
         {
-            branchRepo= unit.GetGenericRepository<Branch>(); 
+            branchRepo= _unit.GetGenericRepository<Branch>(); 
             unit = _unit;
         }
        
@@ -37,6 +37,7 @@ namespace Domain.Services
                 branchsDTO.Add(
                     new BranchDisplayDTO
                     {
+                        id= item.id,
                         name = item.name,
                         addingDate = item.addingDate,
                         cityId = item.cityId,

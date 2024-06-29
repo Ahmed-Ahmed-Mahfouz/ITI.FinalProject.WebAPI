@@ -17,68 +17,56 @@ namespace Domain.Services
     public class CityService : IGenericService<City,CityDisplayDTO,CityInsertDTO,CityUpdateDTO,int>
     {
         public IGenericRepository<City> CityRepo;
+        public IUnitOfWork Unit;
         public CityService( IUnitOfWork unit)
         {
             CityRepo= unit.GetGenericRepository<City>(); 
+            Unit = unit;
         }
-        public async Task<bool> DeleteObject(int ObjectId)
-        {
-            City? City = await CityRepo.GetElement(b => b.id == ObjectId);
-            if(City == null)
-            {
-                return false;
-            }
-
-            return CityRepo.Delete(City);
-        }
+        
 
         public async Task<List<CityDisplayDTO>> GetAllObjects()
         {
-            List<City>? Cityes = await CityRepo.GetAllElements();
-            if(Cityes == null)
+            List<City>? Cities = await CityRepo.GetAllElements();
+            if(Cities == null)
             {
                 return null;
             }
-            List<CityDisplayDTO> CitysDTO = new List<CityDisplayDTO>();
-            foreach (var item in Cityes)
+            List<CityDisplayDTO> CitiesDTO = new List<CityDisplayDTO>();
+            foreach (var item in Cities)
             {
-                CitysDTO.Add(
+                CitiesDTO.Add(
                     new CityDisplayDTO
                     {
+                        id = item.id,
                         name = item.name,
                         status = item.status,
-                        branchName= item.branch.name,
-                        cityMerchants = item.cityMerchants,
                         normalShippingCost = item.normalShippingCost,
                         pickupShippingCost = item.pickupShippingCost,
-                        cityOrders = item.cityOrders,
                         stateId = item.stateId
                     }
                 );    
             }
-            return CitysDTO;
+            return CitiesDTO;
         }
 
         public  async Task<List<CityDisplayDTO>> GetAllObjects(params Expression<Func<City, object>>[] includes)
         {
-            List<City>? Cityes = await CityRepo.GetAllElements(includes);
-            if (Cityes == null)
+            List<City>? Cities = await CityRepo.GetAllElements(includes);
+            if (Cities == null)
             {
                 return null;
             }
             List<CityDisplayDTO> CitysDTO = new List<CityDisplayDTO>();
-            foreach (var item in Cityes)
+            foreach (var item in Cities)
             {
                 CitysDTO.Add(
                     new CityDisplayDTO
                     {
                         name = item.name,
                         status = item.status,
-                        branchName = item.branch.name,
-                        cityMerchants = item.cityMerchants,
                         normalShippingCost = item.normalShippingCost,
                         pickupShippingCost = item.pickupShippingCost,
-                        cityOrders = item.cityOrders,
                         stateId = item.stateId
                     }
                 );
@@ -95,12 +83,9 @@ namespace Domain.Services
             }
             CityDisplayDTO CityDTO = new CityDisplayDTO(){
                 name = City.name,
-                status = City.status,
-                branchName = City.branch.name,
-                cityMerchants = City.cityMerchants,
+                status = City.status,                
                 normalShippingCost = City.normalShippingCost,
                 pickupShippingCost = City.pickupShippingCost,
-                cityOrders = City.cityOrders,
                 stateId = City.stateId
             };
             
@@ -120,11 +105,8 @@ namespace Domain.Services
             {
                 name = City.name,
                 status = City.status,
-                branchName = City.branch.name,
-                cityMerchants = City.cityMerchants,
                 normalShippingCost = City.normalShippingCost,
                 pickupShippingCost = City.pickupShippingCost,
-                cityOrders = City.cityOrders,
                 stateId = City.stateId
             };
 
@@ -142,11 +124,8 @@ namespace Domain.Services
             {
                 name = City.name,
                 status = City.status,
-                branchName = City.branch.name,
-                cityMerchants = City.cityMerchants,
                 normalShippingCost = City.normalShippingCost,
                 pickupShippingCost = City.pickupShippingCost,
-                cityOrders = City.cityOrders,
                 stateId = City.stateId
             };
 
@@ -165,11 +144,8 @@ namespace Domain.Services
             {
                 name = City.name,
                 status = City.status,
-                branchName = City.branch.name,
-                cityMerchants = City.cityMerchants,
                 normalShippingCost = City.normalShippingCost,
                 pickupShippingCost = City.pickupShippingCost,
-                cityOrders = City.cityOrders,
                 stateId = City.stateId
             };
 
@@ -179,7 +155,7 @@ namespace Domain.Services
         public async Task<bool> InsertObject(CityInsertDTO ObjectDTO)
         {
             City City = new City() {
-                   id = 0,
+                    id = 0,
                     name = ObjectDTO.name,
                     status = ObjectDTO.status,
                     normalShippingCost = ObjectDTO.normalShippingCost,
@@ -187,7 +163,11 @@ namespace Domain.Services
                     stateId = ObjectDTO.stateId
 
             };
-            return CityRepo.Add(City);
+            var result = CityRepo.Add(City);
+            await Unit.SaveChanges();
+
+            return result;
+           
 
         }
 
@@ -198,22 +178,40 @@ namespace Domain.Services
 
         public async Task<bool> UpdateObject(CityUpdateDTO ObjectDTO)
         {
-            //City? City = CityRepo.GetElement(b => b.id == ObjectDTO.id);
-            //if(City == null)
-            //{
-            //    return false;
-            //}
-            City City = new City();
-            City.id = ObjectDTO.id;
+            City? City =await CityRepo.GetElement(b => b.id == ObjectDTO.id);
+            if (City == null)
+            {
+                return false;
+            }
+            
             City.name = ObjectDTO.name;
             City.normalShippingCost = ObjectDTO.normalShippingCost;
             City.pickupShippingCost = ObjectDTO.pickupShippingCost;
             City.status = ObjectDTO.status;
+
+            var result = CityRepo.Edit(City);
+            await Unit.SaveChanges();
+
+            return result;
+
             
-            
-            return CityRepo.Edit(City);
         }
 
-        
+        public async Task<bool> DeleteObject(int ObjectId)
+        {
+            City? City = await CityRepo.GetElement(b => b.id == ObjectId);
+            if (City == null)
+            {
+                return false;
+            }
+
+            var result = CityRepo.Delete(City);
+            await Unit.SaveChanges();
+
+            return result;
+
+             
+        }
+
     }
 }
