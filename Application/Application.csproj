@@ -11,10 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\DisplayDTOs\" />
     <Folder Include="DTOs\InsertDTOs\" />
     <Folder Include="DTOs\UpdateDTOs\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
