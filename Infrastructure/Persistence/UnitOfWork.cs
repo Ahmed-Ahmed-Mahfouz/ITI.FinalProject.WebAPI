@@ -26,6 +26,11 @@ namespace Infrastructure.Persistence
             return new GenericRepository<T>(context);
         }
 
+        public IPaginationRepository<T> GetPaginationRepository<T>() where T : class
+        {
+            return new PaginationRepository<T>(context);
+        }
+
         //private IGenericRepository<Governorate> repository;
 
         //public IGenericRepository<T> Repository { get 

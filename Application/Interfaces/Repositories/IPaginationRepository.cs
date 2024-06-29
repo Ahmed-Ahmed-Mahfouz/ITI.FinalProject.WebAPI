@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces.Repositories
 {
-    public interface IOrderRepository
+    public interface IPaginationRepository<T> : IGenericRepository<T> where T : class
     {
-        Task<IEnumerable<Order>> GetPaginatedElements(int pageNumber, int pageSize);
+        Task<IEnumerable<T>> GetPaginatedElements(int pageNumber, int pageSize);
         Task<int> Count();
     }
 }

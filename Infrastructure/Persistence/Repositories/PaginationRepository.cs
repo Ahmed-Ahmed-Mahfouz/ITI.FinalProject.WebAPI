@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Persistence.Repositories
 {
-    public class OrderRepository : IOrderRepository
+    public class PaginationRepository<T> : GenericRepository<T>, IPaginationRepository<T> where T : class
     {
         private readonly ShippingContext _context;
 
-        public OrderRepository(ShippingContext context)
+        public PaginationRepository(ShippingContext context) : base(context) 
         {
             _context = context;
         }
 
-        public async Task<IEnumerable<Order>> GetPaginatedElements(int pageNumber, int pageSize)
+        public async Task<IEnumerable<T>> GetPaginatedElements(int pageNumber, int pageSize)
         {
-            return await _context.Orders
+            return await _context.Set<T>()
                                  .Skip((pageNumber - 1) * pageSize)
                                  .Take(pageSize)
                                  .ToListAsync();
@@ -29,7 +29,7 @@ namespace Infrastructure.Persistence.Repositories
 
         public async Task<int> Count()
         {
-            return await _context.Orders.CountAsync();
+            return await _context.Set<T>().CountAsync();
         }
 
     }

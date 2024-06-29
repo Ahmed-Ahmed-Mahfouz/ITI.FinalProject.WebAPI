@@ -25,7 +25,6 @@ namespace Infrastructure
             services.AddIdentityCore<ApplicationUser>().AddRoles<ApplicationRoles>().AddEntityFrameworkStores<ShippingContext>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IOrderRepository, OrderRepository>();
             //services.AddScoped<IUnitOfWork<Merchant>, UnitOfWork<Merchant>>();
             //services.AddScoped<IUnitOfWork<Representative>, UnitOfWork<Representative>>();
             //services.AddScoped<IUnitOfWork<City>, UnitOfWork<City>>();

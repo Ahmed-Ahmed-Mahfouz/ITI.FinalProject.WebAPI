@@ -13,12 +13,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int> _orderService;
-        private readonly IOrderService _orderServicePagination;
-        public OrdersController(IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int> orderService, IOrderService orderServicePagination)
+        private readonly IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int> _orderService;
+        public OrdersController(IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int> orderService)
         {
             _orderService = orderService;
-            _orderServicePagination = orderServicePagination;
         }
 
         // GET: api/Orders
@@ -28,7 +26,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var (orders, totalOrders) = await _orderServicePagination.GetPaginatedOrders(pageNumber, pageSize);
+            var (orders, totalOrders) = await _orderService.GetPaginatedOrders(pageNumber, pageSize);
 
             if (orders == null || orders.Count == 0)
             {
