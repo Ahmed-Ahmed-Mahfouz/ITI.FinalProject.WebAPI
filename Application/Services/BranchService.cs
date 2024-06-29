@@ -17,9 +17,11 @@ namespace Domain.Services
     public class BranchService : IGenericService<Branch,BranchDisplayDTO,BranchInsertDTO,BranchUpdateDTO,int>
     {
         public IGenericRepository<Branch> branchRepo;
-        public BranchService( IUnitOfWork unit)
+        public IUnitOfWork unit;
+        public BranchService( IUnitOfWork _unit)
         {
             branchRepo= unit.GetGenericRepository<Branch>(); 
+            unit = _unit;
         }
        
         public async Task<List<BranchDisplayDTO>> GetAllObjects()
@@ -153,6 +155,8 @@ namespace Domain.Services
                    
             };
             bool result=  branchRepo.Add(branch);
+            await unit.SaveChanges(); 
+            
             return result;
 
         }
@@ -175,8 +179,11 @@ namespace Domain.Services
             branch.addingDate = ObjectDTO.addingDate;
             branch.cityId = ObjectDTO.cityId;
             branch.status = ObjectDTO.status;
-            
-            return branchRepo.Edit(branch);
+
+            var result = branchRepo.Edit(branch);
+            await unit.SaveChanges();
+
+            return result;
         }
         public async Task<bool> DeleteObject(int ObjectId)
         {
@@ -185,8 +192,12 @@ namespace Domain.Services
             {
                 return false;
             }
+            var result = branchRepo.Delete(branch);
+            await unit.SaveChanges();
 
-            return branchRepo.Delete(branch);
+            return result;
+
+            
         }
 
         

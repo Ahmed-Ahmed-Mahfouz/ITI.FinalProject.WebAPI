@@ -12,8 +12,8 @@ namespace ITI.FinalProject.WebAPI.Controllers
     [ApiController]
     public class CitiesController : ControllerBase
     {
-        IGenericService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO> CityServ;
-        public CitiesController(IGenericService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO> _CityServ)
+        IGenericService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> CityServ;
+        public CitiesController(IGenericService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> _CityServ)
         {
             CityServ = _CityServ;
         }
@@ -34,11 +34,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         }
         [HttpPost]
-        public  ActionResult addCity(CityInsertDTO City)
+        public async Task <ActionResult> addCity(CityInsertDTO City)
         {
             if (City == null)
                 return BadRequest();
-            var result = CityServ.InsertObject(City);
+            var result =await CityServ.InsertObject(City);
             if (result)
             {
                 return Ok(result);

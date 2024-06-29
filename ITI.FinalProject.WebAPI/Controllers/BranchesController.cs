@@ -12,8 +12,8 @@ namespace ITI.FinalProject.WebAPI.Controllers
     [ApiController]
     public class BranchesController : ControllerBase
     {
-        IGenericService<Branch, BranchDisplayDTO, BranchInsertDTO, BranchUpdateDTO> branchServ;
-        public BranchesController(IGenericService<Branch, BranchDisplayDTO, BranchInsertDTO, BranchUpdateDTO> _branchServ)
+        IGenericService<Branch, BranchDisplayDTO, BranchInsertDTO, BranchUpdateDTO,int> branchServ;
+        public BranchesController(IGenericService<Branch, BranchDisplayDTO, BranchInsertDTO, BranchUpdateDTO,int> _branchServ)
         {
             branchServ = _branchServ;
         }
@@ -34,12 +34,12 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         }
         [HttpPost]
-        public  ActionResult addBranch(BranchInsertDTO branch)
+        public async Task<ActionResult> addBranch(BranchInsertDTO branch)
         {
             if (branch == null)
                 return BadRequest();
-            var result = branchServ.InsertObject(branch);
-            if (result)
+            var result =await branchServ.InsertObject(branch);
+            if (result == true)
             {
                 return Ok(result);
             }
