@@ -1,11 +1,12 @@
 ﻿using Application.DTOs;
+using Application.DTOs.DisplayDTOs;
 using Application.DTOs.InsertDTOs;
-using Application.Services.Represntative;
-using Domain.DTO;
+using Application.DTOs.UpdateDTOs;
+using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
-using Domain.Services.RepresentativeRepo;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Core.Types;
 using System.Transactions;
 
 namespace ITI.FinalProject.WebAPI.Controllers
@@ -14,66 +15,26 @@ namespace ITI.FinalProject.WebAPI.Controllers
     [ApiController]
     public class RepresentativeController : ControllerBase
     {
-        private readonly IRepresentativeRepo _representativeRepo;
+        private readonly IGenericService<Representative, RepresentativeDisplayDTO, RepresentativeInsertDTO, ReoresentativeUpdateDTO, string> service;
 
-        public RepresentativeController(IRepresentativeRepo representativeRepo)
+        public RepresentativeController(IGenericService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,ReoresentativeUpdateDTO,string> service)
         {
-            this._representativeRepo = representativeRepo;
+            this.service = service;
         }
 
         [HttpPost("AddRepresentative")]
-        public async Task<ActionResult> AddRepresentative([FromBody] RepresentativeDisplayDTO RepresentativeInsertDTO)
+        public async Task<ActionResult> AddRepresentative([FromBody] RepresentativeInsertDTO RepresentativeInsertDTO)
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                try
-                {
-                    // Adding User
-                    var userAdded = new UserDto()
-                    {
-                        Email = RepresentativeInsertDTO.Email,
-                        Password = RepresentativeInsertDTO.Password,
-                        Address = RepresentativeInsertDTO.UserAddress,
-                        FullName = RepresentativeInsertDTO.UserFullName,
-                        PhoneNo = RepresentativeInsertDTO.UserPhoneNo,
-                        BranchId = RepresentativeInsertDTO.UserBranchId,
-                        Status = Domain.Enums.Status.Active,
-                        UserType = Domain.Enums.UserType.Representative,
 
-                    };
-                    var resultUser = await _representativeRepo.AddUser(userAdded);
-
-                    // Adding Representative depend on UserId
-                    var representive = new Representative()
-                    {
-                        CompanyPercetage = RepresentativeInsertDTO.CompanyPercetage,
-                        DiscountType = RepresentativeInsertDTO.DiscountType,
-                        userId = resultUser.UserId,
-
-
-                    };
-                    await _representativeRepo.AddRepresentative(representive);
-
-                    // Adding Governrates to Representative
-                    foreach (var govId in RepresentativeInsertDTO.GovernorateIds)
-                    {
-                        var governrateRepresentative = new GovernorateRepresentatives()
-                        {
-                            representativeId = resultUser.UserId,
-                            governorateId = govId
-                        };
-
-                        await _representativeRepo.AddGovernRates(governrateRepresentative);
-
-                    }
-                    transaction.Complete();
-                    return Ok(resultUser);
-                }
-                catch (Exception ex)
-                {
-                    // Log the exception
-                    return BadRequest(new { message = "An error occurred while adding the representative.", details = ex.Message });
-                }
+                var result= await service.InsertObject(RepresentativeInsertDTO);
+                //Transaction inside true condition or before it.
+                transaction.Complete();
+                if (result == true) return NoContent();
+                else return BadRequest();
+                
+                       
             }
 
         }
@@ -81,8 +42,21 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult> GetAllRepresentative()
         {
-            var representative=await _representativeRepo.GetAllRepresentative();
+            var Representatives=await service.GetAllObjects();
+            return Ok(Representatives);
+        }
+        [HttpGet("id")]
+        public async Task<ActionResult<Representative>> GetRepresentativeById(string id)
+        {
+            var representative = await service.GetObject(r => r.userId == id);
+
+            if (representative == null)
+            {
+                return NotFound();
+            }
+
             return Ok(representative);
         }
+
     }
 }

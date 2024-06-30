@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.InsertDTOs
+namespace Application.DTOs.UpdateDTOs
 {
-    public class RepresentativeInsertDTO
+    public class ReoresentativeUpdateDTO
     {
+        public string Id { get; set; }
         public string DiscountType { get; set; }
         public int CompanyPercetage { get; set; }
         public string UserFullName { get; set; }
