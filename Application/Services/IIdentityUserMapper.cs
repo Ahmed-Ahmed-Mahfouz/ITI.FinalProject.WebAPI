@@ -4,7 +4,7 @@ namespace Application.Services
 {
     public interface IIdentityUserMapper
     {
-            int? MapMerchantToId(Merchant merchant);
+            string? MapMerchantToId(Merchant merchant);
         
 
     }

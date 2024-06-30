@@ -31,6 +31,8 @@ namespace Application
             services.AddScoped<IGenericService<Payment, DisplayPaymentDTO, InsertPaymentDTO, UpdatePaymentDTO,int>, PaymentService>();
             services.AddScoped<IGenericService<Branch, BranchDisplayDTO, BranchInsertDTO, BranchUpdateDTO,int>, BranchService>();
             services.AddScoped<IGenericService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int>, CityService>();
+            services.AddScoped<IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>, MerchantService>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
 
             return services;
         }

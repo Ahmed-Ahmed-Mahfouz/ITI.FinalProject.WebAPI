@@ -1,7 +1,7 @@
 ﻿using Application.DTOs.DisplayDTOs;
 using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
-using Application.Services;
+using Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,12 +21,12 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EmployeeReadDto>>> Getall()
         {
-            return Ok(await employeeService.Getall());
+            return Ok(await employeeService.GetAllObjects());
         }
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<ActionResult<EmployeeReadDto>> GetById(int id)
+        public async Task<ActionResult<EmployeeReadDto>> GetById(string id)
         {
             EmployeeReadDto? employeeReadDto = await employeeService.GetByid(id);
             if (employeeReadDto == null)
@@ -54,11 +54,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         [HttpDelete]
         [Route("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult> Delete(string id)
         {
             try
             {
-                await employeeService.Delete(id);
+                await employeeService.DeleteObject(id);
                 return Ok("Deleted successfully");
             }
             catch (Exception ex)
@@ -69,7 +69,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<ActionResult> Update(int id, EmployeeupdateDto employeeupdateDto)
+        public async Task<ActionResult> Update(string id, EmployeeupdateDto employeeupdateDto)
         {
             try
             {

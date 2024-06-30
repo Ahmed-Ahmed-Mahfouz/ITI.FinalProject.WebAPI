@@ -1,13 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Services;
-using Application.Services;
 using Application.DTOs.DisplayDTOs;
 using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
@@ -21,10 +14,11 @@ using System.Linq.Expressions;
 
 namespace Domain.Services
 {
-    public class EmployeeService : IGenericService<Employee , EmployeeReadDto , EmployeeAddDto ,EmployeeupdateDto ,string>
+    public class EmployeeService :IEmployeeService
     {
         private readonly IGenericRepository<Employee> employeeRepository;
         private readonly IMapper mapper;
+        IUnitOfWork unit;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public EmployeeService(IUnitOfWork employeeRepository, IMapper mapper, UserManager<ApplicationUser> userManager)
@@ -32,6 +26,7 @@ namespace Domain.Services
             this.employeeRepository = employeeRepository.GetGenericRepository<Employee>();
             this.mapper = mapper;
             _userManager = userManager;
+            unit = employeeRepository;
         }
         public async Task<List<ValidationResult>?> AddUserAndEmployee(EmployeeAddDto employee)
         {
@@ -87,30 +82,32 @@ namespace Domain.Services
         }
 
 
-        public async Task DeleteObject(string id)
+        public async Task<bool> DeleteObject(string id)
         {
-            Employee? employeeFromDb = await employeeRepository.GetByid(id);
+            Employee? employeeFromDb = await employeeRepository.GetElement(e=>e.userId == id);
             if (employeeFromDb != null)
             {
                 employeeFromDb.IsActive = false;
 
-                await employeeRepository.Savechanges();
+                await unit.SaveChanges();
+                return true;
             }
             else
             {
-                throw new Exception("this employee not found");
+                return false;
+                //throw new Exception("this employee not found");
             }
         }
 
         public async Task<IEnumerable<EmployeeReadDto>> GetAllObjects()
         {
-            var employeesfromDb = await employeeRepository.GetAllObjects();
+            var employeesfromDb = await employeeRepository.GetAllElements();
             return mapper.Map<IEnumerable<EmployeeReadDto>>(employeesfromDb);
         }
 
         public async Task<EmployeeReadDto> GetByid(string id)
         {
-            var employeefromDb = await employeeRepository.GetByid(id);
+            var employeefromDb = await employeeRepository.GetElement(m=>m.userId == id);
 
             if (employeefromDb == null)
             {
@@ -119,34 +116,36 @@ namespace Domain.Services
             return mapper.Map<EmployeeReadDto>(employeefromDb);
         }
 
-        public async Task Savechanges()
+        
+        public async Task<bool> Update(string id, EmployeeupdateDto employeeDto)
         {
-            await employeeRepository.SaveChanges();
-        }
-
-        public async Task Update(string id, EmployeeupdateDto employeeDto)
-        {
-            Employee empFromDb = await employeeRepository.GetByid(id);
+            Employee? empFromDb = await employeeRepository.GetElement(e=>e.userId==id);
             if (empFromDb != null)
             {
                 mapper.Map(employeeDto, empFromDb);
 
-                await employeeRepository.SaveChangesForObject();
+                await unit.SaveChanges();
+                return true;
 
             }
             else
             {
-                throw new Exception("this employee is not found");
+                return false;
             }
         }
 
-        public IQueryable<EmployeeReadDto> GetEmployeesPaginated()
-        {
-            IQueryable employees = employeeRepository.GetEmployeePaginated();
-            return employees.ProjectTo<EmployeeReadDto>(mapper.ConfigurationProvider);
-        }
+      
+        
 
        
+
+        //public IQueryable<EmployeeReadDto> GetEmployeesPaginated()
+        //{
+        //    IQueryable employees = employeeRepository.GetEmployeePaginated();
+        //    return employees.ProjectTo<EmployeeReadDto>(mapper.ConfigurationProvider);
+        //}
+
+
 
         //public async Task AssignOrderToSales(string salesId, int orderId)
         //{

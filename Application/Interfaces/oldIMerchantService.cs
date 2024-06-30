@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Services
+namespace Application.Interfaces
 {
-    public interface IMerchantService
+    public interface oldIMerchantService
     {
         Task<IEnumerable<MerchantResponseDto>?> GetAllMerchantsAsync();
         Task<MerchantResponseDto> GetMerchantByIdAsync(int id);

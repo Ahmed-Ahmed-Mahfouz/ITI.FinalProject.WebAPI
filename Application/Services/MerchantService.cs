@@ -2,39 +2,39 @@
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Application.Interfaces.Repositories;
 using Application.DTOs.DisplayDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.DTOs.InsertDTOs;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using Application.Interfaces;
+using Application.Interfaces.ApplicationServices;
+
 
 namespace Application.Services
 {
-    public class MerchantService : IGenericRepository<Merchant ,MerchantResponseDto ,MerchantAddDto, MerchantUpdateDto , string >
-    {
-        private readonly IGenericRepository<Merchant> _MerchantRepository;
-
     public class MerchantService : IMerchantService
     {
-        private readonly IMerchantRepositories _MerchantRepository;
+        private readonly IGenericRepository<Merchant> _MerchantRepository;
+        IUnitOfWork unit;
+
+    
+        //private readonly IMerchantRepositories _MerchantRepository;
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
         public MerchantService(
-            IMerchantRepositories MerchantRepository,
+            IUnitOfWork _unit,
             IMapper mapper,
             UserManager<ApplicationUser> userManager)
         {
-            _MerchantRepository = MerchantRepository;
+            _MerchantRepository = _unit.GetGenericRepository<Merchant>();
+            unit= _unit;    
             _mapper = mapper;
             _userManager = userManager;
         }
-        public async Task<List<ValidationResult>?> AddUserAndMerchant(MerchantAddDto MerchantAddDto)
+        public async Task<List<ValidationResult>> InsertObject(MerchantAddDto MerchantAddDto)
         {
             var validationResults = new List<ValidationResult>();
             var context = new ValidationContext(MerchantAddDto, null, null);
@@ -60,39 +60,45 @@ namespace Application.Services
                                 validationResults.Add(err);
                             }
                             return validationResults;
+                            
                         }
                         await _userManager.AddToRoleAsync(user, "Merchant");
                         await _userManager.UpdateAsync(user);
                         ApplicationUser? addedUser = await _userManager.FindByEmailAsync(MerchantAddDto.Email);
                         MerchantAddDto.User = addedUser;
+                       
                     }
                     else
                     {
                         validationResults.Add(new ValidationResult("Username is already exist"));
                         return validationResults;
+                        
                     }
                 }
                 else
                 {
                     validationResults.Add(new ValidationResult("Email is already exist"));
                     return validationResults;
+                    
                 }
 
-                await _MerchantRepository.AddMerchantAsync(_mapper.Map<MerchantAddDto, Merchant>(MerchantAddDto));
+                _MerchantRepository.Add(_mapper.Map<MerchantAddDto, Merchant>(MerchantAddDto));
                 return validationResults;
+                
             }
             else
             {
                 return validationResults;
+               
             }
         }
 
-        public async Task<bool> DeleteMerchantAsync(int Merchant_id)
+        public async Task<bool> DeleteObject(string Merchant_id)
         {
-            Merchant? Merchant = await _MerchantRepository.GetMerchantByIdAsync(Merchant_id);
+            Merchant? Merchant = await _MerchantRepository.GetElement(m=>m.Id==Merchant_id);
             if (Merchant != null)
             {
-                await _MerchantRepository.DeleteMerchantAsync(Merchant);
+                _MerchantRepository.Delete(Merchant);
                 ApplicationUser? user = await _userManager.FindByEmailAsync(Merchant.Email);
                 if (user != null)
                     await _userManager.DeleteAsync(user);
@@ -102,9 +108,9 @@ namespace Application.Services
                 return false;
         }
 
-        public async Task<IEnumerable<MerchantResponseDto>?> GetAllMerchantsAsync()
+        public async Task<List<MerchantResponseDto>> GetAllObjects()
         {
-            IEnumerable<Merchant>? Merchants = await _MerchantRepository.GetAllMerchantsAsync();
+            IEnumerable<Merchant>? Merchants = await _MerchantRepository.GetAllElements();
             List<MerchantResponseDto> MerchantsResponse = new List<MerchantResponseDto>();
             foreach (Merchant Merchant in Merchants)
             {
@@ -113,13 +119,13 @@ namespace Application.Services
             return MerchantsResponse;
         }
 
-        public async Task<MerchantResponseDto> GetMerchantByIdAsync(int id)
-        {
-            Merchant? Merchant = await _MerchantRepository.GetMerchantByIdAsync(id);
-            return _mapper.Map<MerchantResponseDto>(Merchant);
-        }
+        //public async Task<MerchantResponseDto?> GetObject(string id)
+        //{
+        //    Merchant? Merchant = await _MerchantRepository.GetElement(m=> m.Id == id);
+        //    return _mapper.Map<MerchantResponseDto>(Merchant);
+        //}
 
-        public async Task<List<ValidationResult>?> UpdateMerchantAsync(int MerchantId, MerchantUpdateDto MerchantUpdateDto)
+        public async Task<List<ValidationResult>> UpdateObject(MerchantUpdateDto MerchantUpdateDto)
         {
             var validationResults = new List<ValidationResult>();
             var context = new ValidationContext(MerchantUpdateDto, null, null);
@@ -132,7 +138,7 @@ namespace Application.Services
                 var checkUserName = await _userManager.FindByNameAsync(MerchantUpdateDto.UserName);
                 if (checkUserName == null || checkUserName.Id == MerchantUpdateDto.userId)
                 {
-                    Merchant? Merchant = await _MerchantRepository.GetMerchantByIdAsync(MerchantId);
+                    Merchant? Merchant = await _MerchantRepository.GetElement(m=>m.Id== MerchantUpdateDto.userId);
                     if (Merchant != null)
                     {
                         ApplicationUser? user = await _userManager.FindByEmailAsync(Merchant.Email);
@@ -151,7 +157,7 @@ namespace Application.Services
                             }
 
                             _mapper.Map(MerchantUpdateDto, Merchant);
-                            await _MerchantRepository.SaveChangesAsync();
+                            await unit.SaveChanges();
                         }
                         else
                         {
@@ -176,15 +182,15 @@ namespace Application.Services
         }
 
 
-        public IQueryable<MerchantResponseDto> GetMerchantsPaginated()
-        {
-            IQueryable Merchant = _MerchantRepository.GetMerchantsPaginated();
-            return Merchant.ProjectTo<MerchantResponseDto>(_mapper.ConfigurationProvider);
-        }
+        //public IQueryable<MerchantResponseDto> GetMerchantsPaginated()
+        //{
+        //    IQueryable Merchant = _MerchantRepository.GetMerchantsPaginated();
+        //    return Merchant.ProjectTo<MerchantResponseDto>(_mapper.ConfigurationProvider);
+        //}
 
-        public async Task<IEnumerable<MerchantResponseDto>> GetFilteredMerchantsAsync(string searchString)
+        public async Task<List<MerchantResponseDto>> GetFilteredMerchantsAsync(string searchString)
         {
-            IEnumerable<Merchant>? Merchants = await _MerchantRepository.GetFilteredMerchantsAsync(searchString);
+            IEnumerable<Merchant>? Merchants = await _MerchantRepository.GetAllElements(m=> m.UserName == searchString);
             List<MerchantResponseDto> MerchantsResponse = new List<MerchantResponseDto>();
             foreach (Merchant trader in Merchants)
             {
@@ -193,20 +199,78 @@ namespace Application.Services
             return MerchantsResponse;
         }
 
-        public async Task<int?> GetMerchantIdByEmailAsync(string email, IIdentityUserMapper identityUserMapper)
+        public async Task<string?> GetMerchantIdByEmailAsync(string email, IIdentityUserMapper identityUserMapper)
         {
             ApplicationUser? user = await _userManager.FindByEmailAsync(email);
             if (user == null)
                 return null;
 
-            Merchant? merchant = await _MerchantRepository.GetMerchantByUserIdAsync(user.Id);
+            Merchant? merchant = await _MerchantRepository.GetElement(m=>m.Id==user.Id);
             if (merchant == null)
                 return null;
 
             return identityUserMapper.MapMerchantToId(merchant); 
         }
 
-        public Task<int?> GetMerchantIdByEmailAsync(string MerchantEmail)
+        public Task<string?> GetMerchantIdByEmailAsync(string MerchantEmail)
+        {
+            throw new NotImplementedException();
+        }
+
+        
+        public async Task<List<MerchantResponseDto>> GetAllObjects(params Expression<Func<Merchant, object>>[] includes)
+        {
+            IEnumerable<Merchant>? Merchants = await _MerchantRepository.GetAllElements(includes);
+            List<MerchantResponseDto> MerchantsResponse = new List<MerchantResponseDto>();
+            foreach (Merchant Merchant in Merchants)
+            {
+                MerchantsResponse.Add(_mapper.Map<MerchantResponseDto>(Merchant));
+            }
+            return MerchantsResponse;
+        }
+
+        
+
+        public async Task<MerchantResponseDto?> GetObject(Expression<Func<Merchant, bool>> filter, params Expression<Func<Merchant, object>>[] includes)
+        {
+            Merchant? Merchant = await _MerchantRepository.GetElement(filter,includes);
+            return _mapper.Map<MerchantResponseDto>(Merchant);
+        }
+
+        public async Task<MerchantResponseDto?> GetObjectWithoutTracking(Expression<Func<Merchant, bool>> filter)
+        {
+            Merchant? Merchant = await _MerchantRepository.GetElementWithoutTracking(filter);
+            return _mapper.Map<MerchantResponseDto>(Merchant);
+        }
+
+        public async Task<MerchantResponseDto?> GetObjectWithoutTracking(Expression<Func<Merchant, bool>> filter, params Expression<Func<Merchant, object>>[] includes)
+        {
+            Merchant? Merchant = await _MerchantRepository.GetElementWithoutTracking(filter,includes);
+            return _mapper.Map<MerchantResponseDto>(Merchant);
+        }
+
+        
+
+        
+        
+
+        public Task<bool> SaveChangesForObject()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<MerchantResponseDto?> GetObject(Expression<Func<Merchant, bool>> filter)
+        {
+            Merchant? Merchant = await _MerchantRepository.GetElement(filter);
+            return _mapper.Map<MerchantResponseDto>(Merchant);
+        }
+
+        Task<bool> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.InsertObject(MerchantAddDto ObjectDTO)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<bool> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.UpdateObject(MerchantUpdateDto ObjectDTO)
         {
             throw new NotImplementedException();
         }
