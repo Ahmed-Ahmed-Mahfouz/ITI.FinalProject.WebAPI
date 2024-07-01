@@ -24,6 +24,7 @@ namespace Application.DTOs.UpdateDTOs
         public Status Status { get; set; }
 
         public bool IsActive { get; set; }
+        public string role { get; set; }    
 
         //public BranchReadDto? Branch { get; set; }
 

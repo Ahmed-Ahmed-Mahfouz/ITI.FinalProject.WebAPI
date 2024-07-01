@@ -14,7 +14,7 @@ using Domain.Entities;
 
 namespace Domain.Services
 {
-    public class CityService : IGenericService<City,CityDisplayDTO,CityInsertDTO,CityUpdateDTO,int>
+    public class CityService : IPaginationService<City,CityDisplayDTO,CityInsertDTO,CityUpdateDTO,int>
     {
         public IGenericRepository<City> CityRepo;
         public IUnitOfWork Unit;
@@ -43,7 +43,7 @@ namespace Domain.Services
                         status = item.status,
                         normalShippingCost = item.normalShippingCost,
                         pickupShippingCost = item.pickupShippingCost,
-                        stateId = item.stateId
+                        governorateId = item.governorateId
                     }
                 );    
             }
@@ -67,7 +67,7 @@ namespace Domain.Services
                         status = item.status,
                         normalShippingCost = item.normalShippingCost,
                         pickupShippingCost = item.pickupShippingCost,
-                        stateId = item.stateId
+                        governorateId = item.governorateId
                     }
                 );
             }
@@ -86,7 +86,7 @@ namespace Domain.Services
                 status = City.status,                
                 normalShippingCost = City.normalShippingCost,
                 pickupShippingCost = City.pickupShippingCost,
-                stateId = City.stateId
+                governorateId = City.governorateId
             };
             
             return CityDTO;
@@ -107,7 +107,7 @@ namespace Domain.Services
                 status = City.status,
                 normalShippingCost = City.normalShippingCost,
                 pickupShippingCost = City.pickupShippingCost,
-                stateId = City.stateId
+                governorateId = City.governorateId
             };
 
             return CityDTO;
@@ -126,7 +126,7 @@ namespace Domain.Services
                 status = City.status,
                 normalShippingCost = City.normalShippingCost,
                 pickupShippingCost = City.pickupShippingCost,
-                stateId = City.stateId
+                governorateId = City.governorateId
             };
 
             return CityDTO;
@@ -146,7 +146,7 @@ namespace Domain.Services
                 status = City.status,
                 normalShippingCost = City.normalShippingCost,
                 pickupShippingCost = City.pickupShippingCost,
-                stateId = City.stateId
+                governorateId = City.governorateId
             };
 
             return CityDTO;
@@ -160,7 +160,7 @@ namespace Domain.Services
                     status = ObjectDTO.status,
                     normalShippingCost = ObjectDTO.normalShippingCost,
                     pickupShippingCost = ObjectDTO.pickupShippingCost,
-                    stateId = ObjectDTO.stateId
+                    governorateId = ObjectDTO.governorateId
 
             };
             var result = CityRepo.Add(City);
@@ -213,5 +213,9 @@ namespace Domain.Services
              
         }
 
+        public Task<(List<CityDisplayDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

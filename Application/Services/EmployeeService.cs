@@ -20,6 +20,7 @@ namespace Domain.Services
         private readonly IMapper mapper;
         IUnitOfWork unit;
         private readonly UserManager<ApplicationUser> _userManager;
+        
 
         public EmployeeService(IUnitOfWork employeeRepository, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
@@ -27,6 +28,7 @@ namespace Domain.Services
             this.mapper = mapper;
             _userManager = userManager;
             unit = employeeRepository;
+           
         }
         public async Task<List<ValidationResult>?> AddUserAndEmployee(EmployeeAddDto employee)
         {
@@ -55,7 +57,7 @@ namespace Domain.Services
                             }
                             return validationResults;
                         }
-                        await _userManager.AddToRoleAsync(user, "employee");
+                        await _userManager.AddToRoleAsync(user, employee.role);
                         await _userManager.UpdateAsync(user);
                         ApplicationUser? addedUser = await _userManager.FindByEmailAsync(employee.Email);
                         employee.User = addedUser;
@@ -87,7 +89,7 @@ namespace Domain.Services
             Employee? employeeFromDb = await employeeRepository.GetElement(e=>e.userId == id);
             if (employeeFromDb != null)
             {
-                employeeFromDb.IsActive = false;
+                //employeeFromDb.IsActive = false;
 
                 await unit.SaveChanges();
                 return true;
@@ -120,9 +122,15 @@ namespace Domain.Services
         public async Task<bool> Update(string id, EmployeeupdateDto employeeDto)
         {
             Employee? empFromDb = await employeeRepository.GetElement(e=>e.userId==id);
+            
             if (empFromDb != null)
             {
+                ApplicationUser? applicationUser = await _userManager.FindByIdAsync(id);
+                var roles = await _userManager.GetRolesAsync(applicationUser);
                 mapper.Map(employeeDto, empFromDb);
+                await _userManager.RemoveFromRolesAsync(applicationUser, roles);
+                await _userManager.AddToRoleAsync(applicationUser, employeeDto.role);
+                //await _userManager.UpdateAsync(user);
 
                 await unit.SaveChanges();
                 return true;
