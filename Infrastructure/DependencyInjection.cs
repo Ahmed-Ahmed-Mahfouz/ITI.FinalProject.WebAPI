@@ -10,8 +10,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Application.Interfaces;
-using Application.Services.Represntative;
-
 namespace Infrastructure
 {
     public static class DependencyInjection
@@ -39,7 +37,7 @@ namespace Infrastructure
             //services.AddScoped<IUnitOfWork<Shipping>, UnitOfWork<Shipping>>();
 
             //register Representative Service Layer For Mapping DTO
-            services.AddScoped<IRepresentativeService, RepresentativeService>();
+            //services.AddScoped<IRepresentativeService, RepresentativeService>();
 
             return services;
         }
