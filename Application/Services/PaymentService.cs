@@ -64,39 +64,25 @@ namespace Application.Services
             return _mapper.Map<DisplayPaymentDTO>(payment);
         }
 
-        public async Task<bool> InsertObject(InsertPaymentDTO paymentDTO)
+        public Task<bool> InsertObject(InsertPaymentDTO paymentDTO)
         {
             var payment = _mapper.Map<Payment>(paymentDTO);
-            _repository.Add(payment);
-            return true;
+            var result = _repository.Add(payment);
+            return Task.FromResult(result);
         }
 
-        public async Task<bool> UpdateObject(UpdatePaymentDTO paymentDTO)
+        public Task<bool> UpdateObject(UpdatePaymentDTO paymentDTO)
         {
             var payment = _mapper.Map<Payment>(paymentDTO);
-            _repository.Edit(payment);
-            return true;
+            var result = _repository.Edit(payment);
+            return Task.FromResult(result);
         }
-
-        //public bool InsertObject(InsertPaymentDTO paymentDTO)
-        //{
-        //    var payment = _mapper.Map<Payment>(paymentDTO);
-        //    _repository.Add(payment);
-        //    return true;
-        //}
-
-        //public bool UpdateObject(UpdatePaymentDTO paymentDTO)
-        //{
-        //    var payment = _mapper.Map<Payment>(paymentDTO);
-        //    _repository.Edit(payment);
-        //    return true;
-        //}
 
         public async Task<bool> DeleteObject(int paymentId)
         {
-            var payment = await _repository.GetElement(x => x.id == paymentId);
-            _repository.Delete(payment);
-            return true;
+            var payment = await _repository.GetElement(x => x.Id == paymentId);
+            var result = _repository.Delete(payment);
+            return result;
         }
 
         public async Task<bool> SaveChangesForObject()

@@ -15,5 +15,7 @@ namespace Application.Interfaces
         public Task<bool> SaveChanges();
         //public IGenericRepository<T> GetGenericRepository<T>() where T : class;
         //public IGenericRepository<T> Repository { get; }
+
+        public IPaginationRepository<T> GetPaginationRepository<T>() where T : class;
     }
 }
