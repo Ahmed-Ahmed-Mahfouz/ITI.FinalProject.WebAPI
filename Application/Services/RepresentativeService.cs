@@ -123,7 +123,7 @@ namespace Application.Services
 
             var representive = new Representative()
             {
-                CompanyPercetage = ObjectDTO.CompanyPercetage,
+                CompanyPercentage = ObjectDTO.CompanyPercentage,
                 DiscountType = ObjectDTO.DiscountType,
                 userId = resultUser.UserId,
             };
@@ -199,7 +199,7 @@ namespace Application.Services
                 return false;
             }
 
-            representative.CompanyPercetage = ObjectDTO.CompanyPercetage;
+            representative.CompanyPercentage = ObjectDTO.CompanyPercentage;
             representative.DiscountType = ObjectDTO.DiscountType;
             var result = repository.Edit(representative);
 
@@ -309,7 +309,7 @@ namespace Application.Services
             {
                 Id = representative.userId,
                 DiscountType = representative.DiscountType,
-                CompanyPercetage = representative.CompanyPercetage,
+                CompanyPercentage = representative.CompanyPercentage,
                 UserFullName = representative.user.FullName,
                 UserAddress = representative.user.Address,
                 Email = representative.user.Email,
@@ -328,7 +328,7 @@ namespace Application.Services
             {
                 Id = r.userId,
                 DiscountType = r.DiscountType,
-                CompanyPercetage = r.CompanyPercetage,
+                CompanyPercentage = r.CompanyPercentage,
                 UserFullName = r.user.FullName,
                 UserAddress = r.user.Address,
                 Email = r.user.Email,
