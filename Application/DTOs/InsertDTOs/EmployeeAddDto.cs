@@ -16,18 +16,18 @@ namespace Application.DTOs.InsertDTOs
 
         public string Address { get; set; } = string.Empty;
         [Phone]
-        public virtual string? PhoneNumber { get; set; }
-        public string? UserName { get; set; }
+        public virtual string PhoneNumber { get; set; }
+        public string UserName { get; set; }
         [EmailAddress]
-        public string? Email { get; set; }
+        public string Email { get; set; }
 
-        public string? PasswordHash { get; set; }
+        public string PasswordHash { get; set; }
 
         public Status Status { get; set; }
 
-        public bool IsActive { get; set; }
+       // public bool IsActive { get; set; }
 
-        public ApplicationUser? User { get; set; }
+        public ApplicationUser User { get; set; }
 
         public string role { get; set; }
 
