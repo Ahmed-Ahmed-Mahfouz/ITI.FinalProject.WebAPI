@@ -17,5 +17,6 @@ namespace Domain.Entities
         public List<Merchant> governorateMerchants { get; set; }
         public List<GovernorateRepresentatives> representatives { get; set; }
         public List<Order> governorateOrders { get; set; }
+        public List<SpecialPackages> specialPackages { get; set; }
     }
 }

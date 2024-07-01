@@ -21,7 +21,6 @@ namespace Infrastructure.Persistence
         public DbSet<GovernorateRepresentatives> GovernorateRepresentatives { get; set; }
         public DbSet<Merchant>Merchants { get; set; }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<Payment>Payments { get; set; }
         public DbSet<Product>Products { get; set; }
         public DbSet<Representative> Representatives { get; set; }
         public DbSet<RolePowers> RolePowers { get; set; }
@@ -34,9 +33,9 @@ namespace Infrastructure.Persistence
             builder.Entity<GovernorateRepresentatives>().HasKey("representativeId", "governorateId");
 
             builder.Entity<City>()
-                .HasOne(c => c.state)
-                    .WithMany(g => g.cities)
-                .HasForeignKey(c => c.stateId)
+                .HasOne(c => c.governorate)
+                .WithMany(g => g.cities)
+                .HasForeignKey(c => c.governorateId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Branch>()
@@ -46,33 +45,39 @@ namespace Infrastructure.Persistence
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Order>()
-                .HasOne(o => o.City)
+                .HasOne(o => o.city)
                 .WithMany(c => c.cityOrders)
                 .HasForeignKey(o => o.CityId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Order>()
-                .HasOne(o => o.Governorate)
+                .HasOne(o => o.governorate)
                 .WithMany(g => g.governorateOrders)
                 .HasForeignKey(o => o.GovernorateId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Order>()
-                .HasOne(o => o.Merchant)
+                .HasOne(o => o.merchant)
                 .WithMany(m => m.orders)
                 .HasForeignKey(o => o.MerchantId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Order>()
-                .HasOne(o => o.Shipping)
+                .HasOne(o => o.shipping)
                 .WithMany(s => s.Orders)
                 .HasForeignKey(o => o.ShippingId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Order>()
-                .HasOne(o => o.Payment)
-                .WithMany(p => p.PaymentOrders)
-                .HasForeignKey(o => o.PaymentId)
+                .HasOne(o => o.branch)
+                .WithMany(b => b.branchOrders)
+                .HasForeignKey(o => o.BranchId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Order>()
+                .HasOne(o => o.representative)
+                .WithMany(r => r.representativeOrders)
+                .HasForeignKey(o => o.RepresentativeId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Merchant>()
@@ -94,10 +99,29 @@ namespace Infrastructure.Persistence
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Product>()
-                .HasOne(p => p.Order)
+                .HasOne(p => p.order)
                 .WithMany(o => o.Products)
                 .HasForeignKey(m => m.OrderId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<SpecialPackages>()
+                .HasOne(s => s.governoratePackages)
+                .WithMany(g => g.specialPackages)
+                .HasForeignKey(s => s.governorateId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<SpecialPackages>()
+                .HasOne(s => s.merchantSpecialPackage)
+                .WithMany(m => m.SpecialPackages)
+                .HasForeignKey(s => s.MerchantId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<SpecialPackages>()
+                .HasOne(s => s.cityPackages)
+                .WithOne(c => c.citySpecialPackages)
+                .HasForeignKey<SpecialPackages>(s => s.cityId)
+                .OnDelete(DeleteBehavior.NoAction);
+
         }
 
     }

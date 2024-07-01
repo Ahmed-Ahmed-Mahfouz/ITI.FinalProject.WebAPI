@@ -19,6 +19,7 @@ namespace Domain.Entities
         public int cityId { get; set; }
         
         public City city { get; set; }
-        public List<Employee> employees { get; set; }   
+        public List<ApplicationUser> users { get; set; }
+        public List<Order> branchOrders { get; set; }
     }
 }
