@@ -15,6 +15,7 @@ namespace Domain.Entities
         public string Name { get; set; }
         public decimal Weight { get; set; }
         public int Quantity { get; set; }
+        [Column(TypeName = "money")]
         public decimal Price { get; set; }
         public string? StatusNote { get; set; }
 
@@ -24,6 +25,6 @@ namespace Domain.Entities
 
         // Navigation properties
         public OrderStatus ProductStatus { get; set; }
-        public Order Order { get; set; }    
+        public Order order { get; set; }    
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Application.DTOs.DisplayDTOs;
 using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
-using Application.Interfaces;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
