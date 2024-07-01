@@ -11,14 +11,14 @@ namespace Domain.Entities
 {
     public class Representative
     {
-        //Needs New Migration
-        public DiscountTypes DiscountType { get; set; }
-        public int CompanyPercetage { get; set; }
+        public DeductionType DiscountType { get; set; }
+        public double CompanyPercentage{ get; set; }
         [ForeignKey("user")]
         [Key]
         public string userId { get; set; }
 
-        public List<GovernorateRepresentatives> governorates { get; set; }
         public ApplicationUser user { get; set; }
+        public List<GovernorateRepresentatives> governorates { get; set; }
+        public List<Order> representativeOrders { get; set; }
     }
 }

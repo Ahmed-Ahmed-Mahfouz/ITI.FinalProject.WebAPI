@@ -10,17 +10,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Application.Interfaces;
+using Application.Services;
+using Application.Interfaces.Repositories;
+using Infrastructure.Persistence.Repositories;
 
 namespace Infrastructure
 {
     public static class DependencyInjection
     {
-       
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ShippingContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("con"),
-                    b => b.MigrationsAssembly("Infrastructure")));
+            services.AddDbContext<ShippingContext>(options => options.UseSqlServer(configuration.GetConnectionString("con")));
 
             services.AddIdentityCore<ApplicationUser>().AddRoles<ApplicationRoles>().AddEntityFrameworkStores<ShippingContext>();
 

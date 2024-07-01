@@ -10,7 +10,7 @@ namespace Domain.Entities
 {
     public class Employee
     {
-        public bool IsActive { get; set; }
+        //public bool IsActive { get; set; }
 
         [ForeignKey("user")]
         [Key]

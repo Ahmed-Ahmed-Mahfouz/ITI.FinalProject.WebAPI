@@ -68,10 +68,12 @@ namespace ITI.FinalProject.WebAPI
 
             app.UseAuthorization();
 
+<<<<<<< HEAD
             app.UseCors(txt);
 
+=======
+>>>>>>> origin/Ahmed
             app.MapControllers();
-
 
             app.Run();
         }

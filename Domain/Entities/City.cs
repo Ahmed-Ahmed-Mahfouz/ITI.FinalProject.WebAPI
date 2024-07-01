@@ -13,13 +13,16 @@ namespace Domain.Entities
         public int id { get; set; }
         public string name { get; set; }
         public Status status { get; set; }
+        [Column(TypeName = "money")]
         public decimal normalShippingCost { get; set; }
+        [Column(TypeName = "money")]
         public decimal pickupShippingCost { get; set;}
-        [ForeignKey("state")]
-        public int stateId { get; set; }
+        [ForeignKey("governorate")]
+        public int governorateId { get; set; }
 
         public Branch branch { get; set; }
-        public Governorate state { get; set; }
+        public Governorate governorate { get; set; }
+        public SpecialPackages citySpecialPackages { get; set; }
         public List<Merchant> cityMerchants { get; set; }
         public List<Order> cityOrders { get; set; }
 

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Enums
 {
-    public enum DiscountTypes
+    public enum DeductionType
     {
-        Percentage,
-        Numeric
+        Amount,
+        Percentage
     }
 }
