@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces
+namespace Domain.Enums
 {
-    public interface IOrderService
+    public enum DeductionType
     {
+        Amount,
+        Percentage
     }
 }

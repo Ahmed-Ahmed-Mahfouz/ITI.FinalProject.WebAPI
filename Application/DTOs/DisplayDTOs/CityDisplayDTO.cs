@@ -16,7 +16,7 @@ namespace Application.DTOs.DisplayDTOs
         public Status status { get; set; }
         public decimal normalShippingCost { get; set; }
         public decimal pickupShippingCost { get; set; }
-        public int stateId { get; set; }
+        public int governorateId { get; set; }
         
     }
 }

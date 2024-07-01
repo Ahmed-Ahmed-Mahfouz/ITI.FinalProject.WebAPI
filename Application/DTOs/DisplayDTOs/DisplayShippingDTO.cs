@@ -10,7 +10,7 @@ namespace Application.DTOs.DisplayDTOs
     public class DisplayShippingDTO
     {
         public int Id { get; set; }
-        public ShippingTypes ShippingMethod { get; set; }
         public decimal Price { get; set; }
+        public ShippingTypes ShippingType { get; set; }
     }
 }

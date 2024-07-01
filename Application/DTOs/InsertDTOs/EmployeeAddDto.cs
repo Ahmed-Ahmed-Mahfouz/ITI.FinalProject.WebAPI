@@ -29,6 +29,8 @@ namespace Application.DTOs.InsertDTOs
 
         public ApplicationUser? User { get; set; }
 
+        public string role { get; set; }
+
         //public BranchReadDto? Branch { get; set; }
 
     }

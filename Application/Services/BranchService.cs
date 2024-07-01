@@ -14,7 +14,7 @@ using Domain.Entities;
 
 namespace Domain.Services
 {
-    public class BranchService : IGenericService<Branch,BranchDisplayDTO,BranchInsertDTO,BranchUpdateDTO,int>
+    public class BranchService : IPaginationService<Branch,BranchDisplayDTO,BranchInsertDTO,BranchUpdateDTO,int>
     {
         public IGenericRepository<Branch> branchRepo;
         public IUnitOfWork unit;
@@ -201,6 +201,9 @@ namespace Domain.Services
             
         }
 
-        
+        public Task<(List<BranchDisplayDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
