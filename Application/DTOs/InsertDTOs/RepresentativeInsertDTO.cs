@@ -9,7 +9,7 @@ namespace Application.DTOs.InsertDTOs
 {
     public class RepresentativeInsertDTO
     {
-        public string DiscountType { get; set; }
+        public DiscountTypes DiscountType { get; set; }
         public int CompanyPercetage { get; set; }
         public string UserFullName { get; set; }
         public string Email { get; set; }

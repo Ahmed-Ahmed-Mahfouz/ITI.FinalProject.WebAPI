@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,7 +11,8 @@ namespace Domain.Entities
 {
     public class Representative
     {
-        public string DiscountType { get; set; }
+        //Needs New Migration
+        public DiscountTypes DiscountType { get; set; }
         public int CompanyPercetage { get; set; }
         [ForeignKey("user")]
         [Key]

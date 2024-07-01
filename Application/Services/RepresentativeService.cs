@@ -12,12 +12,13 @@ using Application.Interfaces.ApplicationServices;
 using Application.DTOs.DisplayDTOs;
 using Application.DTOs.InsertDTOs;
 using Microsoft.AspNetCore.Identity;
+using Application.DTOs;
 
 
 
 namespace Application.Services
 {
-    public class RepresentativeService:IGenericService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,ReoresentativeUpdateDTO,string>
+    public class RepresentativeService:IGenericService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,RepresentativeUpdateDTO,string>
     {
         //public RepresentativeDisplayDTO MapToDTO(Representative representative)
         //{
@@ -112,11 +113,14 @@ namespace Application.Services
                 UserType = Domain.Enums.UserType.Representative,
 
             };
+
             var resultUser =await AddUser(userAdded);
-           if(resultUser.Message!=null)
+
+            if(resultUser.Message!=null)
             {
                 return false;
             }
+
             var representive = new Representative()
             {
                 CompanyPercetage = ObjectDTO.CompanyPercetage,
@@ -140,19 +144,164 @@ namespace Application.Services
             SaveResult = await unit.SaveChanges();
             return representativeResult && govRepresentativeResult && SaveResult;
         }
-        public Task<bool> UpdateObject(ReoresentativeUpdateDTO ObjectDTO)
+        public async Task<bool> UpdateObject(RepresentativeUpdateDTO ObjectDTO)
         {
-            throw new NotImplementedException();
+
+            var user = await _userManager.FindByIdAsync(ObjectDTO.Id);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.FullName = ObjectDTO.UserFullName;
+
+            user.BranchId = ObjectDTO.UserBranchId;
+
+            var identityResult = await _userManager.ChangePasswordAsync(user, user.PasswordHash, ObjectDTO.Password);
+
+            if (!identityResult.Succeeded)
+            {
+                return false;
+            }
+
+            var token = await _userManager.GenerateChangeEmailTokenAsync(user, ObjectDTO.Email);
+
+            identityResult = await _userManager.ChangeEmailAsync(user, ObjectDTO.Email, token);
+
+            if (!identityResult.Succeeded)
+            {
+                return false;
+            }
+
+            token = await _userManager.GenerateChangePhoneNumberTokenAsync(user, ObjectDTO.UserPhoneNo);
+
+            identityResult = await _userManager.ChangePhoneNumberAsync(user, ObjectDTO.UserPhoneNo, token);
+
+            if (!identityResult.Succeeded)
+            {
+                return false;
+            }
+
+            user.Status = ObjectDTO.UserStatus;
+
+            identityResult = await _userManager.UpdateAsync(user);
+
+            if (!identityResult.Succeeded)
+            {
+                return false;
+            }
+
+            var representative = await repository.GetElement(r => r.userId == ObjectDTO.Id);
+
+            if (representative == null)
+            {
+                return false;
+            }
+
+            representative.CompanyPercetage = ObjectDTO.CompanyPercetage;
+            representative.DiscountType = ObjectDTO.DiscountType;
+            var result = repository.Edit(representative);
+
+            if (result == false)
+            {
+                return result;
+            }
+
+            var representativeGovernorates = await GovRepo.GetAllElements(gr => gr.representativeId == ObjectDTO.Id);
+
+            foreach (var governorateId in ObjectDTO.GovernorateIds)
+            {
+                if (representativeGovernorates.FirstOrDefault(rg => rg.governorateId == governorateId) == null)
+                {
+                    result = GovRepo.Add(new GovernorateRepresentatives()
+                    {
+                        governorateId = governorateId,
+                        representativeId = ObjectDTO.Id
+                    });
+
+                    if (result == false)
+                    {
+                        return result;
+                    }
+                }
+            }
+
+            foreach (var representativeGovernorate in representativeGovernorates)
+            {
+                if (ObjectDTO.GovernorateIds.FirstOrDefault(gid => gid == representativeGovernorate.governorateId) == 0)
+                {
+                    result = GovRepo.Delete(representativeGovernorate);
+
+                    if (result == false)
+                    {
+                        return result;
+                    }
+                }
+            }
+
+
+            result = await SaveChangesForObject();
+
+            return result;
         }
+        public async Task<bool> DeleteObject(string ObjectId)
+        {
+
+            var representative = await repository.GetElement(r => r.userId == ObjectId);
+
+            if (representative == null)
+            {
+                return false;
+            }
+
+            var representativeGovernorates = await GovRepo.GetAllElements(rg => rg.representativeId == ObjectId);
+
+            var result = false;
+
+            foreach (var representativeGovernorate in representativeGovernorates)
+            {
+                result = GovRepo.Delete(representativeGovernorate);
+            }
+
+            if (result == false)
+            {
+                return result;
+            }
+
+            result = await SaveChangesForObject();
+
+            if (result == false)
+            {
+                return result;
+            }
+
+            result = repository.Delete(representative);
+
+            result = await SaveChangesForObject();
+
+            if (result == false)
+            {
+                return result;
+            }
+
+            var user = await _userManager.FindByIdAsync(ObjectId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            var identityResult = await _userManager.DeleteAsync(user);
+
+            return (identityResult.Succeeded);
+        }
+
         public async Task<bool> SaveChangesForObject()
         {
             var result = await unit.SaveChanges();
 
             return result;
-        }
-        public Task<bool> DeleteObject(string ObjectId)
-        {
-            throw new NotImplementedException();
         }
         private RepresentativeDisplayDTO MapRepresentative(Representative representative)
         {
@@ -198,10 +347,13 @@ namespace Application.Services
         {
             if (await _userManager.FindByEmailAsync(userDto.Email) != null)
                 return new ResultUser { Message = "Email is Already registered!" };
+
+            if (await _userManager.FindByNameAsync(userDto.FullName.Trim().Replace(' ', '_')) != null)
+                return new ResultUser { Message = "UserName is Already registered!" };
+
             var user = new ApplicationUser
             {
-
-                UserName = userDto.Email,
+                UserName = userDto.FullName.Trim().Replace(' ', '_'), //userDto.Email,
                 Email = userDto.Email,
                 FullName = userDto.FullName,
                 UserType = userDto.UserType,

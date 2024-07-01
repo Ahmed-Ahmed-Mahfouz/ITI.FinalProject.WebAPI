@@ -95,7 +95,7 @@ namespace Application.Services
             var role = new ApplicationRoles()
             {
                 Name = rolePowersInsertDTO.RoleName,
-                TimeOfAddtion = DateTime.Now
+                TimeOfAddition = DateTime.Now
             };
 
             var identityResult = await roleManager.CreateAsync(role);
@@ -216,7 +216,7 @@ namespace Application.Services
                 {
                     RoleId = item.RoleId,
                     RoleName = role.Name,
-                    TimeOfAddtion = role.TimeOfAddtion,
+                    TimeOfAddtion = role.TimeOfAddition,
                     Power = item.Power
                 });
             }
@@ -232,7 +232,7 @@ namespace Application.Services
             {
                 RoleId = rolePower.RoleId,
                 RoleName = role.Name,
-                TimeOfAddtion = role.TimeOfAddtion,
+                TimeOfAddtion = role.TimeOfAddition,
                 Power = rolePower.Power
             };
 
