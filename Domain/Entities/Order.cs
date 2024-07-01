@@ -33,7 +33,6 @@ namespace Domain.Entities
         [ForeignKey("shipping")]
         public int shippingId { get; set; }
         public OrderStatus Status { get; set; }
-
         public Merchant merchant { get; set; }
         public Governorate governorate { get; set; }
         public City city { get; set; }

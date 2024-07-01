@@ -63,39 +63,25 @@ namespace Application.Services
             return _mapper.Map<DisplayOrderDTO>(order);
         }
 
-        public async Task<bool> InsertObject(InsertOrderDTO orderDTO)
+        public Task<bool> InsertObject(InsertOrderDTO orderDTO)
         {
             var order = _mapper.Map<Order>(orderDTO);
-            _repository.Add(order);
-            return true;
+            var result =  _repository.Add(order); 
+            return Task.FromResult(result);
         }
 
-        public async Task<bool> UpdateObject(UpdateOrderDTO orderDTO)
+        public Task<bool> UpdateObject(UpdateOrderDTO orderDTO)
         {
             var order = _mapper.Map<Order>(orderDTO);
-            _repository.Edit(order);
-            return true;
+            var result = _repository.Edit(order); 
+            return Task.FromResult(result);
         }
-
-        //public bool InsertObject(InsertOrderDTO orderDTO)
-        //{
-        //    var order = _mapper.Map<Order>(orderDTO);
-        //    _repository.Add(order);
-        //    return true;
-        //}
-
-        //public bool UpdateObject(UpdateOrderDTO orderDTO)
-        //{
-        //    var order = _mapper.Map<Order>(orderDTO);
-        //    _repository.Edit(order);
-        //    return true;
-        //}
 
         public async Task<bool> DeleteObject(int orderId)
         {
             var order = await _repository.GetElement(x => x.Id == orderId);
-            _repository.Delete(order);
-            return true;
+            var result = _repository.Delete(order);
+            return result;
         }
 
         public async Task<bool> SaveChangesForObject()
