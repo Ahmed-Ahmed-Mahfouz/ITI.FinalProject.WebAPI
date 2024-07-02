@@ -35,6 +35,18 @@ namespace Application
 
             services.AddScoped<IOrderService, Domain.Services.OrderService>();
 
+
+            services.AddAutoMapper(typeof(Mappings.MappingProfile));
+           // services.AddScoped<IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO,int>, OrderService>();
+            services.AddScoped<IGenericService<Product, DisplayProductDTO, InsertProductDTO, UpdateProductDTO,int>, ProductService>();
+            services.AddScoped<IGenericService<Shipping, DisplayShippingDTO, InsertShippingDTO, UpdateShippingDTO,int>, ShippingService>();
+           // services.AddScoped<IGenericService<Payment, DisplayPaymentDTO, InsertPaymentDTO, UpdatePaymentDTO,int>, PaymentService>();
+            services.AddScoped<IGenericService<Branch, BranchDisplayDTO, BranchInsertDTO, BranchUpdateDTO,int>, BranchService>();
+            services.AddScoped<IGenericService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int>, CityService>();
+            services.AddScoped<IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>, MerchantService>();
+           // services.AddScoped<IEmployeeService, EmployeeService>();
+
+
             return services;
         }
     }

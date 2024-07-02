@@ -16,6 +16,8 @@ namespace Application.Mappings
                 .ForMember(dest => dest.GovernorateName, opt => opt.MapFrom(src => src.governorate.name))
                 .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.city.name))
                 .ForMember(dest => dest.ShippingType, opt => opt.MapFrom(src => src.shipping.ShippingType))
+                .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.branch.name))
+                .ForMember(dest => dest.RepresentativeName, opt => opt.MapFrom(src => src.representative.user.FullName)) //Possible Error
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
             CreateMap<InsertOrderDTO, Order>();
             CreateMap<UpdateOrderDTO, Order>();
