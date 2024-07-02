@@ -19,8 +19,10 @@ namespace Application.Mappings
                 .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.branch.name))
                 .ForMember(dest => dest.RepresentativeName, opt => opt.MapFrom(src => src.representative.user.FullName)) //Possible Error
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
-            CreateMap<InsertOrderDTO, Order>();
-            CreateMap<UpdateOrderDTO, Order>();
+            CreateMap<InsertOrderDTO, Order>()
+                .ForMember(dest => dest.ShippingCost, opt => opt.MapFrom(src => 0));
+            CreateMap<UpdateOrderDTO, Order>()
+                .ForMember(dest => dest.ShippingCost, opt => opt.MapFrom(src => 0));
 
             // Product Mappings
             CreateMap<Product, DisplayProductDTO>()

@@ -30,6 +30,7 @@ namespace Application.DTOs.DisplayDTOs
         public string RepresentativeName { get; set; }
         public decimal? OrderMoneyReceived { get; set; }
         public decimal? ShippingMoneyReceived { get; set; }
+        public decimal ShippingCost { get; set; }
 
         public OrderStatus Status { get; set; }
         public OrderTypes Type { get; set; }

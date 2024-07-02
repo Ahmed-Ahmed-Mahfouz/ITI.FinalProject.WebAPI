@@ -62,25 +62,74 @@ namespace Application.Services
             return _mapper.Map<DisplayProductDTO>(product);
         }
 
-        public  Task<bool> InsertObject(InsertProductDTO productDTO)
+        public  Task<ModificationResultDTO> InsertObject(InsertProductDTO productDTO)
         {
             var product = _mapper.Map<Product>(productDTO);
             var result = _repository.Add(product);
-            return Task.FromResult(result);
+
+            if (result == false)
+            {
+                return Task.FromResult(new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error inserting the product"
+                });
+            }
+
+            return Task.FromResult(new ModificationResultDTO()
+            {
+                Succeeded = true
+            });
         }
 
-        public Task<bool> UpdateObject(UpdateProductDTO productDTO)
+        public Task<ModificationResultDTO> UpdateObject(UpdateProductDTO productDTO)
         {
             var product = _mapper.Map<Product>(productDTO);
             var result = _repository.Edit(product);
-            return Task.FromResult(result);
+
+            if (result == false)
+            {
+                return Task.FromResult(new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error updating the product"
+                });
+            }
+
+            return Task.FromResult(new ModificationResultDTO()
+            {
+                Succeeded = true
+            });
         }
 
-        public async Task<bool> DeleteObject(int productId)
+        public async Task<ModificationResultDTO> DeleteObject(int productId)
         {
             var product = await _repository.GetElement(x => x.Id == productId);
+
+            if (product == null)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Product doesn't exist in the db"
+                };
+            }
+
             var result = _repository.Delete(product);
-            return result;
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error deleting the product"
+                };
+            }
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = true
+            };
         }
 
         public async Task<bool> SaveChangesForObject()

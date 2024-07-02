@@ -64,15 +64,21 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> PostOrder([FromBody] InsertOrderDTO orderDTO)
         {
-            if (await _orderService.InsertObject(orderDTO))
+            var result = await _orderService.InsertObject(orderDTO);
+
+            if (result.Succeeded)
             {
                 if (await _orderService.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
 
         // PUT: api/Orders/5
@@ -86,25 +92,31 @@ namespace ITI.FinalProject.WebAPI.Controllers
         {
             if (id != orderDTO.Id)
             {
-                return BadRequest();
+                return BadRequest("Id doesn't match the id in the object");
             }
 
             var success = await _orderService.GetObjectWithoutTracking(o => o.Id == id);
 
             if (success == null)
             {
-                return NotFound();
+                return NotFound("Order doesn't exist in the db");
             }
 
-            if (await _orderService.UpdateObject(orderDTO))
+            var result = await _orderService.UpdateObject(orderDTO);
+
+            if (result.Succeeded)
             {
                 if (await _orderService.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
 
         // DELETE: api/Orders/5
@@ -119,18 +131,24 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (success == null)
             {
-                return NotFound();
+                return NotFound("Order doesn't exist in the db");
             }
 
-            if (await _orderService.DeleteObject(id))
+            var result = await _orderService.DeleteObject(id);
+
+            if (result.Succeeded)
             {
                 if (await _orderService.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
     }
 }

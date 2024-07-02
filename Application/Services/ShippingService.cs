@@ -64,25 +64,73 @@ namespace Application.Services
             return _mapper.Map<DisplayShippingDTO>(shipping);
         }
 
-        public Task<bool> InsertObject(InsertShippingDTO shippingDTO)
+        public Task<ModificationResultDTO> InsertObject(InsertShippingDTO shippingDTO)
         {
             var shipping = _mapper.Map<Shipping>(shippingDTO);
             var result = _repository.Add(shipping);
-            return Task.FromResult(result);
+            if (result == false)
+            {
+                return Task.FromResult(new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error inserting the shipping object"
+                });
+            }
+
+            return Task.FromResult(new ModificationResultDTO()
+            {
+                Succeeded = true
+            });
         }
 
-        public Task<bool> UpdateObject(UpdateShippingDTO shippingDTO)
+        public Task<ModificationResultDTO> UpdateObject(UpdateShippingDTO shippingDTO)
         {
             var shipping = _mapper.Map<Shipping>(shippingDTO);
             var result = _repository.Edit(shipping);
-            return Task.FromResult(result);
+
+            if (result == false)
+            {
+                return Task.FromResult(new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error updating the shipping object"
+                });
+            }
+
+            return Task.FromResult(new ModificationResultDTO()
+            {
+                Succeeded = true
+            });
         }
 
-        public async Task<bool> DeleteObject(int shippingId)
+        public async Task<ModificationResultDTO> DeleteObject(int shippingId)
         {
             var shipping = await _repository.GetElement(x => x.Id == shippingId);
+
+            if (shipping == null)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "shipping object doesn't exist in the db"
+                };
+            }
+
             var result = _repository.Delete(shipping);
-            return result;
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error deleting the shipping object"
+                };
+            }
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = true
+            };
         }
 
         public async Task<bool> SaveChangesForObject()

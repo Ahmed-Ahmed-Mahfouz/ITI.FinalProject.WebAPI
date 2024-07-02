@@ -25,11 +25,11 @@ namespace Application.Interfaces.ApplicationServices
 
         public Task<T2?> GetObjectWithoutTracking(Expression<Func<T1, bool>> filter, params Expression<Func<T1, object>>[] includes);
 
-        public Task<bool> InsertObject(T3 ObjectDTO);
+        public Task<ModificationResultDTO> InsertObject(T3 ObjectDTO);
 
-        public Task<bool> UpdateObject(T4 ObjectDTO);
+        public Task<ModificationResultDTO> UpdateObject(T4 ObjectDTO);
 
-        public Task<bool> DeleteObject(T5 ObjectId);
+        public Task<ModificationResultDTO> DeleteObject(T5 ObjectId);
 
         public Task<bool> SaveChangesForObject();
     }

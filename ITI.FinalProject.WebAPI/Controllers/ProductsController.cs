@@ -59,15 +59,21 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> PostProduct(InsertProductDTO productDTO)
         {
-            if (await _productService.InsertObject(productDTO))
+            var result = await _productService.InsertObject(productDTO);
+
+            if (result.Succeeded)
             {
                 if (await _productService.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
 
         // PUT: api/Products/5
@@ -81,25 +87,31 @@ namespace ITI.FinalProject.WebAPI.Controllers
         {
             if (id != productDTO.Id)
             {
-                return BadRequest();
+                return BadRequest("Id doesn't match the id in the object");
             }
 
             var success = await _productService.GetObjectWithoutTracking(p => p.Id == id);
 
             if (success == null)
             {
-                return NotFound();
+                return NotFound("Product doesn't exist in the db");
             }
 
-            if (await _productService.UpdateObject(productDTO))
+            var result = await _productService.UpdateObject(productDTO);
+
+            if (result.Succeeded)
             {
                 if (await _productService.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
 
         // DELETE: api/Products/5
@@ -114,18 +126,24 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (success == null)
             {
-                return NotFound();
+                return NotFound("Product doesn't exist in the db");
             }
 
-            if (await _productService.DeleteObject(id))
+            var result = await _productService.DeleteObject(id);
+
+            if (result.Succeeded)
             {
                 if (await _productService.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
     }
 }
