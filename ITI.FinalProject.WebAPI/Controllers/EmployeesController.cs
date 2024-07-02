@@ -2,9 +2,12 @@
 using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.Interfaces;
+using Application.Interfaces.ApplicationServices;
+using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Transactions;
 
 namespace ITI.FinalProject.WebAPI.Controllers
 {
@@ -12,15 +15,16 @@ namespace ITI.FinalProject.WebAPI.Controllers
     [ApiController]
     public class EmployeesController : ControllerBase
     {
-        private readonly IEmployeeService employeeService;
+       // private readonly IEmployeeService employeeService;
+       private readonly IGenericService <Employee, EmployeeReadDto , EmployeeAddDto , EmployeeupdateDto ,string> employeeService;
 
-        public EmployeesController(IEmployeeService employeeService)
+        public EmployeesController(IGenericService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string> employeeService)
         {
             this.employeeService = employeeService;
         }
-
+        //GET
         [SwaggerOperation(
-        Summary = "This Endpoint returns a list of employees",
+        Summary = "This Endpoint returns a list of Employees",
         Description = ""
         )]
         [SwaggerResponse(200, "Returns a list of employees", Type = typeof(IEnumerable<EmployeeReadDto>))]
@@ -48,14 +52,14 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [Route("{id}")]
         public async Task<ActionResult<EmployeeReadDto>> GetById(string id)
         {
-            EmployeeReadDto? employeeReadDto = await employeeService.GetByid(id);
+            EmployeeReadDto? employeeReadDto = await employeeService.GetObject(e => e.userId == id);
             if (employeeReadDto == null)
             {
                 return NotFound();
             }
             return Ok(employeeReadDto);
         }
-
+        //POST
         [SwaggerOperation(
         Summary = "This Endpoint inserts an employee element in the db",
         Description = ""
@@ -63,19 +67,22 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(204, "Confirms that the employee was inserted successfully", Type = typeof(void))]
         [SwaggerResponse(400, "Something went wrong, please try again later", Type = typeof(void))]
         [HttpPost]
-        public async Task<ActionResult> Add(EmployeeAddDto employeeAddDto)
+        public async Task<ActionResult> Add([FromBody]EmployeeAddDto employeeAddDto)
         {
-            try
-            {
-                await employeeService.AddUserAndEmployee(employeeAddDto);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
 
+                var result = await employeeService.InsertObject(employeeAddDto);
+                transaction.Complete();
+
+                if (result.Succeeded)
+                {
+                    return NoContent();
+                }
+                return Accepted(result.Message);
+            }
+           
+        }
+        //DELETE
         [SwaggerOperation(
         Summary = "This Endpoint deletes the specified employee from the db",
         Description = ""
@@ -107,15 +114,26 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [Route("{id}")]
         public async Task<ActionResult> Update(string id, EmployeeupdateDto employeeupdateDto)
         {
-            try
+            if (id != EmployeeupdateDto.Id)
             {
-                await employeeService.Update(id, employeeupdateDto);
-                return Ok("Employee update is successful");
+                return BadRequest("Id doesn't match the id in the object");
             }
-            catch (Exception ex)
+
+            var representative = await employeeService.GetObjectWithoutTracking(r => r.userId == id);
+
+            if (representative == null)
             {
-                return BadRequest(ex.Message);
+                return NotFound("Representative doesn't exist in the db");
             }
+
+            var result = await employeeService.UpdateObject(employeeupdateDto);
+
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+
+            return Accepted(result.Message);
         }
     }
 }
