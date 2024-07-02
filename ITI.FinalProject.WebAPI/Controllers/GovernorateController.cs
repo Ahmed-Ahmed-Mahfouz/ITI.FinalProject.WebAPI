@@ -71,15 +71,21 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> PostGovernorate([FromBody] GovernorateInsertDTO governorateInsertDTO)
         {
-            if (await service.InsertObject(governorateInsertDTO))
+            var result = await service.InsertObject(governorateInsertDTO);
+
+            if (result.Succeeded)
             {
                 if (await service.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
 
         // PUT api/Governorate/5
@@ -96,25 +102,31 @@ namespace ITI.FinalProject.WebAPI.Controllers
         {
             if (id != governorateUpdateDTO.id)
             {
-                return BadRequest();
+                return BadRequest("Id doesn't match the id in the object");
             }
 
             var governorate = await service.GetObjectWithoutTracking(g => g.id == id);
 
             if (governorate == null)
             {
-                return NotFound();
+                return NotFound("Governorate doesn't exist in the db");
             }
 
-            if(await service.UpdateObject(governorateUpdateDTO))
+            var result = await service.UpdateObject(governorateUpdateDTO);
+
+            if (result.Succeeded)
             {
                 if (await service.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
 
         // DELETE api/Governorate/5
@@ -132,18 +144,24 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (governorate == null)
             {
-                return NotFound();
+                return NotFound("Governorate doesn't exist in the db");
             }
 
-            if (await service.DeleteObject(id))
+            var result = await service.DeleteObject(id);
+
+            if (result.Succeeded)
             {
                 if (await service.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
     }
 }

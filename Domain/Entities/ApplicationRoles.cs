@@ -12,6 +12,6 @@ namespace Domain.Entities
         public List<RolePowers> RolePowers { get; set; }
 
         //Not Added to DB YET
-        public DateTime TimeOfAddtion { get; set; }
+        public DateTime TimeOfAddition { get; set; }
     }
 }

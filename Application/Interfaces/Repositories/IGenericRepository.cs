@@ -9,7 +9,7 @@ namespace Application.Interfaces.Repositories
 {
     public interface IGenericRepository<T> where T : class
     {
-        public Task<List<T>> GetAllElements();
+        public Task<List<T>> GetAllElements(Expression<Func<DTOs.DisplayDTOs.BranchDisplayDTO, object>>[] includes);
 
         public Task<List<T>> GetAllElements(Expression<Func<T, bool>> filter);
 
@@ -29,7 +29,7 @@ namespace Application.Interfaces.Repositories
 
         public bool Edit(T element);
 
-        public bool Delete(T element);
+        public bool Delete(T element);  
 
         //public Task<bool> SaveChanges();
     }

@@ -12,12 +12,13 @@ using Application.Interfaces.ApplicationServices;
 using Application.DTOs.DisplayDTOs;
 using Application.DTOs.InsertDTOs;
 using Microsoft.AspNetCore.Identity;
+using Application.DTOs;
 
 
 
 namespace Application.Services
 {
-    public class RepresentativeService:IGenericService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,ReoresentativeUpdateDTO,string>
+    public class RepresentativeService:IPaginationService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,RepresentativeUpdateDTO,string>
     {
         //public RepresentativeDisplayDTO MapToDTO(Representative representative)
         //{
@@ -40,15 +41,15 @@ namespace Application.Services
 
         private readonly IUnitOfWork unit;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IGenericRepository<Representative> repository;
-        private readonly IGenericRepository<GovernorateRepresentatives> GovRepo;
+        private readonly IPaginationRepository<Representative> repository;
+        private readonly IPaginationRepository<GovernorateRepresentatives> GovRepo;
 
         public RepresentativeService(IUnitOfWork unit,UserManager<ApplicationUser> userManager)
         {
             this.unit = unit;
             this._userManager = userManager;
-            this.repository = unit.GetGenericRepository<Representative>();
-            this.GovRepo = unit.GetGenericRepository<GovernorateRepresentatives>();
+            this.repository = unit.GetPaginationRepository<Representative>();
+            this.GovRepo = unit.GetPaginationRepository<GovernorateRepresentatives>();
         }
 
         public async Task<List<RepresentativeDisplayDTO>> GetAllObjects()
@@ -98,7 +99,7 @@ namespace Application.Services
             return MapRepresentative(representative);
         }
 
-        public async Task<bool> InsertObject(RepresentativeInsertDTO ObjectDTO)
+        public async Task<ModificationResultDTO> InsertObject(RepresentativeInsertDTO ObjectDTO)
         {
             var userAdded = new UserDto()
             {
@@ -112,21 +113,49 @@ namespace Application.Services
                 UserType = Domain.Enums.UserType.Representative,
 
             };
-            var resultUser =await AddUser(userAdded);
-           if(resultUser.Message!=null)
+
+            var resultUser = await AddUser(userAdded);
+
+            if(resultUser.Message != null)
             {
-                return false;
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = resultUser.Message
+                };
             }
+
             var representive = new Representative()
             {
-                CompanyPercetage = ObjectDTO.CompanyPercetage,
+                CompanyPercentage = ObjectDTO.CompanyPercentage,
                 DiscountType = ObjectDTO.DiscountType,
                 userId = resultUser.UserId,
             };
-            var representativeResult=repository.Add(representive);
-           var SaveResult=await unit.SaveChanges();
-            if (SaveResult == false) return false;
+
+            var representativeResult = repository.Add(representive);
+
+            if (representativeResult == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error inserting the representative"
+                };
+            }
+
+            var saveResult = await unit.SaveChanges();
+
+            if (saveResult == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving the changes"
+                };
+            }
+
             var govRepresentativeResult = false;
+
             foreach (var govId in ObjectDTO.GovernorateIds)
             {
                 var governrateRepresentative = new GovernorateRepresentatives()
@@ -135,24 +164,282 @@ namespace Application.Services
                     governorateId = govId
                 };
 
-                govRepresentativeResult= GovRepo.Add(governrateRepresentative);
+                govRepresentativeResult = GovRepo.Add(governrateRepresentative);
+
+                if (govRepresentativeResult == false)
+                {
+                    return new ModificationResultDTO()
+                    {
+                        Succeeded = false,
+                        Message = "Error inserting the governorate representative"
+                    };
+                }
             }
-            SaveResult = await unit.SaveChanges();
-            return representativeResult && govRepresentativeResult && SaveResult;
+
+            saveResult = await unit.SaveChanges();
+
+            if (saveResult == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving the changes"
+                };
+            }
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = true
+            };
         }
-        public Task<bool> UpdateObject(ReoresentativeUpdateDTO ObjectDTO)
+        public async Task<ModificationResultDTO> UpdateObject(RepresentativeUpdateDTO ObjectDTO)
         {
-            throw new NotImplementedException();
+
+            var user = await _userManager.FindByIdAsync(ObjectDTO.Id);
+
+            if (user == null)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "User doesn't exist in the db"
+                };
+            }
+
+            user.FullName = ObjectDTO.UserFullName;
+
+            user.BranchId = ObjectDTO.UserBranchId;
+
+            var identityResult = await _userManager.ChangePasswordAsync(user, user.PasswordHash, ObjectDTO.Password);
+
+            if (!identityResult.Succeeded)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error changing user password"
+                };
+            }
+
+            var token = await _userManager.GenerateChangeEmailTokenAsync(user, ObjectDTO.Email);
+
+            identityResult = await _userManager.ChangeEmailAsync(user, ObjectDTO.Email, token);
+
+            if (!identityResult.Succeeded)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error changing user email"
+                };
+            }
+
+            token = await _userManager.GenerateChangePhoneNumberTokenAsync(user, ObjectDTO.UserPhoneNo);
+
+            identityResult = await _userManager.ChangePhoneNumberAsync(user, ObjectDTO.UserPhoneNo, token);
+
+            if (!identityResult.Succeeded)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error changing user phone number"
+                };
+            }
+
+            user.Status = ObjectDTO.UserStatus;
+
+            identityResult = await _userManager.UpdateAsync(user);
+
+            if (!identityResult.Succeeded)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error updating the user"
+                };
+            }
+
+            var representative = await repository.GetElement(r => r.userId == ObjectDTO.Id);
+
+            if (representative == null)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Representative doesn't exist in the db"
+                };
+            }
+
+            representative.CompanyPercentage = ObjectDTO.CompanyPercentage;
+            representative.DiscountType = ObjectDTO.DiscountType;
+            var result = repository.Edit(representative);
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error updating the representative"
+                };
+            }
+
+            var representativeGovernorates = await GovRepo.GetAllElements(gr => gr.representativeId == ObjectDTO.Id);
+
+            foreach (var governorateId in ObjectDTO.GovernorateIds)
+            {
+                if (representativeGovernorates.FirstOrDefault(rg => rg.governorateId == governorateId) == null)
+                {
+                    result = GovRepo.Add(new GovernorateRepresentatives()
+                    {
+                        governorateId = governorateId,
+                        representativeId = ObjectDTO.Id
+                    });
+
+                    if (result == false)
+                    {
+                        return new ModificationResultDTO()
+                        {
+                            Succeeded = false,
+                            Message = "Error updating the governorate representative"
+                        };
+                    }
+                }
+            }
+
+            foreach (var representativeGovernorate in representativeGovernorates)
+            {
+                if (ObjectDTO.GovernorateIds.FirstOrDefault(gid => gid == representativeGovernorate.governorateId) == 0)
+                {
+                    result = GovRepo.Delete(representativeGovernorate);
+
+                    if (result == false)
+                    {
+                        return new ModificationResultDTO()
+                        {
+                            Succeeded = false,
+                            Message = "Error updating the governorate representative"
+                        };
+                    }
+                }
+            }
+
+
+            result = await SaveChangesForObject();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving changes"
+                };
+            }
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = true
+            };
         }
+        public async Task<ModificationResultDTO> DeleteObject(string ObjectId)
+        {
+
+            var representative = await repository.GetElement(r => r.userId == ObjectId);
+
+            if (representative == null)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Representative doesn't exist in the db"
+                };
+            }
+
+            var representativeGovernorates = await GovRepo.GetAllElements(rg => rg.representativeId == ObjectId);
+
+            var result = false;
+
+            foreach (var representativeGovernorate in representativeGovernorates)
+            {
+                result = GovRepo.Delete(representativeGovernorate);
+
+                if (result == false)
+                {
+                    return new ModificationResultDTO()
+                    {
+                        Succeeded = false,
+                        Message = "Error deleting the governorate representative"
+                    };
+                }
+            }
+
+
+            result = await SaveChangesForObject();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving changes"
+                };
+            }
+
+            result = repository.Delete(representative);
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error deleting the representative"
+                };
+            }
+
+            result = await SaveChangesForObject();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving changes"
+                };
+            }
+
+            var user = await _userManager.FindByIdAsync(ObjectId);
+
+            if (user == null)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "User doesn't exist in the db"
+                };
+            }
+
+            var identityResult = await _userManager.DeleteAsync(user);
+
+            if (identityResult.Succeeded)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = true
+                };
+            }
+
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = false,
+                Message = "Error deleting user"
+            };
+        }
+
         public async Task<bool> SaveChangesForObject()
         {
             var result = await unit.SaveChanges();
 
             return result;
-        }
-        public Task<bool> DeleteObject(string ObjectId)
-        {
-            throw new NotImplementedException();
         }
         private RepresentativeDisplayDTO MapRepresentative(Representative representative)
         {
@@ -160,7 +447,7 @@ namespace Application.Services
             {
                 Id = representative.userId,
                 DiscountType = representative.DiscountType,
-                CompanyPercetage = representative.CompanyPercetage,
+                CompanyPercentage = representative.CompanyPercentage,
                 UserFullName = representative.user.FullName,
                 UserAddress = representative.user.Address,
                 Email = representative.user.Email,
@@ -179,7 +466,7 @@ namespace Application.Services
             {
                 Id = r.userId,
                 DiscountType = r.DiscountType,
-                CompanyPercetage = r.CompanyPercetage,
+                CompanyPercentage = r.CompanyPercentage,
                 UserFullName = r.user.FullName,
                 UserAddress = r.user.Address,
                 Email = r.user.Email,
@@ -198,10 +485,13 @@ namespace Application.Services
         {
             if (await _userManager.FindByEmailAsync(userDto.Email) != null)
                 return new ResultUser { Message = "Email is Already registered!" };
+
+            if (await _userManager.FindByNameAsync(userDto.FullName.Trim().Replace(' ', '_')) != null)
+                return new ResultUser { Message = "UserName is Already registered!" };
+
             var user = new ApplicationUser
             {
-
-                UserName = userDto.Email,
+                UserName = userDto.FullName.Trim().Replace(' ', '_'), //userDto.Email,
                 Email = userDto.Email,
                 FullName = userDto.FullName,
                 UserType = userDto.UserType,
@@ -235,5 +525,9 @@ namespace Application.Services
 
         }
 
+        public Task<(List<RepresentativeDisplayDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

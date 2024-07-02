@@ -9,8 +9,8 @@ namespace Application.DTOs.InsertDTOs
 {
     public class RepresentativeInsertDTO
     {
-        public string DiscountType { get; set; }
-        public int CompanyPercetage { get; set; }
+        public DeductionType DiscountType { get; set; }
+        public double CompanyPercentage { get; set; }
         public string UserFullName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
