@@ -16,11 +16,11 @@ namespace Domain.Services
 {
     public class CityService : IPaginationService<City,CityDisplayDTO,CityInsertDTO,CityUpdateDTO,int>
     {
-        public IGenericRepository<City> CityRepo;
+        public IPaginationRepository<City> CityRepo;
         public IUnitOfWork Unit;
         public CityService( IUnitOfWork unit)
         {
-            CityRepo= unit.GetGenericRepository<City>(); 
+            CityRepo= unit.GetPaginationRepository<City>(); 
             Unit = unit;
         }
         
@@ -152,36 +152,63 @@ namespace Domain.Services
             return CityDTO;
         }
 
-        public async Task<bool> InsertObject(CityInsertDTO ObjectDTO)
+        public async Task<ModificationResultDTO> InsertObject(CityInsertDTO ObjectDTO)
         {
             City City = new City() {
-                    id = 0,
-                    name = ObjectDTO.name,
-                    status = ObjectDTO.status,
-                    normalShippingCost = ObjectDTO.normalShippingCost,
-                    pickupShippingCost = ObjectDTO.pickupShippingCost,
-                    governorateId = ObjectDTO.governorateId
-
+                id = 0,
+                name = ObjectDTO.name,
+                status = ObjectDTO.status,
+                normalShippingCost = ObjectDTO.normalShippingCost,
+                pickupShippingCost = ObjectDTO.pickupShippingCost,
+                governorateId = ObjectDTO.governorateId
             };
+
             var result = CityRepo.Add(City);
-            await Unit.SaveChanges();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error inserting the city"
+                };
+            }
+
+            result = await Unit.SaveChanges();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving the changes"
+                };
+            }
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = true
+            };
+        }
+
+        public async Task<bool> SaveChangesForObject()
+        {
+            var result = await Unit.SaveChanges();
 
             return result;
-           
-
         }
 
-        public Task<bool> SaveChangesForObject()
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<bool> UpdateObject(CityUpdateDTO ObjectDTO)
+        public async Task<ModificationResultDTO> UpdateObject(CityUpdateDTO ObjectDTO)
         {
             City? City =await CityRepo.GetElement(b => b.id == ObjectDTO.id);
+
             if (City == null)
             {
-                return false;
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "City doesn't exist in the db"
+                };
             }
             
             City.name = ObjectDTO.name;
@@ -190,27 +217,72 @@ namespace Domain.Services
             City.status = ObjectDTO.status;
 
             var result = CityRepo.Edit(City);
-            await Unit.SaveChanges();
 
-            return result;
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error updating the city"
+                };
+            }
 
-            
+            result = await Unit.SaveChanges();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving the changes"
+                };
+            }
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = true
+            };
         }
 
-        public async Task<bool> DeleteObject(int ObjectId)
+        public async Task<ModificationResultDTO> DeleteObject(int ObjectId)
         {
             City? City = await CityRepo.GetElement(b => b.id == ObjectId);
+
             if (City == null)
             {
-                return false;
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "City doesn't exist in the db"
+                };
             }
 
             var result = CityRepo.Delete(City);
-            await Unit.SaveChanges();
 
-            return result;
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error deleting the city"
+                };
+            }
 
-             
+            result = await Unit.SaveChanges();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving the changes"
+                };
+            }
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = true
+            };
         }
 
         public Task<(List<CityDisplayDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)

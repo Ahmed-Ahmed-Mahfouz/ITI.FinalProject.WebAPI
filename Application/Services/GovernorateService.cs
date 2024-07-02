@@ -14,15 +14,15 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class GovernorateService: IGenericService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int>
+    public class GovernorateService: IPaginationService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int>
     {
         private readonly IUnitOfWork unit;
-        private readonly IGenericRepository<Governorate> repository;
+        private readonly IPaginationRepository<Governorate> repository;
 
         public GovernorateService(IUnitOfWork unit)
         {
             this.unit = unit;
-            this.repository = unit.GetGenericRepository<Governorate>();
+            this.repository = unit.GetPaginationRepository<Governorate>();
 
         }
 
@@ -89,7 +89,7 @@ namespace Application.Services
         }
 
         //public Task<bool> InsertObject(GovernorateInsertDTO governorateInsertDTO, out GovernorateDTO governorateDTO)
-        public Task<bool> InsertObject(GovernorateInsertDTO governorateInsertDTO)
+        public Task<ModificationResultDTO> InsertObject(GovernorateInsertDTO governorateInsertDTO)
         {
             var governorate = new Governorate()
             {
@@ -99,12 +99,22 @@ namespace Application.Services
 
             var result = repository.Add(governorate);
 
-            //governorateDTO = MapGovernorate(governorate);
+            if (result == false)
+            {
+                return Task.FromResult(new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error inserting the governorate"
+                });
+            }
 
-            return Task.FromResult(result);
+            return Task.FromResult(new ModificationResultDTO()
+            {
+                Succeeded = true
+            });
         }
 
-        public Task<bool> UpdateObject(GovernorateUpdateDTO governorateDTO)
+        public Task<ModificationResultDTO> UpdateObject(GovernorateUpdateDTO governorateDTO)
         {
             var governorate = new Governorate()
             {
@@ -115,10 +125,22 @@ namespace Application.Services
 
             var result = repository.Edit(governorate);
 
-            return Task.FromResult(result);
+            if (result == false)
+            {
+                return Task.FromResult(new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error updating the governorate"
+                });
+            }
+
+            return Task.FromResult(new ModificationResultDTO()
+            {
+                Succeeded = true
+            });
         }
 
-        public async Task<bool> DeleteObject(int governorateId)
+        public async Task<ModificationResultDTO> DeleteObject(int governorateId)
         {
             var governorate = await repository.GetElement(g => g.id == governorateId);
             
@@ -126,10 +148,26 @@ namespace Application.Services
             {
                 var result = repository.Delete(governorate);
 
-                return result;                
+                if (result == false)
+                {
+                    return new ModificationResultDTO()
+                    {
+                        Succeeded = false,
+                        Message = "Error deleting the governorate"
+                    };
+                }
+
+                return new ModificationResultDTO()
+                {
+                    Succeeded = true
+                };
             }
 
-            return false;
+            return new ModificationResultDTO()
+            {
+                Succeeded = false,
+                Message = "Governorate doesn't exist in the db"
+            };
         }
 
         public async Task<bool> SaveChangesForObject()
@@ -156,6 +194,11 @@ namespace Application.Services
             };
 
             return governorateDTO;
+        }
+
+        public Task<(List<GovernorateDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        {
+            throw new NotImplementedException();
         }
     }
 }

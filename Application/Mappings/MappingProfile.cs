@@ -17,8 +17,10 @@ namespace Application.Mappings
                 .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.city.name))
                 .ForMember(dest => dest.ShippingType, opt => opt.MapFrom(src => src.shipping.ShippingType))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
-            CreateMap<InsertOrderDTO, Order>();
-            CreateMap<UpdateOrderDTO, Order>();
+            CreateMap<InsertOrderDTO, Order>()
+                .ForMember(dest => dest.ShippingCost, opt => opt.MapFrom(src => 0));
+            CreateMap<UpdateOrderDTO, Order>()
+                .ForMember(dest => dest.ShippingCost, opt => opt.MapFrom(src => 0));
 
             // Product Mappings
             CreateMap<Product, DisplayProductDTO>()

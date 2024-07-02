@@ -59,15 +59,21 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> PostShipping(InsertShippingDTO shippingDTO)
         {
-            if (await _shippingService.InsertObject(shippingDTO))
+            var result = await _shippingService.InsertObject(shippingDTO);
+
+            if (result.Succeeded)
             {
                 if (await _shippingService.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
 
         // PUT: api/Shipping/5
@@ -81,25 +87,31 @@ namespace ITI.FinalProject.WebAPI.Controllers
         {
             if (id != shippingDTO.Id)
             {
-                return BadRequest();
+                return BadRequest("Id deosn't match the id in the object");
             }
 
             var success = await _shippingService.GetObjectWithoutTracking(s => s.Id == id);
 
             if (success == null)
             {
-                return NotFound();
+                return NotFound("Shipping object doesn't exist in the db");
             }
 
-            if (await _shippingService.UpdateObject(shippingDTO))
+            var result = await _shippingService.UpdateObject(shippingDTO);
+
+            if (result.Succeeded)
             {
                 if (await _shippingService.SaveChangesForObject())
                 {
                     return NoContent();
                 }
-            }   
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
+            }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
 
         // DELETE: api/Shipping/5
@@ -114,18 +126,24 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (success == null)
             {
-                return NotFound();
+                return NotFound("Shipping object doesn't exist in the db");
             }
 
-            if (await _shippingService.DeleteObject(id))
+            var result = await _shippingService.DeleteObject(id);
+
+            if (result.Succeeded)
             {
                 if (await _shippingService.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
     }
 }
