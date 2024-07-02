@@ -265,14 +265,14 @@ namespace Application.Services
             return _mapper.Map<MerchantResponseDto>(Merchant);
         }
 
-        Task<bool> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.InsertObject(MerchantAddDto ObjectDTO)
-        {
-            throw new NotImplementedException();
-        }
+        //Task<bool> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.InsertObject(MerchantAddDto ObjectDTO)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        Task<bool> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.UpdateObject(MerchantUpdateDto ObjectDTO)
-        {
-            throw new NotImplementedException();
-        }
+        //Task<bool> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.UpdateObject(MerchantUpdateDto ObjectDTO)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

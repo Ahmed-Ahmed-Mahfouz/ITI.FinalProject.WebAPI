@@ -16,11 +16,11 @@ namespace Domain.Services
 {
     public class BranchService : IPaginationService<Branch,BranchDisplayDTO,BranchInsertDTO,BranchUpdateDTO,int>
     {
-        public IGenericRepository<Branch> branchRepo;
+        public IPaginationRepository<Branch> branchRepo;
         public IUnitOfWork unit;
         public BranchService( IUnitOfWork _unit)
         {
-            branchRepo= _unit.GetGenericRepository<Branch>(); 
+            branchRepo= _unit.GetPaginationRepository<Branch>(); 
             unit = _unit;
         }
        
@@ -88,8 +88,6 @@ namespace Domain.Services
             return branchDTO;
         }
 
-       
-
         public async Task<BranchDisplayDTO?> GetObject(Expression<Func<Branch, bool>> filter, params Expression<Func<Branch, object>>[] includes)
         {
             Branch? branch = await branchRepo.GetElement(filter, includes);
@@ -145,35 +143,64 @@ namespace Domain.Services
             return branchDTO;
         }
 
-        public async Task<bool> InsertObject(BranchInsertDTO ObjectDTO)
+        public async Task<ModificationResultDTO> InsertObject(BranchInsertDTO ObjectDTO)
         {
             Branch branch = new Branch() {
-                   id = 0,
-                   name = ObjectDTO.name,
-                   addingDate = ObjectDTO.addingDate,
-                   cityId = ObjectDTO.cityId,
-                   status = ObjectDTO.status
-                   
+                id = 0,
+                name = ObjectDTO.name,
+                addingDate = ObjectDTO.addingDate,
+                cityId = ObjectDTO.cityId,
+                status = ObjectDTO.status
             };
-            bool result=  branchRepo.Add(branch);
-            await unit.SaveChanges(); 
-            
-            return result;
 
+            bool result = branchRepo.Add(branch);
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error inserting the branch"
+                };
+            }
+
+            result = await unit.SaveChanges();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving the changes"
+                };
+            }
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = true
+            };
         }
 
-        public Task<bool> SaveChangesForObject()
+        public async Task<bool> SaveChangesForObject()
         {
-            throw new NotImplementedException();
+            var result = await unit.SaveChanges();
+
+            return result;
         }
 
-        public async Task<bool> UpdateObject(BranchUpdateDTO ObjectDTO)
+        public async Task<ModificationResultDTO> UpdateObject(BranchUpdateDTO ObjectDTO)
         {
             Branch? branch = await branchRepo.GetElement(b => b.id == ObjectDTO.id);
+
             if (branch == null)
             {
-                return false;
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Branch doesn't exist in the db"
+                };
             }
+
             //Branch branch = new Branch();
             branch.id = ObjectDTO.id;
             branch.name = ObjectDTO.name;
@@ -182,23 +209,71 @@ namespace Domain.Services
             branch.status = ObjectDTO.status;
 
             var result = branchRepo.Edit(branch);
-            await unit.SaveChanges();
 
-            return result;
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error updating the branch"
+                };
+            }
+
+            result = await unit.SaveChanges();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving the changes"
+                };
+            }
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = true
+            };
         }
-        public async Task<bool> DeleteObject(int ObjectId)
+        public async Task<ModificationResultDTO> DeleteObject(int ObjectId)
         {
             Branch? branch = await branchRepo.GetElement(b => b.id == ObjectId);
+
             if (branch == null)
             {
-                return false;
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Branch doesn't exist in the db"
+                };
             }
+
             var result = branchRepo.Delete(branch);
-            await unit.SaveChanges();
 
-            return result;
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error deleting the branch"
+                };
+            }
 
-            
+            result = await unit.SaveChanges();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving the changes"
+                };
+            }
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = true
+            };
         }
 
         public Task<(List<BranchDisplayDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)

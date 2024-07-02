@@ -15,17 +15,17 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class RolePowersService : IGenericService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string>
+    public class RolePowersService : IPaginationService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string>
     {
         private readonly IUnitOfWork unit;
         private readonly RoleManager<ApplicationRoles> roleManager;
-        private readonly IGenericRepository<RolePowers> repository;
+        private readonly IPaginationRepository<RolePowers> repository;
 
         public RolePowersService(IUnitOfWork unit, RoleManager<ApplicationRoles> roleManager)
         {
             this.unit = unit;
             this.roleManager = roleManager;
-            repository = unit.GetGenericRepository<RolePowers>();
+            repository = unit.GetPaginationRepository<RolePowers>();
         }
 
         public async Task<List<RolePowersDTO>> GetAllObjects()
@@ -90,7 +90,7 @@ namespace Application.Services
             return await MapRolePower(rolePower);
         }
 
-        public async Task<bool> InsertObject(RolePowersInsertDTO rolePowersInsertDTO)
+        public async Task<ModificationResultDTO> InsertObject(RolePowersInsertDTO rolePowersInsertDTO)
         {
             var role = new ApplicationRoles()
             {
@@ -112,24 +112,39 @@ namespace Application.Services
 
                     if (result == false)
                     {
-                        return result;
+                        return new ModificationResultDTO()
+                        {
+                            Succeeded = false,
+                            Message = "Error inserting the rolepower"
+                        };
                     }
                 }
 
-                return true;
+                return new ModificationResultDTO()
+                {
+                    Succeeded = true
+                };
             }
 
-            return false;
+            return new ModificationResultDTO()
+            {
+                Succeeded = false,
+                Message = "Error inserting the role"
+            };
         }
 
-        public async Task<bool> UpdateObject(RolePowersUpdateDTO rolePowersUpdateDTO)
+        public async Task<ModificationResultDTO> UpdateObject(RolePowersUpdateDTO rolePowersUpdateDTO)
         {
 
             var role = await roleManager.FindByIdAsync(rolePowersUpdateDTO.RoleId);
 
             if (role == null)
             {
-                return false;
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Role doesn't exist in the db"
+                };
             }
 
             role.Name = rolePowersUpdateDTO.RoleName;
@@ -144,7 +159,11 @@ namespace Application.Services
 
                     if (rolePower == null)
                     {
-                        return false;
+                        return new ModificationResultDTO()
+                        {
+                            Succeeded = false,
+                            Message = "Role power doesn't exist in the db"
+                        };
                     }
 
                     rolePower.Power = power;
@@ -153,17 +172,28 @@ namespace Application.Services
 
                     if (result == false)
                     {
-                        return result;
+                        return new ModificationResultDTO()
+                        {
+                            Succeeded = false,
+                            Message = "Error updating the role power"
+                        };
                     }
                 }
 
-                return true;
+                return new ModificationResultDTO()
+                {
+                    Succeeded = true
+                };
             }
 
-            return false;
+            return new ModificationResultDTO()
+            {
+                Succeeded = false,
+                Message = "Error updating the role"
+            };
         }
 
-        public async Task<bool> DeleteObject(string rolePowersId)
+        public async Task<ModificationResultDTO> DeleteObject(string rolePowersId)
         {
             var rolePowers = await repository.GetAllElements(rp => rp.RoleId == rolePowersId);
 
@@ -173,7 +203,11 @@ namespace Application.Services
 
                 if (result == false)
                 {
-                    return result;
+                    return new ModificationResultDTO()
+                    {
+                        Succeeded = false,
+                        Message = "Error deleting the role power"
+                    };
                 }
             }
 
@@ -181,17 +215,28 @@ namespace Application.Services
 
             if (role == null)
             {
-                return false;
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Role doesn't exist in the db"
+                };
             }
 
             var identityResult = await roleManager.DeleteAsync(role);
 
             if (identityResult.Succeeded)
             {
-                return true;
+                return new ModificationResultDTO()
+                {
+                    Succeeded = true
+                };
             }
 
-            return false;
+            return new ModificationResultDTO()
+            {
+                Succeeded = false,
+                Message = "Error deleting the role"
+            };
         }
 
         public async Task<bool> SaveChangesForObject()
@@ -237,6 +282,11 @@ namespace Application.Services
             };
 
             return RolePowerDTO;
+        }
+
+        public Task<(List<RolePowersDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        {
+            throw new NotImplementedException();
         }
     }
 }
