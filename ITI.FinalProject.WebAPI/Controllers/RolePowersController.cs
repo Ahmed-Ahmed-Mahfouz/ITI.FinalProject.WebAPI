@@ -71,15 +71,21 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> PostRolePower([FromBody] RolePowersInsertDTO rolePowersInsertDTO)
         {
-            if (await service.InsertObject(rolePowersInsertDTO))
+            var result = await service.InsertObject(rolePowersInsertDTO);
+
+            if (result.Succeeded)
             {
                 if (await service.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
 
         // PUT api/RolePowers/fkmc4a2wkmfkmq
@@ -96,25 +102,31 @@ namespace ITI.FinalProject.WebAPI.Controllers
         {
             if (id != rolePowersUpdateDTO.RoleId)
             {
-                return BadRequest();
+                return BadRequest("Id doesn't match the id in the object");
             }
 
             var rolePower = await service.GetObjectWithoutTracking(rp => rp.RoleId == id);
 
             if (rolePower == null)
             {
-                return NotFound();
+                return NotFound("Role Power doesn't exist in the db");
             }
 
-            if (await service.UpdateObject(rolePowersUpdateDTO))
+            var result = await service.UpdateObject(rolePowersUpdateDTO);
+
+            if (result.Succeeded)
             {
                 if (await service.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
 
         // DELETE api/RolePowers/fkmc4a2wkmfkmq
@@ -132,18 +144,24 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (rolePower == null)
             {
-                return NotFound();
+                return NotFound("Role Power doesn't exist in the db");
             }
 
-            if (await service.DeleteObject(id))
+            var result = await service.DeleteObject(id);
+
+            if (result.Succeeded)
             {
                 if (await service.SaveChangesForObject())
                 {
                     return NoContent();
                 }
+                else
+                {
+                    return Accepted("Error saving changes");
+                }
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
     }
 }

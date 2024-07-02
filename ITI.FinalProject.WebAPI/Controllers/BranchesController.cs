@@ -39,11 +39,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
             if (branch == null)
                 return BadRequest();
             var result =await branchServ.InsertObject(branch);
-            if (result == true)
+            if (result.Succeeded)
             {
                 return Ok(result);
             }
-            return BadRequest();
+            return BadRequest(result.Message);
 
 
         }
@@ -51,12 +51,12 @@ namespace ITI.FinalProject.WebAPI.Controllers
         public async Task<ActionResult> deleteBranch(int id)
         {
 
-            bool result =await branchServ.DeleteObject(id);
-            if (result)
+            var result =await branchServ.DeleteObject(id);
+            if (result.Succeeded)
             {
                 return Ok(result);
             }
-            return BadRequest();
+            return BadRequest(result.Message);
 
 
         }
@@ -69,11 +69,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
             }
 
             var result=await branchServ.UpdateObject(branch);
-            if(result)
+            if(result.Succeeded)
             {
                 return Ok(branch);
             }
-            return BadRequest();
+            return BadRequest(result.Message);
         }
 
     }

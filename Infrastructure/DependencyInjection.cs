@@ -37,6 +37,9 @@ namespace Infrastructure
             //services.AddScoped<IUnitOfWork<RolePowers>, UnitOfWork<RolePowers>>();
             //services.AddScoped<IUnitOfWork<Shipping>, UnitOfWork<Shipping>>();
 
+            //register Representative Service Layer For Mapping DTO
+            //services.AddScoped<IRepresentativeService, RepresentativeService>();
+
             return services;
         }
     }
