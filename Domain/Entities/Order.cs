@@ -34,8 +34,8 @@ namespace Domain.Entities
 
         // Calculated properties
         [Column(TypeName = "money")]
-        public decimal TotalPrice => Products.Sum(p => p.Price);
-        public decimal TotalWeight => Products.Sum(p => p.Weight);
+        public decimal TotalPrice => Products.Sum(p => p.Price * p.Quantity);
+        public decimal TotalWeight => Products.Sum(p => p.Weight * p.Quantity);
 
         [ForeignKey("merchant")]
         public string MerchantId { get; set; }
