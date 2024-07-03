@@ -10,6 +10,9 @@ namespace Application.DTOs.DisplayDTOs
 {
     public class MerchantResponseDto
     {
+        public int? GovernorateId { get; set; }
+        public int? CityId { get; set; }
+        public string Id { get; set; }
         public string? StoreName { get; set; }
 
         public string UserName { get; set; } = string.Empty;
@@ -24,12 +27,9 @@ namespace Application.DTOs.DisplayDTOs
 
         //public decimal? RefusedOrderPercentage { get; set; }
         public decimal MerchantPayingPercentageForRejectedOrders { get; set; }
-        [Column(TypeName = "money")]
         public decimal? SpecialPickupShippingCost { get; set; }
-        public List<SpecialPackages> SpecialPackages { get; set; }
-        public City city { get; set; }
-        public Governorate governorate { get; set; }
-        public List<Order> orders { get; set; }
-        public ApplicationUser? User { get; set; }
+        public List<SpecialPackageDTO> SpecialPackages { get; set; }
+        public List<DisplayOrderDTO> orders { get; set; }
+        //public UserDto User { get; set; }
     }
 }

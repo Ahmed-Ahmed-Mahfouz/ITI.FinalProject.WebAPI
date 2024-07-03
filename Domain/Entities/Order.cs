@@ -27,6 +27,11 @@ namespace Domain.Entities
         [Column(TypeName = "money")]
         public decimal? ShippingMoneyReceived { get; set; }
 
+        // Still to be added to database
+
+        [Column(TypeName = "money")]
+        public decimal ShippingCost { get; set; }
+
         // Calculated properties
         [Column(TypeName = "money")]
         public decimal TotalPrice => Products.Sum(p => p.Price);

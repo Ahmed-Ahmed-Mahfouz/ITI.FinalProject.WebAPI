@@ -39,11 +39,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
             if (City == null)
                 return BadRequest();
             var result =await CityServ.InsertObject(City);
-            if (result)
+            if (result.Succeeded)
             {
                 return Ok(result);
             }
-            return BadRequest();
+            return BadRequest(result.Message);
 
 
         }
@@ -51,12 +51,12 @@ namespace ITI.FinalProject.WebAPI.Controllers
         public async Task<ActionResult> deleteCity(int id)
         {
 
-            bool result =await CityServ.DeleteObject(id);
-            if (result)
+            var result =await CityServ.DeleteObject(id);
+            if (result.Succeeded)
             {
                 return Ok(result);
             }
-            return BadRequest();
+            return BadRequest(result.Message);
 
 
         }
@@ -69,11 +69,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
             }
 
             var result = await CityServ.UpdateObject(city);
-            if (result)
+            if (result.Succeeded)
             {
                 return Ok(city);
             }
-            return BadRequest();
+            return BadRequest(result.Message);
         }
 
     }

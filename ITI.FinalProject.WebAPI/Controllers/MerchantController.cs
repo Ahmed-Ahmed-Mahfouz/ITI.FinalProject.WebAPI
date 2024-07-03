@@ -2,6 +2,7 @@
 using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.Interfaces;
+using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +15,16 @@ namespace ITI.FinalProject.WebAPI.Controllers
     [ApiController]
     public class MerchantController : ControllerBase
     {
-        private readonly IMerchantService _MerchantService;
-        private readonly ILogger<MerchantController> _logger;
+        // private readonly IPaginationService _MerchantService;
+        //private readonly ILogger<MerchantController> _logger;
+        private readonly IPaginationService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string> merchantService;
 
-        public MerchantController(IMerchantService MerchantService, ILogger<MerchantController> logger)
+        
+
+        public MerchantController( IPaginationService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string> merchantService)
         {
-            _MerchantService = MerchantService;
-            _logger = logger;
-        }
+            this.merchantService= merchantService;
+         }
 
         [SwaggerOperation(
         Summary = "This Endpoint returns a list of merchants",
@@ -32,9 +35,18 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            IEnumerable<MerchantResponseDto>? response = await _MerchantService.GetAllObjects();
-            return Ok(response?.ToList());
+            IEnumerable<MerchantResponseDto> response = await merchantService.GetAllObjects();
+            if (response != null)
+            {
+
+                return Ok(response.ToList());
+            }
+            else
+            {
+                return NotFound();
+            }
         }
+
 
         [SwaggerOperation(
         Summary = "This Endpoint returns the specified merchant",
@@ -45,7 +57,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
-            MerchantResponseDto? response = await _MerchantService.GetObject(m => m.Id == id);
+            MerchantResponseDto? response = await merchantService.GetObject(m => m.Id == id);
             if (response == null)
                 return NotFound();
             return Ok(response);
@@ -64,7 +76,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             {
                 return BadRequest();
             }
-            IEnumerable<MerchantResponseDto>? Merchants = await _MerchantService.GetFilteredMerchantsAsync(searchString);
+            IEnumerable<MerchantResponseDto>? Merchants = await merchantService.GetAllObjects(o=>searchString);
             return Ok(Merchants?.ToList());
         }
 
@@ -77,10 +89,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult> AddMerchant(MerchantAddDto MerchantAddDto)
         {
-            var errors = await _MerchantService.InsertObject(MerchantAddDto);
-            if (errors?.Count == 0)
+            var errors = await merchantService.InsertObject(MerchantAddDto);
+            if (errors.Succeeded == true)
                 return Ok(MerchantAddDto);
-            return BadRequest(string.Join(", ", errors.Select(err => err.ErrorMessage)));
+            return BadRequest(string.Join(", ", errors.Message));
         }
 
         [SwaggerOperation(
@@ -92,14 +104,14 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpPut("{MerchantId}")]
         public async Task<IActionResult> UpdateMerchant(string MerchantId, MerchantUpdateDto MerchantUpdateDto)
         {
-            List<ValidationResult>? errors = await _MerchantService.UpdateObject(MerchantUpdateDto);
-            if (errors?.Count == 0)
+            ModificationResultDTO error = await merchantService.UpdateObject(MerchantUpdateDto);
+            if (error.Succeeded == true)
             {
-                MerchantResponseDto? updatedMerchant = await _MerchantService.GetObject(m => m.Id == MerchantId);
+                MerchantResponseDto? updatedMerchant = await merchantService.GetObject(m => m.Id == MerchantId);
                 return Ok(updatedMerchant);
             }
             else
-                return BadRequest(string.Join(", ", errors.Select(err => err.ErrorMessage)));
+                return BadRequest(string.Join(", ", error.Message));
         }
 
         [SwaggerOperation(
@@ -111,11 +123,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpDelete("{MerchantId}")]
         public async Task<IActionResult> DeleteMerchant(string MerchantId)
         {
-            bool isDeleted = await _MerchantService.DeleteObject(MerchantId);
-            if (isDeleted)
+            ModificationResultDTO isDeleted = await merchantService.DeleteObject(MerchantId);
+            if (isDeleted.Succeeded==false)
                 return NoContent();
-
-            return NotFound();
+            else
+            return Ok();
         }
     }
-}
+        }

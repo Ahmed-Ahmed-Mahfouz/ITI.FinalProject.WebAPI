@@ -185,7 +185,7 @@ namespace Application.Services
     {
         private readonly IUnitOfWork unit;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IGenericRepository<Employee> repository;
+        private readonly IPaginationRepository<Employee> repository;
         private readonly IMapper mapper;
 
         public EmployeeService(IUnitOfWork unit, UserManager<ApplicationUser> userManager, IMapper mapper)
@@ -537,20 +537,20 @@ namespace Application.Services
             throw new NotImplementedException();
         }
 
-        Task<bool> IGenericService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string>.InsertObject(EmployeeAddDto ObjectDTO)
-        {
-            throw new NotImplementedException();
-        }
+        //Task<bool> IGenericService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string>.InsertObject(EmployeeAddDto ObjectDTO)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        Task<bool> IGenericService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string>.UpdateObject(EmployeeupdateDto ObjectDTO)
-        {
-            throw new NotImplementedException();
-        }
+        //Task<bool> IGenericService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string>.UpdateObject(EmployeeupdateDto ObjectDTO)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        Task<bool> IGenericService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string>.DeleteObject(string ObjectId)
-        {
-            throw new NotImplementedException();
-        }
+        //Task<bool> IGenericService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string>.DeleteObject(string ObjectId)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }
 

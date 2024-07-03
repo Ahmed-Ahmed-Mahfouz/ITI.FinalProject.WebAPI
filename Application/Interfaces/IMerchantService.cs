@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces
 {
-    public interface IMerchantService: IGenericService<Merchant,MerchantResponseDto,MerchantAddDto,MerchantUpdateDto,string>
+    public interface IMerchantService//: IGenericService<Merchant,MerchantResponseDto,MerchantAddDto,MerchantUpdateDto,string>
     {
         public new Task<List<ValidationResult>> UpdateObject(MerchantUpdateDto MerchantUpdateDto);
         public new Task<List<ValidationResult>> InsertObject(MerchantAddDto MerchantAddDto);

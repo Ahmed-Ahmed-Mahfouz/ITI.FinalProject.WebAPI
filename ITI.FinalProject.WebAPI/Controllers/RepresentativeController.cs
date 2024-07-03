@@ -5,6 +5,7 @@ using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol.Core.Types;
 using Swashbuckle.AspNetCore.Annotations;
@@ -80,10 +81,13 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 var result = await service.InsertObject(RepresentativeInsertDTO);
                 //Transaction inside true condition or before it.
                 transaction.Complete();
-                if (result == true) return NoContent();
-                else return BadRequest();
 
+                if (result.Succeeded)
+                {
+                    return NoContent();
+                }
 
+                return Accepted(result.Message);
             }
 
         }
@@ -102,26 +106,24 @@ namespace ITI.FinalProject.WebAPI.Controllers
         {
             if (id != representativeUpdateDTO.Id)
             {
-                return BadRequest();
+                return BadRequest("Id doesn't match the id in the object");
             }
 
             var representative = await service.GetObjectWithoutTracking(r => r.userId == id);
 
             if (representative == null)
             {
-                return NotFound();
+                return NotFound("Representative doesn't exist in the db");
             }
 
-            if (await service.UpdateObject(representativeUpdateDTO))
-            {
-                //if (await service.SaveChangesForObject())
-                //{
-                //}
+            var result = await service.UpdateObject(representativeUpdateDTO);
 
+            if (result.Succeeded)
+            {
                 return NoContent();
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
 
         // DELETE api/Representative/owcmwmece51cwe5
@@ -139,19 +141,17 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (representative == null)
             {
-                return NotFound();
+                return NotFound("Representative doesn't exist in the db");
             }
 
-            if (await service.DeleteObject(id))
-            {
-                //if (await service.SaveChangesForObject())
-                //{
-                //}
+            var result = await service.DeleteObject(id);
 
+            if (result.Succeeded)
+            {
                 return NoContent();
             }
 
-            return Accepted();
+            return Accepted(result.Message);
         }
 
     }

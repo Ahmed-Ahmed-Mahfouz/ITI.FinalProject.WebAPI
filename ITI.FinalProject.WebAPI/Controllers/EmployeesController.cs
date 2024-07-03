@@ -16,9 +16,9 @@ namespace ITI.FinalProject.WebAPI.Controllers
     public class EmployeesController : ControllerBase
     {
        // private readonly IEmployeeService employeeService;
-       private readonly IGenericService <Employee, EmployeeReadDto , EmployeeAddDto , EmployeeupdateDto ,string> employeeService;
+       private readonly IPaginationService <Employee, EmployeeReadDto , EmployeeAddDto , EmployeeupdateDto ,string> employeeService;
 
-        public EmployeesController(IGenericService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string> employeeService)
+        public EmployeesController(IPaginationService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string> employeeService)
         {
             this.employeeService = employeeService;
         }
@@ -112,16 +112,16 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(400, "Something went wrong, please try again later", Type = typeof(void))]
         [HttpPut]
         [Route("{id}")]
-        public async Task<ActionResult> Update(string id, EmployeeupdateDto employeeupdateDto)
+        public async Task<IActionResult> Update(string id,[FromBody] EmployeeupdateDto employeeupdateDto)
         {
-            if (id != EmployeeupdateDto.Id)
+            if (id != employeeupdateDto.Id)
             {
                 return BadRequest("Id doesn't match the id in the object");
             }
 
-            var representative = await employeeService.GetObjectWithoutTracking(r => r.userId == id);
+            var employee = await employeeService.GetObjectWithoutTracking(e => e.userId == id);
 
-            if (representative == null)
+            if (employee == null)
             {
                 return NotFound("Representative doesn't exist in the db");
             }

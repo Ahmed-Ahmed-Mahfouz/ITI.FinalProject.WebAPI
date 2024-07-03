@@ -11,6 +11,8 @@ namespace Application.DTOs.InsertDTOs
 {
     public class MerchantAddDto
     {
+        public string Id { get; set; }
+
         public string? StoreName { get; set; }
         public string userId { get; set; } = string.Empty;
 
