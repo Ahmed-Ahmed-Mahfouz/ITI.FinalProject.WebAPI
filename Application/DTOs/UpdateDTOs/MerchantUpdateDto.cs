@@ -10,6 +10,8 @@ namespace Application.DTOs.UpdateDTOs
 {
     public class MerchantUpdateDto
     {
+        public string Id { get; set; }
+
         public string? StoreName { get; set; }
         public string userId { get; set; } = string.Empty;
 
@@ -23,11 +25,14 @@ namespace Application.DTOs.UpdateDTOs
         public decimal MerchantPayingPercentageForRejectedOrders { get; set; }
         [Column(TypeName = "money")]
         public decimal? SpecialPickupShippingCost { get; set; }
+        public int cityID { get; set; }
+        public string cityName { get; set; } 
+        public int governerateID { get; set; }
+        public string governerateName { get; set; }
         public List<SpecialPackages> SpecialPackages { get; set; }
 
+
         //  public decimal? RefusedOrderPercentage { get; set; }
-        public City city { get; set; }
-        public Governorate governorate { get; set; }
         public List<Order> orders { get; set; }
         public ApplicationUser? User { get; set; }
     
