@@ -782,6 +782,15 @@ namespace Application.Services
         {
             throw new NotImplementedException();
         }
+        //Task<bool> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.InsertObject(MerchantAddDto ObjectDTO)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //Task<bool> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.UpdateObject(MerchantUpdateDto ObjectDTO)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }
 
