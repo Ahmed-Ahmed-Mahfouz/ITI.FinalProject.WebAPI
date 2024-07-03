@@ -11,20 +11,23 @@ namespace Application.DTOs.DisplayDTOs
 {
     public class EmployeeReadDto
     {
+        public string Id { get; set; }
         public string FullName { get; set; } = string.Empty;
 
         public string Address { get; set; } = string.Empty;
         [Phone]
-        public virtual string? PhoneNumber { get; set; }
-        public string? UserName { get; set; }
-        public string? Email { get; set; }
+        public virtual string PhoneNumber { get; set; }=string.Empty;   
+        public string UserName { get; set; }=string.Empty;
+        public string Email { get; set; } = string.Empty;   
 
-        public  string? PasswordHash { get; set; }
+        public string PasswordHash { get; set; } = string.Empty;
 
 
         public Status Status { get; set; }
+        public string role { get; set; }= string.Empty;
 
-        public bool IsActive { get; set; }
+
+        // public bool IsActive { get; set; }
 
         //public BranchReadDto? Branch { get; set; }
 

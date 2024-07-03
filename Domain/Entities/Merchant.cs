@@ -20,6 +20,8 @@ namespace Domain.Entities
         public decimal MerchantPayingPercentageForRejectedOrders { get; set; }
         [Column(TypeName = "money")]
         public decimal? SpecialPickupShippingCost { get; set; }
+        public List<SpecialPackages> SpecialPackages { get; set; }
+
 
         //public decimal? RefusedOrderPercentage { get; set; }
 
@@ -32,6 +34,5 @@ namespace Domain.Entities
         public List<Order> orders { get; set; } 
         public ApplicationUser user { get; set; }
 
-        public List<SpecialPackages> SpecialPackages { get; set; }
     }
 }

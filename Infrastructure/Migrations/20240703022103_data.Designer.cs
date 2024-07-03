@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ShippingContext))]
-    partial class ShippingContextModelSnapshot : ModelSnapshot
+    [Migration("20240703022103_data")]
+    partial class data
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -162,7 +165,7 @@ namespace Infrastructure.Migrations
                             LockoutEnabled = true,
                             NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
                             NormalizedUserName = "JOHNDOE",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBfyFJQYozVBCWIyVkJvQv4xee10M4jQAckbMAWXqVHlKmJ3bakEu2rv4RVlEqAy+w==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIURBQkL9SD0+BHAZ1j9l48vK45F3DzGxPfmzzE7aeD+eC0/tgxVN7QcqeF5GB8c+Q==",
                             PhoneNo = "1234567890",
                             PhoneNumber = "1234567890",
                             PhoneNumberConfirmed = true,
@@ -206,7 +209,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             id = 1,
-                            addingDate = new DateTime(2024, 7, 3, 5, 24, 17, 880, DateTimeKind.Local).AddTicks(1519),
+                            addingDate = new DateTime(2024, 7, 3, 5, 20, 56, 146, DateTimeKind.Local).AddTicks(7834),
                             cityId = 1,
                             name = "Nasr City Branch",
                             status = 1
@@ -214,7 +217,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             id = 2,
-                            addingDate = new DateTime(2024, 7, 3, 5, 24, 17, 880, DateTimeKind.Local).AddTicks(1596),
+                            addingDate = new DateTime(2024, 7, 3, 5, 20, 56, 146, DateTimeKind.Local).AddTicks(7908),
                             cityId = 2,
                             name = "6th of October Branch",
                             status = 1
@@ -310,7 +313,7 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            id = 3,
+                            id = 1,
                             name = "Cairo",
                             status = 1
                         },
@@ -433,7 +436,7 @@ namespace Infrastructure.Migrations
                             BranchId = 1,
                             CityId = 1,
                             ClientName = "Client 1",
-                            Date = new DateTime(2024, 7, 3, 5, 24, 18, 161, DateTimeKind.Local).AddTicks(6121),
+                            Date = new DateTime(2024, 7, 3, 5, 20, 56, 394, DateTimeKind.Local).AddTicks(9437),
                             GovernorateId = 1,
                             MerchantId = "2",
                             PaymentType = 1,
@@ -718,7 +721,7 @@ namespace Infrastructure.Migrations
                             LockoutEnabled = true,
                             NormalizedEmail = "JANEDOE@EXAMPLE.COM",
                             NormalizedUserName = "JANEDOE",
-                            PasswordHash = "AQAAAAIAAYagAAAAEN/5SQc2hEG9ycOXIa335ev0mZR/Sx4iDjNOekRlvAoEzdJfA0GLAKJPIO9+yaCKYg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMKiYwCXMJq0pYn6s+zpnIhYJMpXtzCWjJL/jkr5JyFDdEAct5RVEbVMc1cbrOddJQ==",
                             PhoneNo = "0987654321",
                             PhoneNumber = "0987654321",
                             PhoneNumberConfirmed = true,
