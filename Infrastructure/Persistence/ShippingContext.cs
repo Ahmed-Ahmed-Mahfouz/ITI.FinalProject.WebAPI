@@ -18,16 +18,18 @@ namespace Infrastructure.Persistence
         { }
 
         public DbSet<Branch> Branches { get; set; } 
-        public DbSet<City>Cities { get; set; }
+        public DbSet<City> Cities { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Governorate> Governorates { get; set;}
         public DbSet<GovernorateRepresentatives> GovernorateRepresentatives { get; set; }
-        public DbSet<Merchant>Merchants { get; set; }
+        public DbSet<Merchant> Merchants { get; set; }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<Product>Products { get; set; }
+        public DbSet<Product> Products { get; set; }
         public DbSet<Representative> Representatives { get; set; }
         public DbSet<RolePowers> RolePowers { get; set; }
-        public DbSet<Shipping>Shippings { get; set; }
+        public DbSet<Settings> Settings { get; set; }
+        public DbSet<Shipping> Shippings { get; set; }
+        public DbSet<SpecialPackages> SpecialPackages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

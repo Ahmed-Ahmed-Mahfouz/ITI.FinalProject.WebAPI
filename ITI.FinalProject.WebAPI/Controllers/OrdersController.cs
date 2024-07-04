@@ -3,6 +3,7 @@ using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
+using Domain.Enums;
 using ITI.FinalProject.WebAPI.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -32,8 +33,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(200, "Returns A list of orders", Type = typeof(PaginationDTO<DisplayOrderDTO>))]
         [HttpGet]
         //public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, OrderFilterDTO? orderFilterDTO = null)
-                //public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, OrderFilterDTO? orderFilterDTO = null)
-
+        public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, OrderStatus? orderStatus = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             var roles = await roleManager.Roles.Include(r => r.RolePowers).ToListAsync();
 
@@ -44,14 +44,24 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             PaginationDTO<DisplayOrderDTO>? orderPaginationDTO;
 
-            if (orderFilterDTO == null)
+            //if (orderFilterDTO == null)
+            //{
+            //    orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => 1 == 1);
+            //}
+            //else
+            //{
+            //    orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => o.Status == orderFilterDTO.OrderStatus && o.Date > orderFilterDTO.StartDate && o.Date < orderFilterDTO.EndDate);
+            //}
+
+            if (orderStatus != null)
             {
-                orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => 1 == 1);
+                orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => o.Status == orderStatus && o.Date > startDate && o.Date < endDate);
             }
             else
             {
-                orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => o.Status == orderFilterDTO.OrderStatus && o.Date > orderFilterDTO.StartDate && o.Date < orderFilterDTO.EndDate);
+                orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => o.Date > startDate && o.Date < endDate);
             }
+
 
             if (orderPaginationDTO == null || orderPaginationDTO.List.Count == 0)
             {
@@ -99,10 +109,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> PostOrder([FromBody] InsertOrderDTO orderDTO)
         {
-            //if (!User.IsInRole("Merchant"))
-            //{
-            //    return Unauthorized();
-            //}
+            if (!User.IsInRole("Merchant"))
+            {
+                return Unauthorized();
+            }
 
             var result = await _orderService.InsertObject(orderDTO);
 

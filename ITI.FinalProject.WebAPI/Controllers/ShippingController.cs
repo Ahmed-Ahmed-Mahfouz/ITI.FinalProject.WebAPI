@@ -62,6 +62,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the shipping was inserted successfully", Type = typeof(void))]
         [HttpPost]
+        [Consumes("application/json")]
         public async Task<IActionResult> PostShipping(InsertShippingDTO shippingDTO)
         {
             var result = await _shippingService.InsertObject(shippingDTO);

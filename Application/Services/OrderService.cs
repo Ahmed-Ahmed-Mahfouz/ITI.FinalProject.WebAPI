@@ -174,7 +174,7 @@ namespace Application.Services
         {
             var settings = (await _settingsRepository.GetAllElements())[0];
             var city = await _cityRepository.GetElement(c => c.id == order.CityId);
-            var merchant = await _merchantRepository.GetElement(m => m.Id == order.MerchantId, c => c.SpecialPackages);
+            var merchant = await _merchantRepository.GetElement(m => m.userId == order.MerchantId, c => c.SpecialPackages);
             var shipping = await _shippingRepository.GetElement(s => s.Id == order.ShippingId);
             var orderType = order.Type;
             var shippingType = shipping!.ShippingType;

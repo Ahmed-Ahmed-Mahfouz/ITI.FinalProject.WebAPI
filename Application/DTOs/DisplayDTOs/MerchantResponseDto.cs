@@ -18,7 +18,7 @@ namespace Application.DTOs.DisplayDTOs
         public string UserName { get; set; } = string.Empty;
         public string userId { get; set; } = string.Empty;
 
-        public string PasswordHash { get; set; } = string.Empty;
+        //public string PasswordHash { get; set; } = string.Empty;
 
         public string Email { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;

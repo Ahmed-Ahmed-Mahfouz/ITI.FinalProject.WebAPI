@@ -21,6 +21,8 @@ namespace Domain.Entities
         public UserType UserType { get; set; }
 
         public Employee employee { get; set; }
+        public Representative representative { get; set; }
+        public Merchant merchant { get; set; }
         public Branch branch { get; set; }
 
     }

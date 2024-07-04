@@ -120,13 +120,6 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             identityRes = await userManager.AddClaimAsync(user, new Claim("UserType", user.UserType.ToString()));
 
-            cl = claims.FirstOrDefault(c => c.Type == "Token");
-
-            if (cl != null)
-            {
-                identityRes = await userManager.RemoveClaimAsync(user, cl);
-            }
-
             claims = await userManager.GetClaimsAsync(user);
 
             var sKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetSection("SKey").Value??""));
@@ -141,7 +134,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             var givenToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            IdentityResult identityResult = new IdentityResult();
+            //IdentityResult identityResult = new IdentityResult();
 
             //cl = claims.FirstOrDefault(c => c.Type == "Token");
 
@@ -154,12 +147,12 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             //if (identityResult.Succeeded)
             //{
-            await signInManager.SignInAsync(user, false);
+                await signInManager.SignInAsync(user, false);
 
-            return Ok(givenToken);
+                return Ok(givenToken);
             //}
 
-            return Accepted();
+            //return Accepted();
         }
 
         [SwaggerOperation(
