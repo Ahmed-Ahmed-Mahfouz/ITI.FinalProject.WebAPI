@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.DisplayDTOs
+namespace Application.DTOs.UpdateDTOs
 {
-    public class SpecialPackageDTO
+    public class SpecialPackageUpdateDTO
     {
         public int Id { get; set; }
         public decimal ShippingPrice { get; set; }
-        public string cityName { get; set; }
-        public string governorateName { get; set; }
-        public string MerchantName { get; set; }
+        public int cityId { get; set; }
+        public int governorateId { get; set; }
+        public string MerchantId { get; set; }
     }
 }

@@ -43,6 +43,13 @@ namespace Application.Mappings
             CreateMap<SettingsInsertDTO, Settings>();
             CreateMap<SettingsUpdateDTO, Settings>();
 
+            // Special Packages
+            CreateMap<SpecialPackages, SpecialPackageDTO>()
+                .ForMember(dest => dest.governorateName, opt => opt.MapFrom(src => src.governoratePackages.name))
+                .ForMember(dest => dest.cityName, opt => opt.MapFrom(src => src.cityPackages.name))
+                .ForMember(dest => dest.MerchantName, opt => opt.MapFrom(src => src.merchantSpecialPackage.user.FullName)); //Possible Error
+            //CreateMap<sp>
+
         }
     }
 }

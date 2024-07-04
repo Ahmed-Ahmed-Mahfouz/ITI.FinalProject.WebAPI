@@ -33,7 +33,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            IEnumerable<MerchantResponseDto> response = await merchantService.GetAllObjects(m => m.branch, m => m.governorate, m => m.city, m => m.user);
+            IEnumerable<MerchantResponseDto> response = await merchantService.GetAllObjects(m => m.governorate, m => m.city, m => m.user);
             if (response != null)
             {
 
@@ -69,7 +69,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
-            MerchantResponseDto? response = await merchantService.GetObject(m => m.Id == id);
+            MerchantResponseDto? response = await merchantService.GetObject(m => m.userId == id);
             if (response == null)
                 return NotFound();
             return Ok(response);
@@ -119,7 +119,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             ModificationResultDTO error = await merchantService.UpdateObject(MerchantUpdateDto);
             if (error.Succeeded == true)
             {
-                MerchantResponseDto? updatedMerchant = await merchantService.GetObject(m => m.Id == MerchantId);
+                MerchantResponseDto? updatedMerchant = await merchantService.GetObject(m => m.userId == MerchantId);
                 return Ok(updatedMerchant);
             }
             else

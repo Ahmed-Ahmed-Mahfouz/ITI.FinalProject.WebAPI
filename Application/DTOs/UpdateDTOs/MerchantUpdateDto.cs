@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs.InsertDTOs;
+using Domain.Entities;
 using Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace Application.DTOs.UpdateDTOs
         public string cityName { get; set; }
         public int governorateID { get; set; }
         //public string governerateName { get; set; }
-        //public List<SpecialPackages> SpecialPackages { get; set; }
+        public List<SpecialPackageUpdateDTO> SpecialPackages { get; set; }
 
 
         ////  public decimal? RefusedOrderPercentage { get; set; }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Enums;
+using Application.DTOs.DisplayDTOs;
 
 namespace Application.DTOs.InsertDTOs
 {
@@ -32,7 +33,7 @@ namespace Application.DTOs.InsertDTOs
 
         public int cityID { get; set; }
         public int governorateID { get; set; }
-        //public List<SpecialPackages> SpecialPackages { get; set; }
+        public List<SpecialPackageInsertDTO> SpecialPackages { get; set; }
 
         ////  public decimal? RefusedOrderPercentage { get; set; }
         //public City city { get; set; }
