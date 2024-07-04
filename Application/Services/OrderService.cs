@@ -76,9 +76,8 @@ namespace Application.Services
         public async Task<ModificationResultDTO> InsertObject(InsertOrderDTO orderDTO)
         {
             var order = _mapper.Map<Order>(orderDTO);
-
-            //order.ShippingCost = await CalculateShipmentCost(order);
-            order.ShippingCost = 0;
+            
+            order.ShippingCost = await CalculateShipmentCost(order);
 
             var result =  _repository.Add(order);
 
@@ -101,8 +100,7 @@ namespace Application.Services
         {
             var order = _mapper.Map<Order>(orderDTO);
 
-            //order.ShippingCost = await CalculateShipmentCost(order);
-            order.ShippingCost = 0;
+            order.ShippingCost = await CalculateShipmentCost(order);
 
             var result = _repository.Edit(order);
 
