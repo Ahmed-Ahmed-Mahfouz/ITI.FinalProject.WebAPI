@@ -285,7 +285,7 @@ namespace Domain.Services
             };
         }
 
-        public Task<(List<CityDisplayDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        public Task<PaginationDTO<CityDisplayDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<City, bool>> filter)
         {
             throw new NotImplementedException();
         }

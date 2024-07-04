@@ -4,6 +4,7 @@ using Application.DTOs.UpdateDTOs;
 using Application.Interfaces;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -13,11 +14,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class EmployeesController : ControllerBase
     {
-       // private readonly IEmployeeService employeeService;
-       private readonly IPaginationService <Employee, EmployeeReadDto , EmployeeAddDto , EmployeeupdateDto ,string> employeeService;
-
+        private readonly IPaginationService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string> employeeService;
         public EmployeesController(IPaginationService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string> employeeService)
         {
             this.employeeService = employeeService;
@@ -67,9 +67,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(204, "Confirms that the employee was inserted successfully", Type = typeof(void))]
         [SwaggerResponse(400, "Something went wrong, please try again later", Type = typeof(void))]
         [HttpPost]
-        public async Task<ActionResult> Add([FromBody]EmployeeAddDto employeeAddDto)
+        public async Task<ActionResult> Add([FromBody] EmployeeAddDto employeeAddDto)
         {
-            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
+            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
 
                 var result = await employeeService.InsertObject(employeeAddDto);
                 transaction.Complete();
@@ -80,7 +81,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
                 return Accepted(result.Message);
             }
-           
+
         }
         //DELETE
         [SwaggerOperation(
@@ -112,7 +113,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(400, "Something went wrong, please try again later", Type = typeof(void))]
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> Update(string id,[FromBody] EmployeeupdateDto employeeupdateDto)
+        public async Task<IActionResult> Update(string id, [FromBody] EmployeeupdateDto employeeupdateDto)
         {
             if (id != employeeupdateDto.Id)
             {

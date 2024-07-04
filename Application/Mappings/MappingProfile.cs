@@ -37,6 +37,12 @@ namespace Application.Mappings
             CreateMap<InsertShippingDTO, Shipping>();
             CreateMap<UpdateShippingDTO, Shipping>();
 
+
+            // Settings Mappings
+            CreateMap<Settings, SettingsDTO>();
+            CreateMap<SettingsInsertDTO, Settings>();
+            CreateMap<SettingsUpdateDTO, Settings>();
+
         }
     }
 }

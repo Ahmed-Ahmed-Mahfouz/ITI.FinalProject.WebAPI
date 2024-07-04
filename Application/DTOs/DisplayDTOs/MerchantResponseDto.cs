@@ -1,7 +1,6 @@
 ﻿using Domain.Entities;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +29,5 @@ namespace Application.DTOs.DisplayDTOs
         public decimal? SpecialPickupShippingCost { get; set; }
         public List<SpecialPackageDTO> SpecialPackages { get; set; }
         public List<DisplayOrderDTO> orders { get; set; }
-        //public UserDto User { get; set; }
     }
 }

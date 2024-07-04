@@ -4,6 +4,7 @@ using Application.DTOs.UpdateDTOs;
 using Application.Interfaces;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -13,18 +14,15 @@ namespace ITI.FinalProject.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class MerchantController : ControllerBase
-    {
-        // private readonly IPaginationService _MerchantService;
-        //private readonly ILogger<MerchantController> _logger;
+    { 
         private readonly IPaginationService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string> merchantService;
 
-        
-
-        public MerchantController( IPaginationService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string> merchantService)
+        public MerchantController(IPaginationService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string> merchantService)
         {
-            this.merchantService= merchantService;
-         }
+            this.merchantService = merchantService;
+        }
 
         [SwaggerOperation(
         Summary = "This Endpoint returns a list of merchants",
@@ -76,7 +74,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             {
                 return BadRequest();
             }
-            IEnumerable<MerchantResponseDto>? Merchants = await merchantService.GetAllObjects(o=>searchString);
+            IEnumerable<MerchantResponseDto>? Merchants = await merchantService.GetAllObjects(o => searchString);
             return Ok(Merchants?.ToList());
         }
 
@@ -124,10 +122,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
         public async Task<IActionResult> DeleteMerchant(string MerchantId)
         {
             ModificationResultDTO isDeleted = await merchantService.DeleteObject(MerchantId);
-            if (isDeleted.Succeeded==false)
+            if (isDeleted.Succeeded == false)
                 return NoContent();
             else
-            return Ok();
+                return Ok();
         }
     }
-        }
+}

@@ -4,6 +4,7 @@ using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Application.Services;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -11,11 +12,12 @@ namespace ITI.FinalProject.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class GovernorateController : ControllerBase
     {
-        private readonly IGenericService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int> service;
+        private readonly IPaginationService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int> service;
 
-        public GovernorateController(IGenericService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int> service)
+        public GovernorateController(IPaginationService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int> service)
         {
             this.service = service;
         }
@@ -26,6 +28,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             Description = ""
         )]
         [SwaggerResponse(404, "There weren't any governorates in the database", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns A list of governorates", Type = typeof(List<GovernorateDTO>))]
         [HttpGet]
         public async Task<ActionResult<List<GovernorateDTO>>> GetAllGovernorates()
@@ -46,6 +49,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             Description = ""
         )]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns the specified governorate", Type = typeof(GovernorateDTO))]
         [HttpGet("{id}")]
         public async Task<ActionResult<GovernorateDTO>> GetGovernorateById(int id)
@@ -65,6 +69,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Summary = "This Endpoint inserts a governorate element in the db",
             Description = ""
         )]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
         //[SwaggerResponse(201, "Returns the inserted governorate element and the url you can use to get it", Type = typeof(GovernorateDTO))]
         [SwaggerResponse(204, "Confirms that the governorate was inserted successfully", Type = typeof(void))]
@@ -95,6 +100,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         )]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
         [SwaggerResponse(400, "The id that was given doesn't equal the id in the given governorate object", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the governorate was updated successfully", Type = typeof(void))]
         [HttpPut("{id}")]
@@ -135,6 +141,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             Description = ""
         )]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the governorate was deleted successfully", Type = typeof(void))]
         [HttpDelete("{id}")]

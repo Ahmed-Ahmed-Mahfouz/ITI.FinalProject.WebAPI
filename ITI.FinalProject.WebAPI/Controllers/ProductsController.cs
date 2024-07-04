@@ -3,6 +3,7 @@ using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -10,6 +11,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Merchant")]
     public class ProductsController : ControllerBase
     {
         private readonly IGenericService<Product, DisplayProductDTO, InsertProductDTO, UpdateProductDTO, int> _productService;
@@ -21,6 +23,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         // GET: api/Products
         [SwaggerOperation(Summary = "This Endpoint returns a list of products", Description = "")]
         [SwaggerResponse(404, "There weren't any products in the database", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns A list of products", Type = typeof(List<DisplayProductDTO>))]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DisplayProductDTO>>> GetProducts()
@@ -38,6 +41,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         // GET: api/Products/5
         [SwaggerOperation(Summary = "This Endpoint returns the specified product")]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns the specified product", Type = typeof(DisplayProductDTO))]
         [HttpGet("{id}")]
         public async Task<ActionResult<DisplayProductDTO>> GetProduct(int id)
@@ -54,6 +58,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         // POST: api/Products
         [SwaggerOperation(Summary = "This Endpoint inserts a new product in the db", Description = "")]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the product was inserted successfully", Type = typeof(void))]
         [HttpPost]
@@ -80,6 +85,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerOperation(Summary = "This Endpoint updates the specified product", Description = "")]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
         [SwaggerResponse(400, "The id that was given doesn't equal the id in the given product object", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the product was updated successfully", Type = typeof(void))]
         [HttpPut("{id}")]
@@ -117,6 +123,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         // DELETE: api/Products/5
         [SwaggerOperation(Summary = "This Endpoint deletes the specified product", Description = "")]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the product was deleted successfully", Type = typeof(void))]
         [HttpDelete("{id}")]

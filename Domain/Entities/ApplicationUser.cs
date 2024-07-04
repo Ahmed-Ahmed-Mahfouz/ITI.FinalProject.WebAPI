@@ -13,11 +13,11 @@ namespace Domain.Entities
     {
         public string FullName { get; set; }
         public string Address { get; set; }
-        public string PhoneNo { get; set; }
+        //public string PhoneNo { get; set; }
         public Status Status { get; set; }
 
         [ForeignKey("branch")]
-        public int BranchId { get; set; }
+        public int? BranchId { get; set; }
         public UserType UserType { get; set; }
 
         public Employee employee { get; set; }

@@ -284,7 +284,7 @@ namespace Application.Services
             return RolePowerDTO;
         }
 
-        public Task<(List<RolePowersDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        public Task<PaginationDTO<RolePowersDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<RolePowers, bool>> filter)
         {
             throw new NotImplementedException();
         }

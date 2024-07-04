@@ -10,6 +10,7 @@ using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -153,12 +154,18 @@ namespace Application.Services
             return await _unitOfWork.SaveChanges();
         }
 
-        public async Task<(List<DisplayOrderDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        public async Task<PaginationDTO<DisplayOrderDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Order, bool>> filter)
         {
             var totalOrders = await _repository.Count(); 
-            var orders = await _repository.GetPaginatedElements(pageNumber, pageSize); 
+            var totalPages = await _repository.Pages(pageSize);
+            var orders = await _repository.GetPaginatedElements(pageNumber, pageSize, filter); 
             var mappedOrders = _mapper.Map<List<DisplayOrderDTO>>(orders);
-            return (mappedOrders, totalOrders);
+            return new PaginationDTO<DisplayOrderDTO>()
+            {
+                TotalCount = totalOrders,
+                TotalPages = totalPages,
+                List = mappedOrders
+            };
         }
 
         public async Task<decimal> CalculateShipmentCost(Order order)

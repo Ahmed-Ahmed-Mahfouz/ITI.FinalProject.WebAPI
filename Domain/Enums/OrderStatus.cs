@@ -14,10 +14,10 @@ namespace Domain.Enums
         Delivered ,
         Unreachable ,
         Delayed,
-        PartialyDelivered,
+        PartiallyDelivered,
         Cancelled,
         RejectedWithPayment,
-        RejectedWithPartialyPayment,
+        RejectedWithPartiallyPayment,
         RejectedWithoutPayment
 
     }

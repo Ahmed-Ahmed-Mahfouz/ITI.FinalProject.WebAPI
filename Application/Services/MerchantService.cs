@@ -15,9 +15,9 @@
 
 //namespace Application.Services
 //{
-//    public class MerchantService : IPaginationService<Merchant , MerchantResponseDto ,MerchantUpdateDto , MerchantAddDto , string>
+//    public class MerchantService : IMerchantService
 //    {
-//        private readonly IPaginationRepository<Merchant> _MerchantRepository;
+//        private readonly IGenericRepository<Merchant> _MerchantRepository;
 //        IUnitOfWork unit;
 
 
@@ -29,8 +29,8 @@
 //            IMapper mapper,
 //            UserManager<ApplicationUser> userManager)
 //        {
-//            _MerchantRepository = _unit.GetPaginationRepository<Merchant>();
-//            unit = _unit;
+//            _MerchantRepository = _unit.GetGenericRepository<Merchant>();
+//            unit= _unit;    
 //            _mapper = mapper;
 //            _userManager = userManager;
 //        }
@@ -95,7 +95,7 @@
 
 //        public async Task<bool> DeleteObject(string Merchant_id)
 //        {
-//            Merchant? Merchant = await _MerchantRepository.GetElement(m => m.Id == Merchant_id);
+//            Merchant? Merchant = await _MerchantRepository.GetElement(m=>m.Id==Merchant_id);
 //            if (Merchant != null)
 //            {
 //                _MerchantRepository.Delete(Merchant);
@@ -138,7 +138,7 @@
 //                var checkUserName = await _userManager.FindByNameAsync(MerchantUpdateDto.UserName);
 //                if (checkUserName == null || checkUserName.Id == MerchantUpdateDto.userId)
 //                {
-//                    Merchant? Merchant = await _MerchantRepository.GetElement(m => m.Id == MerchantUpdateDto.userId);
+//                    Merchant? Merchant = await _MerchantRepository.GetElement(m=>m.Id== MerchantUpdateDto.userId);
 //                    if (Merchant != null)
 //                    {
 //                        ApplicationUser? user = await _userManager.FindByEmailAsync(Merchant.Email);
@@ -190,7 +190,7 @@
 
 //        public async Task<List<MerchantResponseDto>> GetFilteredMerchantsAsync(string searchString)
 //        {
-//            IEnumerable<Merchant>? Merchants = await _MerchantRepository.GetAllElements(m => m.UserName == searchString);
+//            IEnumerable<Merchant>? Merchants = await _MerchantRepository.GetAllElements(m=> m.UserName == searchString);
 //            List<MerchantResponseDto> MerchantsResponse = new List<MerchantResponseDto>();
 //            foreach (Merchant trader in Merchants)
 //            {
@@ -205,11 +205,11 @@
 //            if (user == null)
 //                return null;
 
-//            Merchant? merchant = await _MerchantRepository.GetElement(m => m.Id == user.Id);
+//            Merchant? merchant = await _MerchantRepository.GetElement(m=>m.Id==user.Id);
 //            if (merchant == null)
 //                return null;
 
-//            return identityUserMapper.MapMerchantToId(merchant);
+//            return identityUserMapper.MapMerchantToId(merchant); 
 //        }
 
 //        public Task<string?> GetMerchantIdByEmailAsync(string MerchantEmail)
@@ -233,7 +233,7 @@
 
 //        public async Task<MerchantResponseDto?> GetObject(Expression<Func<Merchant, bool>> filter, params Expression<Func<Merchant, object>>[] includes)
 //        {
-//            Merchant? Merchant = await _MerchantRepository.GetElement(filter, includes);
+//            Merchant? Merchant = await _MerchantRepository.GetElement(filter,includes);
 //            return _mapper.Map<MerchantResponseDto>(Merchant);
 //        }
 
@@ -245,9 +245,14 @@
 
 //        public async Task<MerchantResponseDto?> GetObjectWithoutTracking(Expression<Func<Merchant, bool>> filter, params Expression<Func<Merchant, object>>[] includes)
 //        {
-//            Merchant? Merchant = await _MerchantRepository.GetElementWithoutTracking(filter, includes);
+//            Merchant? Merchant = await _MerchantRepository.GetElementWithoutTracking(filter,includes);
 //            return _mapper.Map<MerchantResponseDto>(Merchant);
 //        }
+
+
+
+
+
 
 //        public Task<bool> SaveChangesForObject()
 //        {
@@ -260,22 +265,17 @@
 //            return _mapper.Map<MerchantResponseDto>(Merchant);
 //        }
 
-//        public Task<(List<MerchantResponseDto>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+//        Task<ModificationResultDTO> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.InsertObject(MerchantAddDto ObjectDTO)
 //        {
 //            throw new NotImplementedException();
 //        }
 
-//        public Task<ModificationResultDTO> InsertObject(MerchantUpdateDto ObjectDTO)
+//        Task<ModificationResultDTO> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.UpdateObject(MerchantUpdateDto ObjectDTO)
 //        {
 //            throw new NotImplementedException();
 //        }
 
-//        public Task<ModificationResultDTO> UpdateObject(MerchantAddDto ObjectDTO)
-//        {
-//            throw new NotImplementedException();
-//        }
-
-//        Task<ModificationResultDTO> IGenericService<Merchant, MerchantResponseDto, MerchantUpdateDto, MerchantAddDto, string>.DeleteObject(string ObjectId)
+//        Task<ModificationResultDTO> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.DeleteObject(string ObjectId)
 //        {
 //            throw new NotImplementedException();
 //        }
@@ -311,20 +311,18 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class MerchantService : IPaginationService<Merchant, MerchantResponseDto,  MerchantAddDto, MerchantUpdateDto,string>
+    public class MerchantService : IPaginationService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>
     {
-        
-        
         private readonly IUnitOfWork unit;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IPaginationRepository<Merchant> repository;
         private readonly IMapper _mapper;
 
-        public MerchantService(IMapper mapper,IUnitOfWork unit, UserManager<ApplicationUser> userManager)
+        public MerchantService(IMapper mapper, IUnitOfWork unit, UserManager<ApplicationUser> userManager)
         {
             this.unit = unit;
             this._userManager = userManager;
-            this.repository = unit.GetPaginationRepository<Merchant>();;
+            this.repository = unit.GetPaginationRepository<Merchant>(); ;
             _mapper = mapper;
         }
 
@@ -333,9 +331,9 @@ namespace Application.Services
             var merchants = await repository.GetAllElements();
             List<MerchantResponseDto> result = new List<MerchantResponseDto>();
             foreach (var merchant in merchants)
-                result.Add( MapMerchants(merchant));
-            return  result;
-         }
+                result.Add(MapMerchants(merchant));
+            return result;
+        }
         public async Task<List<MerchantResponseDto>> GetAllObjects(params Expression<Func<Merchant, object>>[] includes)
         {
             var merchants = await repository.GetAllElements(includes);
@@ -409,13 +407,13 @@ namespace Application.Services
             var merchant = new Merchant()
             {
                 PhoneNumber = ObjectDTO.PhoneNumber,
-                CityId = ObjectDTO.city.id,
-                Email=ObjectDTO.Email,
+                CityId = ObjectDTO.cityID,
+                Email = ObjectDTO.Email,
                 PasswordHash = ObjectDTO.PasswordHash,
                 Address = ObjectDTO.Address,
-                Id= ObjectDTO.Id,
-                GovernorateId = ObjectDTO.governorate.id,
-                PhoneNo=ObjectDTO.PhoneNumber,
+                //Id = ObjectDTO.Id,
+                GovernorateId = ObjectDTO.governerateID,
+                 //= ObjectDTO.PhoneNumber,
                 UserType = Domain.Enums.UserType.Merchant,
             };
 
@@ -456,7 +454,7 @@ namespace Application.Services
                 Succeeded = true
             };
         }
-        public async Task<ModificationResultDTO> UpdateMerchant(MerchantUpdateDto ObjectDTO)
+        public async Task<ModificationResultDTO> UpdateObject(MerchantUpdateDto ObjectDTO)
         {
             // Find the user associated with the merchant
             var user = await _userManager.FindByIdAsync(ObjectDTO.Id);
@@ -510,7 +508,7 @@ namespace Application.Services
                 };
             }
 
-            user.Status = ObjectDTO.User.Status;
+            user.Status = ObjectDTO.Status;
             identityResult = await _userManager.UpdateAsync(user);
 
             if (!identityResult.Succeeded)
@@ -677,17 +675,17 @@ namespace Application.Services
             {
                 Id = merchant.Id,
                 Address = merchant.Address,
-                CityId=merchant.CityId,
-                Email=merchant.Email,
-                GovernorateId= merchant.GovernorateId,
-                MerchantPayingPercentageForRejectedOrders= merchant.MerchantPayingPercentageForRejectedOrders,
-                orders= ordersAfterMapper,
+                CityId = merchant.CityId,
+                Email = merchant.Email,
+                GovernorateId = merchant.GovernorateId,
+                MerchantPayingPercentageForRejectedOrders = merchant.MerchantPayingPercentageForRejectedOrders,
+                orders = ordersAfterMapper,
                 PasswordHash = merchant.PasswordHash,
-                PhoneNumber= merchant.PhoneNumber,
-                SpecialPackages= packagesAfterMapper,
-                SpecialPickupShippingCost= merchant.SpecialPickupShippingCost,
-                StoreName= merchant.StoreName,
-                UserName=merchant.UserName
+                PhoneNumber = merchant.PhoneNumber,
+                SpecialPackages = packagesAfterMapper,
+                SpecialPickupShippingCost = merchant.SpecialPickupShippingCost,
+                StoreName = merchant.StoreName,
+                UserName = merchant.UserName
             };
 
             return MerchantResponseDto;
@@ -728,7 +726,7 @@ namespace Application.Services
                 FullName = userDto.FullName,
                 UserType = userDto.UserType,
                 Status = userDto.Status,
-                PhoneNo = userDto.PhoneNo,
+                PhoneNumber = userDto.PhoneNo,
                 Address = userDto.Address,
                 BranchId = userDto.BranchId
             };
@@ -757,40 +755,9 @@ namespace Application.Services
 
         }
 
-        public Task<(List<RepresentativeDisplayDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        public Task<PaginationDTO<MerchantResponseDto>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Merchant, bool>> filter)
         {
             throw new NotImplementedException();
         }
-
-
-        public Task<ModificationResultDTO> InsertObject(MerchantUpdateDto ObjectDTO)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ModificationResultDTO> UpdateObject(MerchantAddDto ObjectDTO)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<(List<MerchantResponseDto>, int)> IPaginationService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.GetPaginatedOrders(int pageNumber, int pageSize)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ModificationResultDTO> UpdateObject(MerchantUpdateDto ObjectDTO)
-        {
-            throw new NotImplementedException();
-        }
-        //Task<bool> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.InsertObject(MerchantAddDto ObjectDTO)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //Task<bool> IGenericService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string>.UpdateObject(MerchantUpdateDto ObjectDTO)
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 }
-
