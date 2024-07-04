@@ -15,7 +15,7 @@ namespace ITI.FinalProject.WebAPI
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             string txt = "";
 
@@ -35,9 +35,9 @@ namespace ITI.FinalProject.WebAPI
                 options.AddPolicy(txt,
                 builder =>
                 {
-                    builder.AllowAnyHeader().
-                            AllowAnyMethod().
-                            AllowAnyOrigin();
+                    builder.AllowAnyHeader()
+                           .AllowAnyMethod()
+                           .AllowAnyOrigin();
                 });
             });
 
@@ -72,7 +72,138 @@ namespace ITI.FinalProject.WebAPI
 
             app.MapControllers();
 
-            app.Run();
+            await EnsureAdminRoleExistsAsync(app);
+
+            await EnsureMerchantRoleExistsAsync(app);
+            
+            await EnsureRepresentativeRoleExistsAsync(app);
+
+            await EnsureAdminExistsAsync(app);
+
+            await app.RunAsync();
+        }
+
+        private static async Task EnsureAdminExistsAsync(IHost host)
+        {
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
+
+            try
+            {
+                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+                var user = await userManager.FindByNameAsync("admin");
+                if (user == null)
+                {
+                    user = new ApplicationUser 
+                    { 
+                        Id = Guid.NewGuid().ToString(),
+                        UserName = "admin",
+                        Email = "admin@example.com",
+                        Status  = Domain.Enums.Status.Active,
+                        UserType = Domain.Enums.UserType.Admin,
+                        FullName = "admin",
+                        Address = "Cairo"
+                    };
+
+                    var result = await userManager.CreateAsync(user, "Password123!");
+                    if (!result.Succeeded)
+                    {
+                        throw new Exception($"Failed to create user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    }
+                    else
+                    {
+                        result = await userManager.AddToRoleAsync(user, "Admin");
+
+                        if (!result.Succeeded)
+                        {
+                            throw new Exception($"Failed to assign user to role: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred while creating the user.");
+            }
+        }
+
+        private static async Task EnsureAdminRoleExistsAsync(IHost host)
+        {
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
+
+            try
+            {
+                var roleManager = services.GetRequiredService<RoleManager<ApplicationRoles>>();
+                var role = await roleManager.FindByNameAsync("Admin");
+                if (role == null)
+                {
+                    role = new ApplicationRoles { Id = Guid.NewGuid().ToString(), Name = "Admin",TimeOfAddition = DateTime.Now, NormalizedName = "ADMIN" };
+                    var result = await roleManager.CreateAsync(role);
+                    if (!result.Succeeded)
+                    {
+                        throw new Exception($"Failed to create role: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred while creating the role.");
+            }
+        }
+
+        private static async Task EnsureMerchantRoleExistsAsync(IHost host)
+        {
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
+
+            try
+            {
+                var roleManager = services.GetRequiredService<RoleManager<ApplicationRoles>>();
+                var role = await roleManager.FindByNameAsync("Merchant");
+                if (role == null)
+                {
+                    role = new ApplicationRoles { Id = Guid.NewGuid().ToString(), Name = "Merchant", TimeOfAddition = DateTime.Now, NormalizedName = "MERCHANT" };
+                    var result = await roleManager.CreateAsync(role);
+                    if (!result.Succeeded)
+                    {
+                        throw new Exception($"Failed to create role: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred while creating the role.");
+            }
+        }
+
+        private static async Task EnsureRepresentativeRoleExistsAsync(IHost host)
+        {
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
+
+            try
+            {
+                var roleManager = services.GetRequiredService<RoleManager<ApplicationRoles>>();
+                var role = await roleManager.FindByNameAsync("Representative");
+                if (role == null)
+                {
+                    role = new ApplicationRoles { Id = Guid.NewGuid().ToString(), Name = "Representative", TimeOfAddition = DateTime.Now, NormalizedName = "REPRESENTATIVE" };
+                    var result = await roleManager.CreateAsync(role);
+                    if (!result.Succeeded)
+                    {
+                        throw new Exception($"Failed to create role: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred while creating the role.");
+            }
         }
     }
 }

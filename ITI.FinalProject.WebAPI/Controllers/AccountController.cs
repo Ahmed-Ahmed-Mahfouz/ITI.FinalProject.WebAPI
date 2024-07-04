@@ -1,9 +1,12 @@
 ﻿using Application.DTOs.InsertDTOs;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.Annotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -16,21 +19,30 @@ namespace ITI.FinalProject.WebAPI.Controllers
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly RoleManager<ApplicationRoles> roleManager;
         private readonly IConfiguration configuration;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, RoleManager<ApplicationRoles> roleManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.configuration = configuration;
+            this.roleManager = roleManager;
         }
 
+        [SwaggerOperation(
+        Summary = "This Endpoint logs the user in the system",
+            Description = ""
+        )]
+        [SwaggerResponse(400, "The user name or email or password weren't given", Type = typeof(void))]
+        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
+        [SwaggerResponse(200, "Confirms that the user was loggedin successfully", Type = typeof(string))]
         [HttpPost("/api/login")]
         public async Task<ActionResult<string>> Login(LoginDTO userLoginDTO)
         {
             if (userLoginDTO == null)
             {
-                return BadRequest();
+                return BadRequest("Please enter valid user name or email and vaild password");
             }
 
             var user = await userManager.FindByEmailAsync(userLoginDTO.EmailOrUserName);
@@ -41,8 +53,15 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
                 if (user == null)
                 {
-                    return BadRequest();
+                    return BadRequest("Please enter valid user name or email");
                 }
+            }
+
+            var result = await userManager.CheckPasswordAsync(user, userLoginDTO.Password);
+
+            if (result == false)
+            {
+                return BadRequest("Plaese enter valid password");
             }
 
             var claims = await userManager.GetClaimsAsync(user);
@@ -134,6 +153,36 @@ namespace ITI.FinalProject.WebAPI.Controllers
             }
 
             return Accepted();
+        }
+
+        [SwaggerOperation(
+        Summary = "This Endpoint logs the user out of the system",
+            Description = ""
+        )]
+        [SwaggerResponse(404, "The user id that was given doesn't exist in the db", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
+        [SwaggerResponse(204, "Confirms that the user was loggedout successfully", Type = typeof(string))]
+        [HttpGet("/api/logout")]
+        //[Authorize(Roles = "")]
+        public async Task<IActionResult> Logout([FromQuery] string UserId)
+        {
+            var roleList = await roleManager.Roles.ToListAsync();
+
+            if (roleList.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null)
+            {
+                return Unauthorized();
+            }
+
+            var user = await userManager.FindByIdAsync(UserId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            await signInManager.SignOutAsync();
+
+            return NoContent();
         }
     }
 }

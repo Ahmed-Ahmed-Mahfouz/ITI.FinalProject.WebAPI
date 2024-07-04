@@ -196,7 +196,7 @@ namespace Application.Services
             return governorateDTO;
         }
 
-        public Task<(List<GovernorateDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        public Task<PaginationDTO<GovernorateDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Governorate, bool>> filter)
         {
             throw new NotImplementedException();
         }

@@ -64,12 +64,17 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("BranchId")
+                    b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("nvarchar(21)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -97,10 +102,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNo")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
@@ -138,6 +139,10 @@ namespace Infrastructure.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("ApplicationUser");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Domain.Entities.Branch", b =>
@@ -245,35 +250,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("GovernorateRepresentatives");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Merchant", b =>
-                {
-                    b.Property<string>("userId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("CityId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("GovernorateId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("MerchantPayingPercentageForRejectedOrders")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("SpecialPickupShippingCost")
-                        .HasColumnType("money");
-
-                    b.Property<string>("StoreName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("userId");
-
-                    b.HasIndex("CityId");
-
-                    b.HasIndex("GovernorateId");
-
-                    b.ToTable("Merchants");
-                });
-
             modelBuilder.Entity("Domain.Entities.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -324,6 +300,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("RepresentativeId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("ShippingCost")
+                        .HasColumnType("money");
 
                     b.Property<int>("ShippingId")
                         .HasColumnType("int");
@@ -587,13 +566,42 @@ namespace Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Merchant", b =>
+                {
+                    b.HasBaseType("Domain.Entities.ApplicationUser");
+
+                    b.Property<int?>("CityId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("GovernorateId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("MerchantPayingPercentageForRejectedOrders")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("SpecialPickupShippingCost")
+                        .HasColumnType("money");
+
+                    b.Property<string>("StoreName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("userId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("GovernorateId");
+
+                    b.HasIndex("userId");
+
+                    b.HasDiscriminator().HasValue("Merchant");
+                });
+
             modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
                 {
                     b.HasOne("Domain.Entities.Branch", "branch")
                         .WithMany("users")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BranchId");
 
                     b.Navigation("branch");
                 });
@@ -648,30 +656,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("governorate");
 
                     b.Navigation("representative");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Merchant", b =>
-                {
-                    b.HasOne("Domain.Entities.City", "city")
-                        .WithMany("cityMerchants")
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Domain.Entities.Governorate", "governorate")
-                        .WithMany("governorateMerchants")
-                        .HasForeignKey("GovernorateId");
-
-                    b.HasOne("Domain.Entities.ApplicationUser", "user")
-                        .WithMany()
-                        .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("city");
-
-                    b.Navigation("governorate");
-
-                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>
@@ -836,6 +820,28 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Entities.Merchant", b =>
+                {
+                    b.HasOne("Domain.Entities.City", "city")
+                        .WithMany("cityMerchants")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Domain.Entities.Governorate", "governorate")
+                        .WithMany("governorateMerchants")
+                        .HasForeignKey("GovernorateId");
+
+                    b.HasOne("Domain.Entities.ApplicationUser", "user")
+                        .WithMany()
+                        .HasForeignKey("userId");
+
+                    b.Navigation("city");
+
+                    b.Navigation("governorate");
+
+                    b.Navigation("user");
+                });
+
             modelBuilder.Entity("Domain.Entities.ApplicationRoles", b =>
                 {
                     b.Navigation("RolePowers");
@@ -880,13 +886,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("specialPackages");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Merchant", b =>
-                {
-                    b.Navigation("SpecialPackages");
-
-                    b.Navigation("orders");
-                });
-
             modelBuilder.Entity("Domain.Entities.Order", b =>
                 {
                     b.Navigation("Products");
@@ -902,6 +901,13 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Shipping", b =>
                 {
                     b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Merchant", b =>
+                {
+                    b.Navigation("SpecialPackages");
+
+                    b.Navigation("orders");
                 });
 #pragma warning restore 612, 618
         }

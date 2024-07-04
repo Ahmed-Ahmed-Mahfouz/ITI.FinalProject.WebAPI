@@ -4,6 +4,7 @@ using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Application.Services;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -12,6 +13,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class RolePowersController : ControllerBase
     {
         private readonly IGenericService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string> service;
@@ -27,6 +29,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             Description = ""
         )]
         [SwaggerResponse(404, "There weren't any rolePowers in the database", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns A list of rolePowers", Type = typeof(List<RolePowersDTO>))]
         [HttpGet]
         public async Task<ActionResult<List<RolePowersDTO>>> GetAllRolePowers()
@@ -47,6 +50,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             Description = ""
         )]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns the specified rolePower", Type = typeof(RolePowersDTO))]
         [HttpGet("{id}")]
         public async Task<ActionResult<RolePowersDTO>> GetRolePowerById(string id)
@@ -66,11 +70,23 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Summary = "This Endpoint inserts a rolePower element in the db",
             Description = ""
         )]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
+        //[SwaggerResponse(400, "Role name or powers weren't given", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the rolePower was inserted successfully", Type = typeof(void))]
         [HttpPost]
         public async Task<IActionResult> PostRolePower([FromBody] RolePowersInsertDTO rolePowersInsertDTO)
         {
+            //if (rolePowersInsertDTO.RoleName == null || rolePowersInsertDTO.RoleName == "")
+            //{
+            //    return BadRequest("please enter group name");
+            //}
+
+            //if (rolePowersInsertDTO.Powers.Count == 0)
+            //{
+            //    return BadRequest("Please enter role powers before inserting");
+            //}
+
             var result = await service.InsertObject(rolePowersInsertDTO);
 
             if (result.Succeeded)
@@ -95,6 +111,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         )]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
         [SwaggerResponse(400, "The id that was given doesn't equal the id in the given rolePower object", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the rolePower was updated successfully", Type = typeof(void))]
         [HttpPut("{id}")]
@@ -135,6 +152,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             Description = ""
         )]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the rolePower was deleted successfully", Type = typeof(void))]
         [HttpDelete("{id}")]

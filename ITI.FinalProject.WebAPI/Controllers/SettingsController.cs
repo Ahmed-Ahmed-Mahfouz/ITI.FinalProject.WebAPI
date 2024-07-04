@@ -3,100 +3,100 @@ using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
+using System.Text;
 
 namespace ITI.FinalProject.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController : ControllerBase
+    public class SettingsController : ControllerBase
     {
-        private readonly IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int> _orderService;
+        private readonly IGenericService<Settings, SettingsDTO, SettingsInsertDTO, SettingsUpdateDTO, int> service;
         private readonly RoleManager<ApplicationRoles> roleManager;
-
-        public OrdersController(IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int> orderService, RoleManager<ApplicationRoles> roleManager)
+        public SettingsController(IGenericService<Settings, SettingsDTO, SettingsInsertDTO, SettingsUpdateDTO, int> service, RoleManager<ApplicationRoles> roleManager)
         {
-            _orderService = orderService;
+            this.service = service;
             this.roleManager = roleManager;
         }
 
-        // GET: api/Orders
-        [SwaggerOperation(Summary = "This Endpoint returns a list of orders",Description = "")]
-        [SwaggerResponse(404, "There weren't any orders in the database", Type = typeof(void))]
+        // GET: api/Settings
+        [SwaggerOperation(Summary = "This Endpoint returns a list of settings", Description = "")]
+        [SwaggerResponse(404, "There weren't any settings in the database", Type = typeof(void))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(200, "Returns A list of orders", Type = typeof(PaginationDTO<DisplayOrderDTO>))]
+        [SwaggerResponse(200, "Returns A list of settings", Type = typeof(List<SettingsDTO>))]
         [HttpGet]
-        public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<SettingsDTO>>> GetSettingsList()
         {
-            var roles = await roleManager.Roles.Include(r => r.RolePowers).ToListAsync();
+            var roles = await GetRoles();
 
             if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Read) == null)
             {
                 return Unauthorized();
             }
 
-            var orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => o.Status == Domain.Enums.OrderStatus.New);
+            var settingsList = await service.GetAllObjects();
 
-            if (orderPaginationDTO == null || orderPaginationDTO.List.Count == 0)
+            if (settingsList == null || settingsList.Count == 0)
             {
                 return NotFound();
             }
 
-            //var totalPages = (int)Math.Ceiling(totalOrders / (double)pageSize);
-            //Response.Headers.Add("X-Total-Count", totalOrders.ToString());
-            //Response.Headers.Add("X-Total-Pages", totalPages.ToString());
-
-            return Ok(orderPaginationDTO);
+            return Ok(settingsList);
         }
 
 
-        // GET: api/Orders/5
-        [SwaggerOperation(Summary = "This Endpoint returns the specified order")]
+        // GET: api/Settings/5
+        [SwaggerOperation(Summary = "This Endpoint returns the specified settings")]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(200, "Returns the specified order", Type = typeof(DisplayOrderDTO))]
+        [SwaggerResponse(200, "Returns the specified settings", Type = typeof(SettingsDTO))]
         [HttpGet("{id}")]
-        public async Task<ActionResult<DisplayOrderDTO>> GetOrder(int id)
+        public async Task<ActionResult<SettingsDTO>> GetSettings(int id)
         {
-            var roles = await roleManager.Roles.Include(r => r.RolePowers).ToListAsync();
+            var roles = await GetRoles();
 
             if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Read) == null)
             {
                 return Unauthorized();
             }
 
-            var order = await _orderService.GetObject(o => o.Id == id);
+            var settings = await service.GetObject(s => s.Id == id);
 
-            if (order == null)
+            if (settings == null)
             {
                 return NotFound();
             }
 
-            return Ok(order);
+            return Ok(settings);
         }
 
-        // POST: api/Orders
-        [SwaggerOperation(Summary = "This Endpoint inserts a new order in the db", Description = "")]
+        // POST: api/Settings
+        [SwaggerOperation(Summary = "This Endpoint inserts a new settings in the db", Description = "")]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
-        [SwaggerResponse(204, "Confirms that the order was inserted successfully", Type = typeof(void))]
+        [SwaggerResponse(204, "Confirms that the settings was inserted successfully", Type = typeof(void))]
         [HttpPost]
-        public async Task<IActionResult> PostOrder([FromBody] InsertOrderDTO orderDTO)
+        public async Task<IActionResult> PostSettings([FromBody] SettingsInsertDTO settingsInsertDTO)
         {
-            if (!User.IsInRole("Merchant"))
+            var roles = await GetRoles();
+
+            if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Create) == null)
             {
                 return Unauthorized();
             }
 
-            var result = await _orderService.InsertObject(orderDTO);
+            var result = await service.InsertObject(settingsInsertDTO);
 
             if (result.Succeeded)
             {
-                if (await _orderService.SaveChangesForObject())
+                if (await service.SaveChangesForObject())
                 {
                     return NoContent();
                 }
@@ -107,43 +107,42 @@ namespace ITI.FinalProject.WebAPI.Controllers
             }
 
             return Accepted(result.Message);
-            //return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
         }
 
-        // PUT: api/Orders/5
-        [SwaggerOperation(Summary = "This Endpoint updates the specified order", Description = "")]
+        // PUT: api/Settings/5
+        [SwaggerOperation(Summary = "This Endpoint updates the specified settings", Description = "")]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
-        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given order object", Type = typeof(void))]
+        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given settings object", Type = typeof(void))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
-        [SwaggerResponse(204, "Confirms that the order was updated successfully", Type = typeof(void))]
+        [SwaggerResponse(204, "Confirms that the settings was updated successfully", Type = typeof(void))]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, UpdateOrderDTO orderDTO)
+        public async Task<IActionResult> PutSettings(int id, SettingsUpdateDTO settingsUpdateDTO)
         {
-            var roles = await roleManager.Roles.Include(r => r.RolePowers).ToListAsync();
+            var roles = await GetRoles();
 
             if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Update) == null)
             {
                 return Unauthorized();
             }
 
-            if (id != orderDTO.Id)
+            if (id != settingsUpdateDTO.Id)
             {
                 return BadRequest("Id doesn't match the id in the object");
             }
 
-            var success = await _orderService.GetObjectWithoutTracking(o => o.Id == id);
+            var success = await service.GetObjectWithoutTracking(s => s.Id == id);
 
             if (success == null)
             {
-                return NotFound("Order doesn't exist in the db");
+                return NotFound("Settings doesn't exist in the db");
             }
 
-            var result = await _orderService.UpdateObject(orderDTO);
+            var result = await service.UpdateObject(settingsUpdateDTO);
 
             if (result.Succeeded)
             {
-                if (await _orderService.SaveChangesForObject())
+                if (await service.SaveChangesForObject())
                 {
                     return NoContent();
                 }
@@ -156,34 +155,34 @@ namespace ITI.FinalProject.WebAPI.Controllers
             return Accepted(result.Message);
         }
 
-        // DELETE: api/Orders/5
-        [SwaggerOperation(Summary = "This Endpoint deletes the specified order", Description = "")]
+        // DELETE: api/Settings/5
+        [SwaggerOperation(Summary = "This Endpoint deletes the specified settings", Description = "")]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
-        [SwaggerResponse(204, "Confirms that the order was deleted successfully", Type = typeof(void))]
+        [SwaggerResponse(204, "Confirms that the settings was deleted successfully", Type = typeof(void))]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder(int id)
+        public async Task<IActionResult> DeleteSettings(int id)
         {
-            var roles = await roleManager.Roles.Include(r => r.RolePowers).ToListAsync();
+            var roles = await GetRoles();
 
             if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Delete) == null)
             {
                 return Unauthorized();
             }
 
-            var success = await _orderService.GetObjectWithoutTracking(o => o.Id == id);
+            var success = await service.GetObjectWithoutTracking(s => s.Id == id);
 
             if (success == null)
             {
-                return NotFound("Order doesn't exist in the db");
+                return NotFound("Settings doesn't exist in the db");
             }
 
-            var result = await _orderService.DeleteObject(id);
+            var result = await service.DeleteObject(id);
 
             if (result.Succeeded)
             {
-                if (await _orderService.SaveChangesForObject())
+                if (await service.SaveChangesForObject())
                 {
                     return NoContent();
                 }
@@ -194,6 +193,22 @@ namespace ITI.FinalProject.WebAPI.Controllers
             }
 
             return Accepted(result.Message);
+        }
+
+        private async Task<List<ApplicationRoles>> GetRoles()
+        {
+            var roleList = await roleManager.Roles.Include(r => r.RolePowers).Where(r => r.Name != "Admin" && r.Name != "Merchant" && r.Name != "Representative").ToListAsync();
+
+            //var rolesStringBuilder = new StringBuilder();
+
+            //rolesStringBuilder.Append(roleList[0].Name);
+
+            //for (int i = 1; i < roleList.Count; i++)
+            //{
+            //    rolesStringBuilder.Append($",{roleList[i].Name}");
+            //}
+
+            return roleList;
         }
     }
 }

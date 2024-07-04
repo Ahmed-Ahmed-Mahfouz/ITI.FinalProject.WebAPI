@@ -3,6 +3,7 @@ using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class CitiesController : ControllerBase
     {
         IGenericService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> CityServ;
@@ -18,14 +20,14 @@ namespace ITI.FinalProject.WebAPI.Controllers
             CityServ = _CityServ;
         }
         [HttpGet]
-        public async Task<ActionResult> getAllCities()
+        public async Task<ActionResult> GetAllCities()
         {
             List<CityDisplayDTO> Cities = await CityServ.GetAllObjects();
             return Ok(Cities);
 
         }
         [HttpGet("id")]
-        public async Task<ActionResult> getById(int id)
+        public async Task<ActionResult> GetById(int id)
         {
             CityDisplayDTO? City = await CityServ.GetObject(p=>p.id==id);
             if (City == null)
@@ -34,7 +36,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         }
         [HttpPost]
-        public async Task <ActionResult> addCity(CityInsertDTO City)
+        public async Task <ActionResult> AddCity(CityInsertDTO City)
         {
             if (City == null)
                 return BadRequest();
@@ -48,7 +50,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         }
         [HttpDelete]
-        public async Task<ActionResult> deleteCity(int id)
+        public async Task<ActionResult> DeleteCity(int id)
         {
 
             var result =await CityServ.DeleteObject(id);
@@ -61,7 +63,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         }
         [HttpPut("id")]
-        public async Task<ActionResult> updateCity(int id, CityUpdateDTO city)
+        public async Task<ActionResult> UpdateCity(int id, CityUpdateDTO city)
         {
             if (city == null || id != city.id)
             {
