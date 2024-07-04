@@ -16,9 +16,9 @@ namespace ITI.FinalProject.WebAPI.Controllers
     [Authorize(Roles = "Admin")]
     public class RolePowersController : ControllerBase
     {
-        private readonly IGenericService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string> service;
+        private readonly IPaginationService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string> service;
 
-        public RolePowersController(IGenericService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string> service)
+        public RolePowersController(IPaginationService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string> service)
         {
             this.service = service;
         }
@@ -42,6 +42,21 @@ namespace ITI.FinalProject.WebAPI.Controllers
             }
 
             return Ok(rolePowers);
+        }
+
+        [SwaggerOperation(
+        Summary = "This Endpoint returns a list of rolePowers with the specified page size",
+            Description = ""
+        )]
+        [SwaggerResponse(200, "Returns A list of rolePowers", Type = typeof(PaginationDTO<RolePowersDTO>))]
+        [HttpGet("/api/RolePowerPage")]
+        public async Task<ActionResult<PaginationDTO<RolePowersDTO>>> GetPage([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string name = "")
+        {
+
+            var paginationDTO = await service.GetPaginatedOrders(pageNumber, pageSize, rp => 1 == 1 );
+            paginationDTO.List = paginationDTO.List.Where(rp => rp.RoleName.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
+
+            return Ok(paginationDTO);
         }
 
         // GET api/RolePowers/fkmc4a2wkmfkmq

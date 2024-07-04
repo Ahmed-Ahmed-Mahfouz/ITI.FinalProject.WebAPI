@@ -43,6 +43,20 @@ namespace ITI.FinalProject.WebAPI.Controllers
         }
 
         [SwaggerOperation(
+        Summary = "This Endpoint returns a list of employees with the specified page size",
+            Description = ""
+        )]
+        [SwaggerResponse(200, "Returns A list of employees", Type = typeof(PaginationDTO<EmployeeReadDto>))]
+        [HttpGet("/api/EmployeePage")]
+        public async Task<ActionResult<PaginationDTO<EmployeeReadDto>>> GetPage([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string name = "")
+        {
+            var paginationDTO = await employeeService.GetPaginatedOrders(pageNumber, pageSize, e =>  1 == 1 );
+            paginationDTO.List = paginationDTO.List.Where(e => e.FullName.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
+            
+            return Ok(paginationDTO);
+        }
+
+        [SwaggerOperation(
         Summary = "This Endpoint returns the specified employee",
         Description = ""
         )]

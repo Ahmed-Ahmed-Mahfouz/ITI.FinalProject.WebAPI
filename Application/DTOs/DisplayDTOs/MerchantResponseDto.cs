@@ -9,8 +9,8 @@ namespace Application.DTOs.DisplayDTOs
 {
     public class MerchantResponseDto
     {
-        public int? GovernorateId { get; set; }
-        public int? CityId { get; set; }
+        //public int? GovernorateId { get; set; }
+        //public int? CityId { get; set; }
         public string Id { get; set; }
         public string? StoreName { get; set; }
 
@@ -23,6 +23,9 @@ namespace Application.DTOs.DisplayDTOs
         public string Address { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public double? CostPerRefusedOrder { get; set; }
+        public string BranchName { get; set; }
+        public string CityName { get; set; }
+        public string GovernorateName { get; set; }
 
         //public decimal? RefusedOrderPercentage { get; set; }
         public decimal MerchantPayingPercentageForRejectedOrders { get; set; }

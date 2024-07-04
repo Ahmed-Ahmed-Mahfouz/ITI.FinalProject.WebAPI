@@ -33,7 +33,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            IEnumerable<MerchantResponseDto> response = await merchantService.GetAllObjects();
+            IEnumerable<MerchantResponseDto> response = await merchantService.GetAllObjects(m => m.branch, m => m.governorate, m => m.city, m => m.user);
             if (response != null)
             {
 
@@ -45,6 +45,20 @@ namespace ITI.FinalProject.WebAPI.Controllers
             }
         }
 
+        [SwaggerOperation(
+        Summary = "This Endpoint returns a list of merchants with the specified page size",
+            Description = ""
+        )]
+        [SwaggerResponse(200, "Returns A list of merchants", Type = typeof(PaginationDTO<MerchantResponseDto>))]
+        [HttpGet("/api/MerchantPage")]
+        public async Task<ActionResult<PaginationDTO<MerchantResponseDto>>> GetPage([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string name = "")
+        {
+
+            var paginationDTO = await merchantService.GetPaginatedOrders(pageNumber, pageSize, m => m.user.UserName.Trim().ToLower().Contains(name.Trim().ToLower()));
+            //paginationDTO.List = paginationDTO.List.Where(m => m.UserName.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
+
+            return Ok(paginationDTO);
+        }
 
         [SwaggerOperation(
         Summary = "This Endpoint returns the specified merchant",

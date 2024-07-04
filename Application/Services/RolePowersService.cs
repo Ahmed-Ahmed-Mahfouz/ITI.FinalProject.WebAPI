@@ -284,9 +284,19 @@ namespace Application.Services
             return RolePowerDTO;
         }
 
-        public Task<PaginationDTO<RolePowersDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<RolePowers, bool>> filter)
+        public async Task<PaginationDTO<RolePowersDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<RolePowers, bool>> filter)
         {
-            throw new NotImplementedException();
+            var totalCount = await repository.Count();
+            var totalPages = await repository.Pages(pageSize);
+            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter);
+            var rolePowers = await MapRolePowers(objectList.ToList());
+            
+            return new PaginationDTO<RolePowersDTO>()
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = rolePowers
+            };
         }
     }
 }

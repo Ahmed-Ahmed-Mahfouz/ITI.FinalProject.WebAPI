@@ -31,7 +31,7 @@ namespace Application.DTOs.InsertDTOs
         public Status Status { get; set; }
 
         public int cityID { get; set; }
-        public int governerateID { get; set; }
+        public int governorateID { get; set; }
         //public List<SpecialPackages> SpecialPackages { get; set; }
 
         ////  public decimal? RefusedOrderPercentage { get; set; }

@@ -331,7 +331,7 @@ namespace Application.Services
             var merchants = await repository.GetAllElements();
             List<MerchantResponseDto> result = new List<MerchantResponseDto>();
             foreach (var merchant in merchants)
-                result.Add(MapMerchants(merchant));
+                result.Add(MapMerchant(merchant));
             return result;
         }
         public async Task<List<MerchantResponseDto>> GetAllObjects(params Expression<Func<Merchant, object>>[] includes)
@@ -339,7 +339,7 @@ namespace Application.Services
             var merchants = await repository.GetAllElements(includes);
             List<MerchantResponseDto> result = new List<MerchantResponseDto>();
             foreach (var merchant in merchants)
-                result.Add(MapMerchants(merchant));
+                result.Add(MapMerchantWithIncludes(merchant));
             return result;
         }
         public async Task<MerchantResponseDto?> GetObject(Expression<Func<Merchant, bool>> filter)
@@ -349,7 +349,7 @@ namespace Application.Services
             {
                 return null;
             }
-            return MapMerchants(merchant);
+            return MapMerchant(merchant);
         }
         public async Task<MerchantResponseDto?> GetObject(Expression<Func<Merchant, bool>> filter, params Expression<Func<Merchant, object>>[] includes)
         {
@@ -358,7 +358,7 @@ namespace Application.Services
             {
                 return null;
             }
-            return MapMerchants(representative);
+            return MapMerchantWithIncludes(representative);
         }
         public async Task<MerchantResponseDto?> GetObjectWithoutTracking(Expression<Func<Merchant, bool>> filter)
         {
@@ -367,7 +367,7 @@ namespace Application.Services
             {
                 return null;
             }
-            return MapMerchants(merhcant);
+            return MapMerchant(merhcant);
         }
         public async Task<MerchantResponseDto?> GetObjectWithoutTracking(Expression<Func<Merchant, bool>> filter, params Expression<Func<Merchant, object>>[] includes)
         {
@@ -376,7 +376,7 @@ namespace Application.Services
             {
                 return null;
             }
-            return MapMerchants(merhcant);
+            return MapMerchant(merhcant);
         }
 
         public async Task<ModificationResultDTO> InsertObject(MerchantAddDto ObjectDTO)
@@ -412,7 +412,7 @@ namespace Application.Services
                 PasswordHash = ObjectDTO.PasswordHash,
                 Address = ObjectDTO.Address,
                 //Id = ObjectDTO.Id,
-                GovernorateId = ObjectDTO.governerateID,
+                GovernorateId = ObjectDTO.governorateID,
                  //= ObjectDTO.PhoneNumber,
                 UserType = Domain.Enums.UserType.Merchant,
             };
@@ -534,7 +534,7 @@ namespace Application.Services
 
             // Update merchant information
             merchant.StoreName = ObjectDTO.StoreName;
-            merchant.GovernorateId = ObjectDTO.governerateID;
+            merchant.GovernorateId = ObjectDTO.governorateID;
             merchant.CityId = ObjectDTO.cityID; // Assuming you have CityId in the MerchantUpdateDto
             merchant.Address = ObjectDTO.Address; // Assuming you have Address in the MerchantUpdateDto
             merchant.PhoneNumber = ObjectDTO.PhoneNumber; // Assuming you have PhoneNumber in the MerchantUpdateDto
@@ -667,7 +667,7 @@ namespace Application.Services
 
             return result;
         }
-        private MerchantResponseDto MapMerchants(Merchant merchant)
+        private MerchantResponseDto MapMerchant(Merchant merchant)
         {
             var ordersAfterMapper = _mapper.Map<List<DisplayOrderDTO>>(merchant.orders);
             var packagesAfterMapper = _mapper.Map<List<SpecialPackageDTO>>(merchant.SpecialPackages);
@@ -675,9 +675,9 @@ namespace Application.Services
             {
                 Id = merchant.Id,
                 Address = merchant.Address,
-                CityId = merchant.CityId,
+                //CityId = merchant.CityId,
                 Email = merchant.Email,
-                GovernorateId = merchant.GovernorateId,
+                //GovernorateId = merchant.GovernorateId,
                 MerchantPayingPercentageForRejectedOrders = merchant.MerchantPayingPercentageForRejectedOrders,
                 orders = ordersAfterMapper,
                 PasswordHash = merchant.PasswordHash,
@@ -690,15 +690,64 @@ namespace Application.Services
 
             return MerchantResponseDto;
         }
+
+        private MerchantResponseDto MapMerchantWithIncludes(Merchant merchant)
+        {
+            var ordersAfterMapper = _mapper.Map<List<DisplayOrderDTO>>(merchant.orders);
+            var packagesAfterMapper = _mapper.Map<List<SpecialPackageDTO>>(merchant.SpecialPackages);
+            var MerchantResponseDto = new MerchantResponseDto()
+            {
+                Id = merchant.Id,
+                Address = merchant.Address,
+                CityName = merchant.city.name,
+                Email = merchant.user.Email,
+                GovernorateName = merchant.governorate.name,
+                BranchName = merchant.branch.name,
+                MerchantPayingPercentageForRejectedOrders = merchant.MerchantPayingPercentageForRejectedOrders,
+                orders = ordersAfterMapper,
+                PasswordHash = merchant.user.PasswordHash,
+                PhoneNumber = merchant.user.PhoneNumber,
+                SpecialPackages = packagesAfterMapper,
+                SpecialPickupShippingCost = merchant.SpecialPickupShippingCost,
+                StoreName = merchant.StoreName,
+                UserName = merchant.user.UserName
+            };
+
+            return MerchantResponseDto;
+        }
+
         private List<MerchantResponseDto> MapMerchants(List<Merchant> merchants)
         {
             var MerchantResponseDtos = merchants.Select(merchant => new MerchantResponseDto()
             {
                 Id = merchant.Id,
                 Address = merchant.Address,
-                CityId = merchant.CityId,
+                //CityId = merchant.CityId,
                 Email = merchant.Email,
-                GovernorateId = merchant.GovernorateId,
+                //GovernorateId = merchant.GovernorateId,
+                MerchantPayingPercentageForRejectedOrders = merchant.MerchantPayingPercentageForRejectedOrders,
+                PasswordHash = merchant.PasswordHash,
+                PhoneNumber = merchant.PhoneNumber,
+                orders = _mapper.Map<List<DisplayOrderDTO>>(merchant.orders),
+                SpecialPackages = _mapper.Map<List<SpecialPackageDTO>>(merchant.SpecialPackages),
+                SpecialPickupShippingCost = merchant.SpecialPickupShippingCost,
+                StoreName = merchant.StoreName,
+                UserName = merchant.UserName
+            }).ToList();
+
+            return MerchantResponseDtos;
+        }
+
+        private List<MerchantResponseDto> MapMerchantsWithIncludes(List<Merchant> merchants)
+        {
+            var MerchantResponseDtos = merchants.Select(merchant => new MerchantResponseDto()
+            {
+                Id = merchant.Id,
+                Address = merchant.Address,
+                CityName = merchant.city.name,
+                Email = merchant.Email,
+                GovernorateName = merchant.governorate.name,
+                BranchName = merchant.branch.name,
                 MerchantPayingPercentageForRejectedOrders = merchant.MerchantPayingPercentageForRejectedOrders,
                 PasswordHash = merchant.PasswordHash,
                 PhoneNumber = merchant.PhoneNumber,
@@ -755,9 +804,18 @@ namespace Application.Services
 
         }
 
-        public Task<PaginationDTO<MerchantResponseDto>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Merchant, bool>> filter)
+        public async Task<PaginationDTO<MerchantResponseDto>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Merchant, bool>> filter)
         {
-            throw new NotImplementedException();
+            var totalCount = await repository.Count();
+            var totalPages = await repository.Pages(pageSize);
+            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, m => m.branch, m => m.governorate, m => m.city, m => m.user);
+
+            return new PaginationDTO<MerchantResponseDto>()
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = MapMerchants(objectList.ToList())
+            };
         }
     }
 }

@@ -29,6 +29,20 @@ namespace Infrastructure.Persistence.Repositories
                                  .ToListAsync();
         }
 
+        public async Task<IEnumerable<T>> GetPaginatedElements(int pageNumber, int pageSize, Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includes)
+        {
+            var query = _context.Set<T>().Where(filter);
+
+            foreach (var item in includes)
+            {
+                query = query.Include(item);
+            }
+
+            return await query.Skip((pageNumber - 1) * pageSize)
+                              .Take(pageSize)
+                              .ToListAsync();
+        }
+
 
         public async Task<int> Count()
         {

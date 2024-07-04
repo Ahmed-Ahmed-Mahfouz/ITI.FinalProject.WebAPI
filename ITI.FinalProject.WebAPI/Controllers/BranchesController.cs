@@ -6,6 +6,7 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ITI.FinalProject.WebAPI.Controllers
 {
@@ -28,21 +29,19 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         }
 
-        [HttpGet("{name:alpha}")]
-        public async Task<ActionResult<PaginationDTO<BranchDisplayDTO>>> GetBranches([FromQuery] string name = "", [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        [SwaggerOperation(
+        Summary = "This Endpoint returns a list of branches with the specified page size",
+            Description = ""
+        )]
+        [SwaggerResponse(200, "Returns A list of branches", Type = typeof(PaginationDTO<BranchDisplayDTO>))]
+        [HttpGet("/api/BranchPage")]
+        public async Task<ActionResult<PaginationDTO<BranchDisplayDTO>>> GetBranches([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string name = "")
         {
 
             var paginationDTO = await branchServ.GetPaginatedOrders(pageNumber, pageSize, b => b.name.Trim().ToLower().Contains(name.Trim().ToLower()));
 
             return Ok(paginationDTO);
         }
-
-        //[HttpGet("{name:alpha}")]
-        //public async Task<ActionResult> GetBranchesByName([FromQuery] string name)
-        //{
-        //    var (branches, totalCount) = await branchServ.GetPaginatedOrders(pageNumber, pageSize);
-        //    return Ok(branches);
-        //}
 
         [HttpGet("id")]
         public async Task<ActionResult> GetById(int id)
