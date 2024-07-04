@@ -120,6 +120,13 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             identityRes = await userManager.AddClaimAsync(user, new Claim("UserType", user.UserType.ToString()));
 
+            cl = claims.FirstOrDefault(c => c.Type == "Token");
+
+            if (cl != null)
+            {
+                identityRes = await userManager.RemoveClaimAsync(user, cl);
+            }
+
             claims = await userManager.GetClaimsAsync(user);
 
             var sKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetSection("SKey").Value??""));
@@ -136,21 +143,21 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             IdentityResult identityResult = new IdentityResult();
 
-            cl = claims.FirstOrDefault(c => c.Type == "Token");
+            //cl = claims.FirstOrDefault(c => c.Type == "Token");
 
-            if (cl != null)
-            {
-                identityResult = await userManager.RemoveClaimAsync(user, cl);
-            }
+            //if (cl != null)
+            //{
+            //    identityResult = await userManager.RemoveClaimAsync(user, cl);
+            //}
 
-            identityResult = await userManager.AddClaimAsync(user, new Claim("Token", givenToken));
+            //identityResult = await userManager.AddClaimAsync(user, new Claim("Token", givenToken));
 
-            if (identityResult.Succeeded)
-            {
-                await signInManager.SignInAsync(user, false);
+            //if (identityResult.Succeeded)
+            //{
+            await signInManager.SignInAsync(user, false);
 
-                return Ok(givenToken);
-            }
+            return Ok(givenToken);
+            //}
 
             return Accepted();
         }

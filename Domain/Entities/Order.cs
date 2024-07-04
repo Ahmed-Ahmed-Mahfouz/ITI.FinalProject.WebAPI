@@ -38,7 +38,7 @@ namespace Domain.Entities
         public decimal TotalWeight => Products.Sum(p => p.Weight * p.Quantity);
 
         [ForeignKey("merchant")]
-        public string MerchantId { get; set; }
+        public string? MerchantId { get; set; }
         [ForeignKey("governorate")]
         public int GovernorateId { get; set; }
         [ForeignKey("city")]

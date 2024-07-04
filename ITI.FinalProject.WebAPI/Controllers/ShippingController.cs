@@ -11,7 +11,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Merchant")]
+    //[Authorize(Roles = "Merchant")]
     public class ShippingController : ControllerBase
     {
         private readonly IGenericService<Shipping, DisplayShippingDTO, InsertShippingDTO, UpdateShippingDTO, int> _shippingService;

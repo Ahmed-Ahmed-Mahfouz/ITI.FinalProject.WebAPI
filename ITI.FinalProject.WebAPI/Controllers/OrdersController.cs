@@ -31,7 +31,9 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns A list of orders", Type = typeof(PaginationDTO<DisplayOrderDTO>))]
         [HttpGet]
-        public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, OrderFilterDTO? orderFilterDTO = null)
+        //public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, OrderFilterDTO? orderFilterDTO = null)
+                //public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, OrderFilterDTO? orderFilterDTO = null)
+
         {
             var roles = await roleManager.Roles.Include(r => r.RolePowers).ToListAsync();
 
@@ -97,10 +99,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> PostOrder([FromBody] InsertOrderDTO orderDTO)
         {
-            if (!User.IsInRole("Merchant"))
-            {
-                return Unauthorized();
-            }
+            //if (!User.IsInRole("Merchant"))
+            //{
+            //    return Unauthorized();
+            //}
 
             var result = await _orderService.InsertObject(orderDTO);
 
