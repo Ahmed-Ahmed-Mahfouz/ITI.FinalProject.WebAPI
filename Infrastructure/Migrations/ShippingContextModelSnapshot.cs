@@ -147,31 +147,6 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("ApplicationUser");
 
                     b.UseTphMappingStrategy();
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            AccessFailedCount = 0,
-                            Address = "123 Main St",
-                            BranchId = 1,
-                            ConcurrencyStamp = "",
-                            Email = "johndoe@example.com",
-                            EmailConfirmed = true,
-                            FullName = "John Doe",
-                            LockoutEnabled = true,
-                            NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
-                            NormalizedUserName = "JOHNDOE",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBfyFJQYozVBCWIyVkJvQv4xee10M4jQAckbMAWXqVHlKmJ3bakEu2rv4RVlEqAy+w==",
-                            PhoneNo = "1234567890",
-                            PhoneNumber = "1234567890",
-                            PhoneNumberConfirmed = true,
-                            SecurityStamp = "",
-                            Status = 1,
-                            TwoFactorEnabled = false,
-                            UserName = "johndoe",
-                            UserType = 2
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Branch", b =>
@@ -201,24 +176,6 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Branches");
-
-                    b.HasData(
-                        new
-                        {
-                            id = 1,
-                            addingDate = new DateTime(2024, 7, 3, 5, 24, 17, 880, DateTimeKind.Local).AddTicks(1519),
-                            cityId = 1,
-                            name = "Nasr City Branch",
-                            status = 1
-                        },
-                        new
-                        {
-                            id = 2,
-                            addingDate = new DateTime(2024, 7, 3, 5, 24, 17, 880, DateTimeKind.Local).AddTicks(1596),
-                            cityId = 2,
-                            name = "6th of October Branch",
-                            status = 1
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.City", b =>
@@ -250,26 +207,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("governorateId");
 
                     b.ToTable("Cities");
-
-                    b.HasData(
-                        new
-                        {
-                            id = 1,
-                            governorateId = 1,
-                            name = "Nasr City",
-                            normalShippingCost = 10m,
-                            pickupShippingCost = 5m,
-                            status = 1
-                        },
-                        new
-                        {
-                            id = 2,
-                            governorateId = 2,
-                            name = "6th of October",
-                            normalShippingCost = 15m,
-                            pickupShippingCost = 7m,
-                            status = 1
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Employee", b =>
@@ -280,12 +217,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("userId");
 
                     b.ToTable("Employees");
-
-                    b.HasData(
-                        new
-                        {
-                            userId = "1"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Governorate", b =>
@@ -306,20 +237,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("id");
 
                     b.ToTable("Governorates");
-
-                    b.HasData(
-                        new
-                        {
-                            id = 3,
-                            name = "Cairo",
-                            status = 1
-                        },
-                        new
-                        {
-                            id = 2,
-                            name = "Giza",
-                            status = 1
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.GovernorateRepresentatives", b =>
@@ -425,27 +342,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ShippingId");
 
                     b.ToTable("Orders");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            BranchId = 1,
-                            CityId = 1,
-                            ClientName = "Client 1",
-                            Date = new DateTime(2024, 7, 3, 5, 24, 18, 161, DateTimeKind.Local).AddTicks(6121),
-                            GovernorateId = 1,
-                            MerchantId = "2",
-                            PaymentType = 1,
-                            Phone = "1234567890",
-                            RepresentativeId = "1",
-                            ShippingCost = 10m,
-                            ShippingId = 1,
-                            ShippingToVillage = false,
-                            Status = 1,
-                            Type = 1,
-                            VillageAndStreet = "Village 1, Street 1"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -703,36 +599,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("userId");
 
                     b.HasDiscriminator().HasValue("Merchant");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "2",
-                            AccessFailedCount = 0,
-                            Address = "456 Main St",
-                            BranchId = 2,
-                            ConcurrencyStamp = "",
-                            Email = "janedoe@example.com",
-                            EmailConfirmed = true,
-                            FullName = "Jane Doe",
-                            LockoutEnabled = true,
-                            NormalizedEmail = "JANEDOE@EXAMPLE.COM",
-                            NormalizedUserName = "JANEDOE",
-                            PasswordHash = "AQAAAAIAAYagAAAAEN/5SQc2hEG9ycOXIa335ev0mZR/Sx4iDjNOekRlvAoEzdJfA0GLAKJPIO9+yaCKYg==",
-                            PhoneNo = "0987654321",
-                            PhoneNumber = "0987654321",
-                            PhoneNumberConfirmed = true,
-                            SecurityStamp = "",
-                            Status = 1,
-                            TwoFactorEnabled = false,
-                            UserName = "janedoe",
-                            UserType = 1,
-                            CityId = 1,
-                            GovernorateId = 1,
-                            MerchantPayingPercentageForRejectedOrders = 10m,
-                            SpecialPickupShippingCost = 5m,
-                            StoreName = "Jane's Store"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>

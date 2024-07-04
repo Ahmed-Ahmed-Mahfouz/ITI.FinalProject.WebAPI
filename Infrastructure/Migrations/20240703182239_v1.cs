@@ -147,6 +147,13 @@ namespace Infrastructure.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     BranchId = table.Column<int>(type: "int", nullable: false),
                     UserType = table.Column<int>(type: "int", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(21)", maxLength: 21, nullable: false),
+                    StoreName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    GovernorateId = table.Column<int>(type: "int", nullable: true),
+                    CityId = table.Column<int>(type: "int", nullable: true),
+                    MerchantPayingPercentageForRejectedOrders = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    SpecialPickupShippingCost = table.Column<decimal>(type: "money", nullable: true),
+                    userId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -166,11 +173,26 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_AspNetUsers_AspNetUsers_userId",
+                        column: x => x.userId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_AspNetUsers_Branches_BranchId",
                         column: x => x.BranchId,
                         principalTable: "Branches",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_Cities_CityId",
+                        column: x => x.CityId,
+                        principalTable: "Cities",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_Governorates_GovernorateId",
+                        column: x => x.GovernorateId,
+                        principalTable: "Governorates",
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -276,38 +298,6 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Merchants",
-                columns: table => new
-                {
-                    userId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    StoreName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    GovernorateId = table.Column<int>(type: "int", nullable: true),
-                    CityId = table.Column<int>(type: "int", nullable: true),
-                    MerchantPayingPercentageForRejectedOrders = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    SpecialPickupShippingCost = table.Column<decimal>(type: "money", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Merchants", x => x.userId);
-                    table.ForeignKey(
-                        name: "FK_Merchants_AspNetUsers_userId",
-                        column: x => x.userId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Merchants_Cities_CityId",
-                        column: x => x.CityId,
-                        principalTable: "Cities",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_Merchants_Governorates_GovernorateId",
-                        column: x => x.GovernorateId,
-                        principalTable: "Governorates",
-                        principalColumn: "id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Representatives",
                 columns: table => new
                 {
@@ -341,6 +331,11 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_SpecialPackages", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_SpecialPackages_AspNetUsers_MerchantId",
+                        column: x => x.MerchantId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_SpecialPackages_Cities_cityId",
                         column: x => x.cityId,
                         principalTable: "Cities",
@@ -350,11 +345,6 @@ namespace Infrastructure.Migrations
                         column: x => x.governorateId,
                         principalTable: "Governorates",
                         principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_SpecialPackages_Merchants_MerchantId",
-                        column: x => x.MerchantId,
-                        principalTable: "Merchants",
-                        principalColumn: "userId");
                 });
 
             migrationBuilder.CreateTable(
@@ -398,6 +388,7 @@ namespace Infrastructure.Migrations
                     Type = table.Column<int>(type: "int", nullable: false),
                     OrderMoneyReceived = table.Column<decimal>(type: "money", nullable: true),
                     ShippingMoneyReceived = table.Column<decimal>(type: "money", nullable: true),
+                    ShippingCost = table.Column<decimal>(type: "money", nullable: false),
                     MerchantId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     GovernorateId = table.Column<int>(type: "int", nullable: false),
                     CityId = table.Column<int>(type: "int", nullable: false),
@@ -408,6 +399,11 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_AspNetUsers_MerchantId",
+                        column: x => x.MerchantId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Orders_Branches_BranchId",
                         column: x => x.BranchId,
@@ -423,11 +419,6 @@ namespace Infrastructure.Migrations
                         column: x => x.GovernorateId,
                         principalTable: "Governorates",
                         principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_Orders_Merchants_MerchantId",
-                        column: x => x.MerchantId,
-                        principalTable: "Merchants",
-                        principalColumn: "userId");
                     table.ForeignKey(
                         name: "FK_Orders_Representatives_RepresentativeId",
                         column: x => x.RepresentativeId,
@@ -502,6 +493,21 @@ namespace Infrastructure.Migrations
                 column: "BranchId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_CityId",
+                table: "AspNetUsers",
+                column: "CityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_GovernorateId",
+                table: "AspNetUsers",
+                column: "GovernorateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_userId",
+                table: "AspNetUsers",
+                column: "userId");
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
@@ -523,16 +529,6 @@ namespace Infrastructure.Migrations
                 name: "IX_GovernorateRepresentatives_governorateId",
                 table: "GovernorateRepresentatives",
                 column: "governorateId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Merchants_CityId",
-                table: "Merchants",
-                column: "CityId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Merchants_GovernorateId",
-                table: "Merchants",
-                column: "GovernorateId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_BranchId",
@@ -629,9 +625,6 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "Merchants");
 
             migrationBuilder.DropTable(
                 name: "Representatives");

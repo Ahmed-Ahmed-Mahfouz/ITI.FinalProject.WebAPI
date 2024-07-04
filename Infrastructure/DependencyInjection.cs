@@ -22,7 +22,10 @@ namespace Infrastructure
         {
             services.AddDbContext<ShippingContext>(options => options.UseSqlServer(configuration.GetConnectionString("con")));
 
-            services.AddIdentityCore<ApplicationUser>().AddRoles<ApplicationRoles>().AddEntityFrameworkStores<ShippingContext>();
+            services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        .AddRoles<ApplicationRoles>()
+        .AddEntityFrameworkStores<ShippingContext>();
+
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             //services.AddScoped<IUnitOfWork<Merchant>, UnitOfWork<Merchant>>();
