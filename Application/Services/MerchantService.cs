@@ -685,7 +685,8 @@ namespace Application.Services
                 SpecialPackages = packagesAfterMapper,
                 SpecialPickupShippingCost = merchant.SpecialPickupShippingCost,
                 StoreName = merchant.StoreName,
-                UserName = merchant.UserName
+                UserName = merchant.UserName,
+                Status = merchant.Status
             };
 
             return MerchantResponseDto;
@@ -710,7 +711,8 @@ namespace Application.Services
                 SpecialPackages = packagesAfterMapper,
                 SpecialPickupShippingCost = merchant.SpecialPickupShippingCost,
                 StoreName = merchant.StoreName,
-                UserName = merchant.user.UserName
+                UserName = merchant.user.UserName,
+                Status = merchant.Status
             };
 
             return MerchantResponseDto;
@@ -732,7 +734,8 @@ namespace Application.Services
                 SpecialPackages = _mapper.Map<List<SpecialPackageDTO>>(merchant.SpecialPackages),
                 SpecialPickupShippingCost = merchant.SpecialPickupShippingCost,
                 StoreName = merchant.StoreName,
-                UserName = merchant.UserName
+                UserName = merchant.UserName,
+                Status = merchant.Status
             }).ToList();
 
             return MerchantResponseDtos;
@@ -755,7 +758,8 @@ namespace Application.Services
                 SpecialPackages = _mapper.Map<List<SpecialPackageDTO>>(merchant.SpecialPackages),
                 SpecialPickupShippingCost = merchant.SpecialPickupShippingCost,
                 StoreName = merchant.StoreName,
-                UserName = merchant.UserName
+                UserName = merchant.UserName,
+                Status = merchant.Status
             }).ToList();
 
             return MerchantResponseDtos;
