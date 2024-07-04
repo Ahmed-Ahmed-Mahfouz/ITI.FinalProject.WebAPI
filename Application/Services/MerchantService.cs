@@ -394,7 +394,7 @@ namespace Application.Services
                 PhoneNo = ObjectDTO.PhoneNumber,
                 Status = Domain.Enums.Status.Active,
                 UserType = Domain.Enums.UserType.Merchant,
-
+                BranchId = ObjectDTO.branchId
             };
 
             var resultUser = await AddUser(userAdded);
@@ -528,6 +528,7 @@ namespace Application.Services
             }
 
             user.Status = ObjectDTO.Status;
+            user.BranchId = ObjectDTO.branchId;
             identityResult = await _userManager.UpdateAsync(user);
 
             if (!identityResult.Succeeded)

@@ -30,6 +30,7 @@ namespace Application.DTOs.UpdateDTOs
         public Status Status { get; set; }
 
         public int cityID { get; set; }
+        public int branchId { get; set; }
         public string cityName { get; set; }
         public int governorateID { get; set; }
         //public string governerateName { get; set; }

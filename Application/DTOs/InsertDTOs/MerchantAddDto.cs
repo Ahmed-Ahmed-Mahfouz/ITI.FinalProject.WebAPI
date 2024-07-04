@@ -32,6 +32,7 @@ namespace Application.DTOs.InsertDTOs
         public Status Status { get; set; }
 
         public int cityID { get; set; }
+        public int branchId { get; set; }
         public int governorateID { get; set; }
         public List<SpecialPackageInsertDTO> SpecialPackages { get; set; }
 
