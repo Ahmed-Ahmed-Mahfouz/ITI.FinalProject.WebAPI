@@ -63,6 +63,7 @@ namespace Domain.Services
                 CitysDTO.Add(
                     new CityDisplayDTO
                     {
+                        id = item.id,
                         name = item.name,
                         status = item.status,
                         normalShippingCost = item.normalShippingCost,
@@ -82,6 +83,8 @@ namespace Domain.Services
                 return null;
             }
             CityDisplayDTO CityDTO = new CityDisplayDTO(){
+
+                id = City.id,
                 name = City.name,
                 status = City.status,                
                 normalShippingCost = City.normalShippingCost,
@@ -103,6 +106,7 @@ namespace Domain.Services
             }
             CityDisplayDTO CityDTO = new CityDisplayDTO()
             {
+                id = City.id,
                 name = City.name,
                 status = City.status,
                 normalShippingCost = City.normalShippingCost,
@@ -122,6 +126,8 @@ namespace Domain.Services
             }
             CityDisplayDTO CityDTO = new CityDisplayDTO()
             {
+
+                id= City.id,
                 name = City.name,
                 status = City.status,
                 normalShippingCost = City.normalShippingCost,
@@ -142,6 +148,7 @@ namespace Domain.Services
             }
             CityDisplayDTO CityDTO = new CityDisplayDTO()
             {
+                id = City.id,
                 name = City.name,
                 status = City.status,
                 normalShippingCost = City.normalShippingCost,

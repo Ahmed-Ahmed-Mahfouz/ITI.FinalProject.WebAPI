@@ -61,6 +61,7 @@ namespace Domain.Services
                 branchsDTO.Add(
                     new BranchDisplayDTO
                     {
+                        id= item.id,
                         name = item.name,
                         addingDate = item.addingDate,
                         cityId = item.cityId,
@@ -79,6 +80,7 @@ namespace Domain.Services
                 return null;
             }
             BranchDisplayDTO branchDTO = new BranchDisplayDTO(){
+                id = branch.id,
                 name = branch.name,
                 addingDate = branch.addingDate,
                 cityId = branch.cityId,
@@ -97,6 +99,7 @@ namespace Domain.Services
             }
             BranchDisplayDTO branchDTO = new BranchDisplayDTO()
             {
+                id = branch.id,
                 name = branch.name,
                 addingDate = branch.addingDate,
                 cityId = branch.cityId,
@@ -115,6 +118,7 @@ namespace Domain.Services
             }
             BranchDisplayDTO branchDTO = new BranchDisplayDTO()
             {
+                id = branch.id,
                 name = branch.name,
                 addingDate = branch.addingDate,
                 cityId = branch.cityId,
@@ -133,7 +137,8 @@ namespace Domain.Services
                 return null;
             }
             BranchDisplayDTO branchDTO = new BranchDisplayDTO()
-            {
+            {   
+                id = branch.id,
                 name = branch.name,
                 addingDate = branch.addingDate,
                 cityId = branch.cityId,

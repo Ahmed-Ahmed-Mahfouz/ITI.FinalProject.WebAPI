@@ -44,7 +44,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
        )]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
         [SwaggerResponse(200, "Returns the specified city", Type = typeof(CityDisplayDTO))]
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public async Task<ActionResult> getById(int id)
         {
             CityDisplayDTO? City = await CityServ.GetObject(p=>p.id==id);
@@ -58,7 +58,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
            Description = ""
        )]
         [SwaggerResponse(400, "Something went wrong, please check your request", Type = typeof(void))]
-        [SwaggerResponse(201, "Confirms that the city was inserted successfully", Type = typeof(void))]
+        [SwaggerResponse(204, "Confirms that the city was inserted successfully", Type = typeof(void))]
         [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(void))]
 
         [HttpPost]
@@ -111,7 +111,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(void))]
         [SwaggerResponse(200, "Confirms that the city was updated successfully", Type = typeof(void))]
 
-        [HttpPut("id")]
+        [HttpPut("{id}")]
         public async Task<ActionResult> updateCity(int id, CityUpdateDTO city)
         {
             if (city == null || id != city.id)
