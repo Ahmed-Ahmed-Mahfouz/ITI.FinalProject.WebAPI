@@ -3,6 +3,7 @@ using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
+using ITI.FinalProject.WebAPI.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +31,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns A list of orders", Type = typeof(PaginationDTO<DisplayOrderDTO>))]
         [HttpGet]
-        public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, OrderFilterDTO? orderFilterDTO = null)
         {
             var roles = await roleManager.Roles.Include(r => r.RolePowers).ToListAsync();
 
@@ -39,7 +40,16 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            var orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => o.Status == Domain.Enums.OrderStatus.New);
+            PaginationDTO<DisplayOrderDTO>? orderPaginationDTO;
+
+            if (orderFilterDTO == null)
+            {
+                orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => 1 == 1);
+            }
+            else
+            {
+                orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => o.Status == orderFilterDTO.OrderStatus && o.Date > orderFilterDTO.StartDate && o.Date < orderFilterDTO.EndDate);
+            }
 
             if (orderPaginationDTO == null || orderPaginationDTO.List.Count == 0)
             {

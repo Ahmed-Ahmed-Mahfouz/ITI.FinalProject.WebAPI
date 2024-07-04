@@ -11,6 +11,7 @@ namespace Application.Interfaces.Repositories
     public interface IPaginationRepository<T> : IGenericRepository<T> where T : class
     {
         Task<IEnumerable<T>> GetPaginatedElements(int pageNumber, int pageSize, Expression<Func<T, bool>> filter);
+        Task<IEnumerable<T>> GetPaginatedElements(int pageNumber, int pageSize, Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includes);
         Task<int> Count();
         Task<int> Pages(int pageSize);
     }

@@ -366,9 +366,20 @@ namespace Domain.Services
             return new ResultUser { Message = null, UserId = user.Id };
         }
 
-        public Task<PaginationDTO<EmployeeReadDto>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Employee, bool>> filter)
+        public async Task<PaginationDTO<EmployeeReadDto>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Employee, bool>> filter)
         {
-            throw new NotImplementedException();
+            var totalCount = await repository.Count();
+            var totalPages = await repository.Pages(pageSize);
+            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, e => e.user);
+            var mappedEmployees = MapEmployees(objectList.ToList());
+
+
+            return new PaginationDTO<EmployeeReadDto>()
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = mappedEmployees
+            };
         }
 
     }

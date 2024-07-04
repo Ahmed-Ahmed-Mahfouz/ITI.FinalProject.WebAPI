@@ -47,6 +47,21 @@ namespace ITI.FinalProject.WebAPI.Controllers
             return Ok(Representatives);
         }
 
+        [SwaggerOperation(
+        Summary = "This Endpoint returns a list of representatives with the specified page size",
+            Description = ""
+        )]
+        [SwaggerResponse(200, "Returns A list of representatives", Type = typeof(PaginationDTO<RepresentativeDisplayDTO>))]
+        [HttpGet("/api/RepresentativePage")]
+        public async Task<ActionResult<PaginationDTO<RepresentativeDisplayDTO>>> GetPage([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string name = "")
+        {
+
+            var paginationDTO = await service.GetPaginatedOrders(pageNumber, pageSize, r => 1 == 1);
+            paginationDTO.List = paginationDTO.List.Where(r => r.UserFullName.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
+
+            return Ok(paginationDTO);
+        }
+
         // GET: api/Representative/owcmwmece51cwe5
         [SwaggerOperation(
         Summary = "This Endpoint returns the specified representative",

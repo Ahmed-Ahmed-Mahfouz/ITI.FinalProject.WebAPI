@@ -30,8 +30,8 @@ namespace Application.DTOs.UpdateDTOs
 
         public int cityID { get; set; }
         public string cityName { get; set; }
-        public int governerateID { get; set; }
-        public string governerateName { get; set; }
+        public int governorateID { get; set; }
+        //public string governerateName { get; set; }
         //public List<SpecialPackages> SpecialPackages { get; set; }
 
 

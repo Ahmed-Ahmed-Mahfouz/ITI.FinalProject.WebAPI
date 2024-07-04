@@ -525,9 +525,18 @@ namespace Application.Services
 
         }
 
-        public Task<PaginationDTO<RepresentativeDisplayDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Representative, bool>> filter)
+        public async Task<PaginationDTO<RepresentativeDisplayDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Representative, bool>> filter)
         {
-            throw new NotImplementedException();
+            var totalCount = await repository.Count();
+            var totalPages = await repository.Pages(pageSize);
+            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter);
+
+            return new PaginationDTO<RepresentativeDisplayDTO>()
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = MapRepresentatives(objectList.ToList())
+            };
         }
     }
 }

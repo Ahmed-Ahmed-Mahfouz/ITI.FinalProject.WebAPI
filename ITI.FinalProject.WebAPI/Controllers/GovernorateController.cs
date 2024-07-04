@@ -43,6 +43,20 @@ namespace ITI.FinalProject.WebAPI.Controllers
             return Ok(governorates);
         }
 
+        [SwaggerOperation(
+        Summary = "This Endpoint returns a list of governorates with the specified page size",
+            Description = ""
+        )]
+        [SwaggerResponse(200, "Returns A list of governorates", Type = typeof(PaginationDTO<GovernorateDTO>))]
+        [HttpGet("/api/GovernoratePage")]
+        public async Task<ActionResult<PaginationDTO<GovernorateDTO>>> GetPage([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string name = "")
+        {
+
+            var paginationDTO = await service.GetPaginatedOrders(pageNumber, pageSize, g => g.name.Trim().ToLower().Contains(name.Trim().ToLower()));
+
+            return Ok(paginationDTO);
+        }
+
         // GET api/Governorate/5
         [SwaggerOperation(
         Summary = "This Endpoint returns the specified governorate",

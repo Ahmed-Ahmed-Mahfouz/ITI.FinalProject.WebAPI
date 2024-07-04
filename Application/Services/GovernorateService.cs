@@ -196,9 +196,18 @@ namespace Application.Services
             return governorateDTO;
         }
 
-        public Task<PaginationDTO<GovernorateDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Governorate, bool>> filter)
+        public async Task<PaginationDTO<GovernorateDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Governorate, bool>> filter)
         {
-            throw new NotImplementedException();
+            var totalCount = await repository.Count();
+            var totalPages = await repository.Pages(pageSize);
+            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter);
+             
+            return new PaginationDTO<GovernorateDTO>()
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = MapGovernorates(objectList.ToList())
+            };
         }
     }
 }

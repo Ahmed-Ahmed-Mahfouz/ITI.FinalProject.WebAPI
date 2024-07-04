@@ -6,6 +6,7 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ITI.FinalProject.WebAPI.Controllers
 {
@@ -14,8 +15,8 @@ namespace ITI.FinalProject.WebAPI.Controllers
     [Authorize(Roles = "Admin")]
     public class CitiesController : ControllerBase
     {
-        IGenericService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> CityServ;
-        public CitiesController(IGenericService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> _CityServ)
+        IPaginationService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> CityServ;
+        public CitiesController(IPaginationService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> _CityServ)
         {
             CityServ = _CityServ;
         }
@@ -26,6 +27,21 @@ namespace ITI.FinalProject.WebAPI.Controllers
             return Ok(Cities);
 
         }
+
+        [SwaggerOperation(
+        Summary = "This Endpoint returns a list of cities with the specified page size",
+            Description = ""
+        )]
+        [SwaggerResponse(200, "Returns A list of cities", Type = typeof(PaginationDTO<CityDisplayDTO>))]
+        [HttpGet("/api/CityPage")]
+        public async Task<ActionResult<PaginationDTO<CityDisplayDTO>>> GetPage([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string name = "")
+        {
+
+            var paginationDTO = await CityServ.GetPaginatedOrders(pageNumber, pageSize, c => c.name.Trim().ToLower().Contains(name.Trim().ToLower()));
+
+            return Ok(paginationDTO);
+        }
+
         [HttpGet("id")]
         public async Task<ActionResult> GetById(int id)
         {
