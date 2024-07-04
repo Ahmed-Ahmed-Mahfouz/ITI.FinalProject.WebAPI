@@ -13,9 +13,9 @@ namespace ITI.FinalProject.WebAPI.Controllers
     [ApiController]
     public class GovernorateController : ControllerBase
     {
-        private readonly IGenericService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int> service;
+        private readonly IPaginationService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int> service;
 
-        public GovernorateController(IGenericService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int> service)
+        public GovernorateController(IPaginationService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int> service)
         {
             this.service = service;
         }

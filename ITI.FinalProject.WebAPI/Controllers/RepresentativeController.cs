@@ -17,9 +17,9 @@ namespace ITI.FinalProject.WebAPI.Controllers
     [ApiController]
     public class RepresentativeController : ControllerBase
     {
-        private readonly IGenericService<Representative, RepresentativeDisplayDTO, RepresentativeInsertDTO, RepresentativeUpdateDTO, string> service;
+        private readonly IPaginationService<Representative, RepresentativeDisplayDTO, RepresentativeInsertDTO, RepresentativeUpdateDTO, string> service;
 
-        public RepresentativeController(IGenericService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,RepresentativeUpdateDTO,string> service)
+        public RepresentativeController(IPaginationService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,RepresentativeUpdateDTO,string> service)
         {
             this.service = service;
         }
