@@ -438,6 +438,17 @@ namespace Application.Services
 
             bool saveResult;
 
+            saveResult = await unit.SaveChanges();
+
+            if (saveResult == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving the changes"
+                };
+            }
+
             foreach (var specialPackage in ObjectDTO.SpecialPackages)
             {                
                 saveResult = spRepository.Add(new SpecialPackages() {

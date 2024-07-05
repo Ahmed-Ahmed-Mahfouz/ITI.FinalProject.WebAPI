@@ -35,23 +35,25 @@ namespace ITI.FinalProject.WebAPI
                 options.AddPolicy(txt,
                 builder =>
                 {
-                    builder.AllowAnyHeader()
+                    builder.AllowAnyOrigin()
                            .AllowAnyMethod()
-                           .AllowAnyOrigin();
+                           .AllowAnyHeader();
                 });
             });
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(o =>
+            builder.Services.AddAuthentication(options =>
             {
-                o.TokenValidationParameters = new TokenValidationParameters()
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(o =>
                 {
-                    ValidateAudience = false,
-                    ValidateIssuer = false,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("SKey").Value??""))
-                };
-            }
-            );
+                    o.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateAudience = false,
+                        ValidateIssuer = false,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("SKey").Value??""))
+                    };
+                });
 
             var app = builder.Build();
 
@@ -65,6 +67,8 @@ namespace ITI.FinalProject.WebAPI
             //}
 
             app.UseHttpsRedirection();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

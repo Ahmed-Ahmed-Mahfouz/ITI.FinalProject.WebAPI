@@ -66,7 +66,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             var claims = await userManager.GetClaimsAsync(user);
 
-            var cl = claims.FirstOrDefault(c => c.Type == "Role");
+            var cl = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
 
             IdentityResult identityRes = new IdentityResult();
 
@@ -77,7 +77,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             var r = await userManager.GetRolesAsync(user);
 
-            identityRes = await userManager.AddClaimAsync(user, new Claim("Role", r[0]));
+            identityRes = await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, r[0]));
 
 
             cl = claims.FirstOrDefault(c => c.Type == "Id");

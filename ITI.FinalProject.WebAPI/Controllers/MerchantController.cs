@@ -6,9 +6,11 @@ using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace ITI.FinalProject.WebAPI.Controllers
 {
@@ -18,10 +20,12 @@ namespace ITI.FinalProject.WebAPI.Controllers
     public class MerchantController : ControllerBase
     { 
         private readonly IPaginationService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string> merchantService;
+        //private readonly UserManager<ApplicationUser> userManager;
 
         public MerchantController(IPaginationService<Merchant, MerchantResponseDto, MerchantAddDto, MerchantUpdateDto, string> merchantService)
         {
             this.merchantService = merchantService;
+            //this.userManager = userManager;
         }
 
         [SwaggerOperation(
@@ -33,6 +37,19 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+
+            //var user = await userManager.FindByIdAsync(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+            //var user = User;
+            //if ((user.Claims.ToList())[0]?.Value != "Admin")
+            //{
+            //    return Unauthorized();
+            //}
+
+            //if (User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value != "Admin")
+            //{
+            //    return Unauthorized();
+            //}
+
             IEnumerable<MerchantResponseDto> response = await merchantService.GetAllObjects(m => m.governorate, m => m.city, m => m.user);
             if (response != null)
             {
