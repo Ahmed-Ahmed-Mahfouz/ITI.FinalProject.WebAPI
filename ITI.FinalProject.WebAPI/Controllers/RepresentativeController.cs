@@ -4,6 +4,7 @@ using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +16,12 @@ namespace ITI.FinalProject.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class RepresentativeController : ControllerBase
     {
-        private readonly IGenericService<Representative, RepresentativeDisplayDTO, RepresentativeInsertDTO, RepresentativeUpdateDTO, string> service;
+        private readonly IPaginationService<Representative, RepresentativeDisplayDTO, RepresentativeInsertDTO, RepresentativeUpdateDTO, string> service;
 
-        public RepresentativeController(IGenericService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,RepresentativeUpdateDTO,string> service)
+        public RepresentativeController(IPaginationService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,RepresentativeUpdateDTO,string> service)
         {
             this.service = service;
         }
@@ -30,6 +32,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             Description = ""
         )]
         [SwaggerResponse(404, "There weren't any representative in the database", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns A list of representative", Type = typeof(List<RepresentativeDisplayDTO>))]
         [HttpGet]
         public async Task<ActionResult<List<RepresentativeDisplayDTO>>> GetAllRepresentative()
@@ -44,12 +47,28 @@ namespace ITI.FinalProject.WebAPI.Controllers
             return Ok(Representatives);
         }
 
+        [SwaggerOperation(
+        Summary = "This Endpoint returns a list of representatives with the specified page size",
+            Description = ""
+        )]
+        [SwaggerResponse(200, "Returns A list of representatives", Type = typeof(PaginationDTO<RepresentativeDisplayDTO>))]
+        [HttpGet("/api/RepresentativePage")]
+        public async Task<ActionResult<PaginationDTO<RepresentativeDisplayDTO>>> GetPage([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string name = "")
+        {
+
+            var paginationDTO = await service.GetPaginatedOrders(pageNumber, pageSize, r => 1 == 1);
+            paginationDTO.List = paginationDTO.List.Where(r => r.UserFullName.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
+
+            return Ok(paginationDTO);
+        }
+
         // GET: api/Representative/owcmwmece51cwe5
         [SwaggerOperation(
         Summary = "This Endpoint returns the specified representative",
             Description = ""
         )]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns the specified representative", Type = typeof(RepresentativeDisplayDTO))]
         [HttpGet("id")]
         public async Task<ActionResult<RepresentativeDisplayDTO>> GetRepresentativeById(string id)
@@ -70,6 +89,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Summary = "This Endpoint inserts a representative element in the db",
             Description = ""
         )]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the representative was inserted successfully", Type = typeof(void))]
         [HttpPost]
@@ -99,6 +119,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         )]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
         [SwaggerResponse(400, "The id that was given doesn't equal the id in the given representative object", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the representative was updated successfully", Type = typeof(void))]
         [HttpPut("{id}")]
@@ -132,6 +153,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             Description = ""
         )]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the representative was deleted successfully", Type = typeof(void))]
         [HttpDelete("{id}")]

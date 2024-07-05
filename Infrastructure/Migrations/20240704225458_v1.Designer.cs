@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ShippingContext))]
-    [Migration("20240701102023_v1")]
+    [Migration("20240704225458_v1")]
     partial class v1
     {
         /// <inheritdoc />
@@ -67,7 +67,7 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("BranchId")
+                    b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -100,10 +100,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNo")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
@@ -328,6 +324,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<decimal>("ShippingCost")
+                        .HasColumnType("money");
+
                     b.Property<int>("ShippingId")
                         .HasColumnType("int");
 
@@ -430,6 +429,37 @@ namespace Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("RolePowers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AdditionalFeePerKg")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("BaseWeight")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("FifteenDayShippingCost")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("OrdinaryShippingCost")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("TwentyFourHoursShippingCost")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("VillageDeliveryFee")
+                        .HasColumnType("money");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Settings");
                 });
 
             modelBuilder.Entity("Domain.Entities.Shipping", b =>
@@ -594,9 +624,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Branch", "branch")
                         .WithMany("users")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BranchId");
 
                     b.Navigation("branch");
                 });
@@ -665,8 +693,8 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("GovernorateId");
 
                     b.HasOne("Domain.Entities.ApplicationUser", "user")
-                        .WithMany()
-                        .HasForeignKey("userId")
+                        .WithOne("merchant")
+                        .HasForeignKey("Domain.Entities.Merchant", "userId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -742,8 +770,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Representative", b =>
                 {
                     b.HasOne("Domain.Entities.ApplicationUser", "user")
-                        .WithMany()
-                        .HasForeignKey("userId")
+                        .WithOne("representative")
+                        .HasForeignKey("Domain.Entities.Representative", "userId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -847,6 +875,12 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("employee")
+                        .IsRequired();
+
+                    b.Navigation("merchant")
+                        .IsRequired();
+
+                    b.Navigation("representative")
                         .IsRequired();
                 });
 

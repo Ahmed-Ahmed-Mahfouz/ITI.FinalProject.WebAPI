@@ -41,6 +41,24 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Settings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BaseWeight = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AdditionalFeePerKg = table.Column<decimal>(type: "money", nullable: false),
+                    VillageDeliveryFee = table.Column<decimal>(type: "money", nullable: false),
+                    OrdinaryShippingCost = table.Column<decimal>(type: "money", nullable: false),
+                    TwentyFourHoursShippingCost = table.Column<decimal>(type: "money", nullable: false),
+                    FifteenDayShippingCost = table.Column<decimal>(type: "money", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Settings", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Shippings",
                 columns: table => new
                 {
@@ -143,9 +161,8 @@ namespace Infrastructure.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    BranchId = table.Column<int>(type: "int", nullable: false),
+                    BranchId = table.Column<int>(type: "int", nullable: true),
                     UserType = table.Column<int>(type: "int", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -169,8 +186,7 @@ namespace Infrastructure.Migrations
                         name: "FK_AspNetUsers_Branches_BranchId",
                         column: x => x.BranchId,
                         principalTable: "Branches",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -398,6 +414,7 @@ namespace Infrastructure.Migrations
                     Type = table.Column<int>(type: "int", nullable: false),
                     OrderMoneyReceived = table.Column<decimal>(type: "money", nullable: true),
                     ShippingMoneyReceived = table.Column<decimal>(type: "money", nullable: true),
+                    ShippingCost = table.Column<decimal>(type: "money", nullable: false),
                     MerchantId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     GovernorateId = table.Column<int>(type: "int", nullable: false),
                     CityId = table.Column<int>(type: "int", nullable: false),
@@ -620,6 +637,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "RolePowers");
+
+            migrationBuilder.DropTable(
+                name: "Settings");
 
             migrationBuilder.DropTable(
                 name: "SpecialPackages");

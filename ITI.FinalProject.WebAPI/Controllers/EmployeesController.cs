@@ -2,56 +2,108 @@
 using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.Interfaces;
+using Application.Interfaces.ApplicationServices;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
+using System.Transactions;
 
 namespace ITI.FinalProject.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class EmployeesController : ControllerBase
     {
-        private readonly IEmployeeService employeeService;
-
-        public EmployeesController(IEmployeeService employeeService)
+        private readonly IPaginationService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string> employeeService;
+        public EmployeesController(IPaginationService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string> employeeService)
         {
             this.employeeService = employeeService;
         }
-
+        //GET
+        [SwaggerOperation(
+        Summary = "This Endpoint returns a list of Employees",
+        Description = ""
+        )]
+        [SwaggerResponse(200, "Returns a list of employees", Type = typeof(IEnumerable<EmployeeReadDto>))]
+        [SwaggerResponse(404, "There weren't any employees in the database", Type = typeof(void))]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EmployeeReadDto>>> Getall()
+        public async Task<ActionResult<IEnumerable<EmployeeReadDto>>> GetAll()
         {
-            return Ok(await employeeService.GetAllObjects());
+            var employees = await employeeService.GetAllObjects();
+
+            if (employees == null || !employees.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(employees);
         }
 
+        [SwaggerOperation(
+        Summary = "This Endpoint returns a list of employees with the specified page size",
+            Description = ""
+        )]
+        [SwaggerResponse(200, "Returns A list of employees", Type = typeof(PaginationDTO<EmployeeReadDto>))]
+        [HttpGet("/api/EmployeePage")]
+        public async Task<ActionResult<PaginationDTO<EmployeeReadDto>>> GetPage([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string name = "")
+        {
+            var paginationDTO = await employeeService.GetPaginatedOrders(pageNumber, pageSize, e =>  1 == 1 );
+            paginationDTO.List = paginationDTO.List.Where(e => e.FullName.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
+            
+            return Ok(paginationDTO);
+        }
+
+        [SwaggerOperation(
+        Summary = "This Endpoint returns the specified employee",
+        Description = ""
+        )]
+        [SwaggerResponse(200, "Returns the specified employee", Type = typeof(EmployeeReadDto))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
         [HttpGet]
         [Route("{id}")]
         public async Task<ActionResult<EmployeeReadDto>> GetById(string id)
         {
-            EmployeeReadDto? employeeReadDto = await employeeService.GetByid(id);
+            EmployeeReadDto? employeeReadDto = await employeeService.GetObject(e => e.userId == id);
             if (employeeReadDto == null)
             {
                 return NotFound();
             }
             return Ok(employeeReadDto);
         }
-
-
+        //POST
+        [SwaggerOperation(
+        Summary = "This Endpoint inserts an employee element in the db",
+        Description = ""
+        )]
+        [SwaggerResponse(204, "Confirms that the employee was inserted successfully", Type = typeof(void))]
+        [SwaggerResponse(400, "Something went wrong, please try again later", Type = typeof(void))]
         [HttpPost]
-        public async Task<ActionResult> Add(EmployeeAddDto employeeAddDto)
+        public async Task<ActionResult> Add([FromBody] EmployeeAddDto employeeAddDto)
         {
-            try
+            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await employeeService.AddUserAndEmployee(employeeAddDto);
-                return NoContent();
+
+                var result = await employeeService.InsertObject(employeeAddDto);
+                transaction.Complete();
+
+                if (result.Succeeded)
+                {
+                    return NoContent();
+                }
+                return Accepted(result.Message);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+
         }
-
-
+        //DELETE
+        [SwaggerOperation(
+        Summary = "This Endpoint deletes the specified employee from the db",
+        Description = ""
+        )]
+        [SwaggerResponse(204, "Confirms that the employee was deleted successfully", Type = typeof(void))]
+        [SwaggerResponse(400, "Something went wrong, please try again later", Type = typeof(void))]
         [HttpDelete]
         [Route("{id}")]
         public async Task<ActionResult> Delete(string id)
@@ -67,20 +119,36 @@ namespace ITI.FinalProject.WebAPI.Controllers
             }
         }
 
+        [SwaggerOperation(
+        Summary = "This Endpoint updates the specified employee",
+        Description = ""
+        )]
+        [SwaggerResponse(204, "Confirms that the employee was updated successfully", Type = typeof(void))]
+        [SwaggerResponse(400, "Something went wrong, please try again later", Type = typeof(void))]
         [HttpPut]
         [Route("{id}")]
-        public async Task<ActionResult> Update(string id, EmployeeupdateDto employeeupdateDto)
+        public async Task<IActionResult> Update(string id, [FromBody] EmployeeupdateDto employeeupdateDto)
         {
-            try
+            if (id != employeeupdateDto.Id)
             {
-                await employeeService.Update(id, employeeupdateDto);
-                return Ok("update employee is success");
+                return BadRequest("Id doesn't match the id in the object");
             }
 
-            catch (Exception ex)
+            var employee = await employeeService.GetObjectWithoutTracking(e => e.userId == id);
+
+            if (employee == null)
             {
-                return BadRequest(ex.Message);
+                return NotFound("Representative doesn't exist in the db");
             }
+
+            var result = await employeeService.UpdateObject(employeeupdateDto);
+
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+
+            return Accepted(result.Message);
         }
     }
 }

@@ -3,16 +3,9 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Application.Interfaces;
-using Application.Services;
-using Application.Interfaces.Repositories;
-using Infrastructure.Persistence.Repositories;
+
 
 namespace Infrastructure
 {
@@ -22,8 +15,19 @@ namespace Infrastructure
         {
             services.AddDbContext<ShippingContext>(options => options.UseSqlServer(configuration.GetConnectionString("con")));
 
-            services.AddIdentityCore<ApplicationUser>().AddRoles<ApplicationRoles>().AddEntityFrameworkStores<ShippingContext>();
+            services.AddIdentity<ApplicationUser, ApplicationRoles>().AddEntityFrameworkStores<ShippingContext>().AddDefaultTokenProviders();
 
+            //services.AddIdentity<ApplicationUser>()
+            //    .AddRoles<ApplicationRoles>()
+            //    .AddEntityFrameworkStores<ShippingContext>()
+            //    .AddTokenProvider<AuthenticatorTokenProvider<ApplicationUser>>(TokenOptions.DefaultProvider)
+            //    .AddTokenProvider<EmailTokenProvider<ApplicationUser>>("Email")
+            //    .AddTokenProvider<PhoneNumberTokenProvider<ApplicationUser>>("Phone");
+            //.AddTokenProvider<IUserTwoFactorTokenProvider<ApplicationUser>>("Phone")
+            //.AddTokenProvider<TokenProviderDescriptor>(TokenOptions.DefaultProvider);
+
+
+            services.AddScoped<SignInManager<ApplicationUser>>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             //services.AddScoped<IUnitOfWork<Merchant>, UnitOfWork<Merchant>>();
             //services.AddScoped<IUnitOfWork<Representative>, UnitOfWork<Representative>>();

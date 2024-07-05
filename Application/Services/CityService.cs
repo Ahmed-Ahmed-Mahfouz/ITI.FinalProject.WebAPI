@@ -285,9 +285,33 @@ namespace Domain.Services
             };
         }
 
-        public Task<(List<CityDisplayDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        public async Task<PaginationDTO<CityDisplayDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<City, bool>> filter)
         {
-            throw new NotImplementedException();
+            var totalCount = await CityRepo.Count();
+            var totalPages = await CityRepo.Pages(pageSize);
+            var objectList = await CityRepo.GetPaginatedElements(pageNumber, pageSize, filter);
+            List<CityDisplayDTO> CityDisplayDTO = new List<CityDisplayDTO>();
+
+            foreach (var item in objectList)
+            {
+                CityDisplayDTO.Add(
+                    new CityDisplayDTO
+                    {
+                        id = item.id,
+                        name = item.name,
+                        status = item.status,
+                        normalShippingCost = item.normalShippingCost,
+                        pickupShippingCost = item.pickupShippingCost,
+                        governorateId = item.governorateId
+                    }
+                );
+            }
+            return new PaginationDTO<CityDisplayDTO>()
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = CityDisplayDTO
+            };
         }
     }
 }
