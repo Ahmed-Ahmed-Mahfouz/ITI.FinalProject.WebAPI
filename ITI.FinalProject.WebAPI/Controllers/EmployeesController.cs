@@ -44,7 +44,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            var employees = await employeeService.GetAllObjects();
+            var employees = await employeeService.GetAllObjects(e => e.user);
 
             if (employees == null || !employees.Any())
             {
@@ -90,7 +90,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            EmployeeReadDto? employeeReadDto = await employeeService.GetObject(e => e.userId == id);
+            EmployeeReadDto? employeeReadDto = await employeeService.GetObject(e => e.userId == id, e => e.user);
             if (employeeReadDto == null)
             {
                 return NotFound();

@@ -47,7 +47,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            var Representatives=await service.GetAllObjects();
+            var Representatives=await service.GetAllObjects(r => r.user, r => r.governorates);
 
             if (Representatives == null || Representatives.Count == 0)
             {
@@ -93,7 +93,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            var representative = await service.GetObject(r => r.userId == id);
+            var representative = await service.GetObject(r => r.userId == id, r => r.user, r => r.governorates);
 
             if (representative == null)
             {
