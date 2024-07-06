@@ -210,7 +210,7 @@ namespace Application.Services
 
             user.BranchId = ObjectDTO.UserBranchId;
 
-            var identityResult = await _userManager.ChangePasswordAsync(user, user.PasswordHash, ObjectDTO.Password);
+            var identityResult = await _userManager.ChangePasswordAsync(user, ObjectDTO.OldPassword, ObjectDTO.NewPassword);
 
             if (!identityResult.Succeeded)
             {

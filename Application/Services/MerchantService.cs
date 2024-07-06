@@ -505,9 +505,9 @@ namespace Application.Services
 
             IdentityResult identityResult;
 
-            if (ObjectDTO.PasswordHash != null && ObjectDTO.PasswordHash != string.Empty)
+            if (ObjectDTO.NewPassword != null && ObjectDTO.NewPassword != string.Empty)
             {                
-                identityResult = await _userManager.ChangePasswordAsync(user, user.PasswordHash, ObjectDTO.PasswordHash);
+                identityResult = await _userManager.ChangePasswordAsync(user, ObjectDTO.OldPassword, ObjectDTO.NewPassword);
 
                 if (!identityResult.Succeeded)
                 {

@@ -160,7 +160,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return BadRequest("Id doesn't match the id in the object");
             }
 
-            var representative = await service.GetObjectWithoutTracking(r => r.userId == id);
+            var representative = await service.GetObjectWithoutTracking(r => r.userId == id, r => r.user, r => r.governorates);
 
             if (representative == null)
             {
@@ -194,7 +194,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            var representative = await service.GetObjectWithoutTracking(r => r.userId == id);
+            var representative = await service.GetObjectWithoutTracking(r => r.userId == id, r => r.user, r => r.governorates);
 
             if (representative == null)
             {
