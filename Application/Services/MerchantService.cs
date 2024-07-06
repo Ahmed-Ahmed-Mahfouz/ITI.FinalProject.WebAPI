@@ -503,15 +503,20 @@ namespace Application.Services
             // Update user information
             user.FullName = ObjectDTO.UserName;
 
-            var identityResult = await _userManager.ChangePasswordAsync(user, user.PasswordHash, ObjectDTO.PasswordHash);
+            IdentityResult identityResult;
 
-            if (!identityResult.Succeeded)
-            {
-                return new ModificationResultDTO()
+            if (ObjectDTO.NewPassword != null && ObjectDTO.NewPassword != string.Empty)
+            {                
+                identityResult = await _userManager.ChangePasswordAsync(user, ObjectDTO.OldPassword, ObjectDTO.NewPassword);
+
+                if (!identityResult.Succeeded)
                 {
-                    Succeeded = false,
-                    Message = "Error changing user password"
-                };
+                    return new ModificationResultDTO()
+                    {
+                        Succeeded = false,
+                        Message = "Error changing user password"
+                    };
+                }
             }
 
             var token = await _userManager.GenerateChangeEmailTokenAsync(user, ObjectDTO.Email);

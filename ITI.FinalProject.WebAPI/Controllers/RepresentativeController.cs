@@ -47,7 +47,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            var Representatives=await service.GetAllObjects();
+            var Representatives=await service.GetAllObjects(r => r.user, r => r.governorates);
 
             if (Representatives == null || Representatives.Count == 0)
             {
@@ -85,7 +85,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns the specified representative", Type = typeof(RepresentativeDisplayDTO))]
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<RepresentativeDisplayDTO>> GetRepresentativeById(string id)
         {
             if (await CheckRole(PowerTypes.Read))
@@ -93,7 +93,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            var representative = await service.GetObject(r => r.userId == id);
+            var representative = await service.GetObject(r => r.userId == id, r => r.user, r => r.governorates);
 
             if (representative == null)
             {
@@ -160,7 +160,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return BadRequest("Id doesn't match the id in the object");
             }
 
-            var representative = await service.GetObjectWithoutTracking(r => r.userId == id);
+            var representative = await service.GetObjectWithoutTracking(r => r.userId == id, r => r.user, r => r.governorates);
 
             if (representative == null)
             {
@@ -194,7 +194,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            var representative = await service.GetObjectWithoutTracking(r => r.userId == id);
+            var representative = await service.GetObjectWithoutTracking(r => r.userId == id, r => r.user, r => r.governorates);
 
             if (representative == null)
             {

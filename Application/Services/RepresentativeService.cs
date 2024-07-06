@@ -210,7 +210,7 @@ namespace Application.Services
 
             user.BranchId = ObjectDTO.UserBranchId;
 
-            var identityResult = await _userManager.ChangePasswordAsync(user, user.PasswordHash, ObjectDTO.Password);
+            var identityResult = await _userManager.ChangePasswordAsync(user, ObjectDTO.OldPassword, ObjectDTO.NewPassword);
 
             if (!identityResult.Succeeded)
             {
@@ -543,7 +543,7 @@ namespace Application.Services
         {
             var totalCount = await repository.Count();
             var totalPages = await repository.Pages(pageSize);
-            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter);
+            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, r => r.user, r => r.governorates);
 
             return new PaginationDTO<RepresentativeDisplayDTO>()
             {
