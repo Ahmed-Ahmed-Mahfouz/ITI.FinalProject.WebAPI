@@ -59,7 +59,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             //    return Unauthorized();
             //}
 
-            IEnumerable<MerchantResponseDto> response = await merchantService.GetAllObjects(m => m.governorate, m => m.city, m => m.user);
+            IEnumerable<MerchantResponseDto> response = await merchantService.GetAllObjects(m => m.governorate, m => m.city, m => m.user, m => m.SpecialPackages);
             if (response != null)
             {
 
@@ -106,7 +106,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            MerchantResponseDto? response = await merchantService.GetObject(m => m.userId == id, m => m.governorate, m => m.city, m => m.user);
+            MerchantResponseDto? response = await merchantService.GetObject(m => m.userId == id, m => m.governorate, m => m.city, m => m.user, m => m.SpecialPackages);
             if (response == null)
                 return NotFound();
             return Ok(response);

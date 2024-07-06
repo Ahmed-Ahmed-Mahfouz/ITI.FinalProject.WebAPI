@@ -738,7 +738,7 @@ namespace Application.Services
         private async Task<MerchantResponseDto> MapMerchant(Merchant merchant)
         {
             var ordersAfterMapper = _mapper.Map<List<DisplayOrderDTO>>(merchant.orders);
-            var packagesAfterMapper = _mapper.Map<List<SpecialPackageDTO>>(merchant.SpecialPackages);
+            //var packagesAfterMapper = _mapper.Map<List<SpecialPackageDTO>>(merchant.SpecialPackages);
             var branch = await branchRepository.GetElement(b => b.id == merchant.user.BranchId);
             var MerchantResponseDto = new MerchantResponseDto()
             {
@@ -751,7 +751,7 @@ namespace Application.Services
                 orders = ordersAfterMapper,
                 //PasswordHash = merchant.PasswordHash,
                 //PhoneNumber = merchant.PhoneNumber,
-                SpecialPackages = packagesAfterMapper,
+                SpecialPackages = MapSpecialPackages(merchant.SpecialPackages, merchant),
                 SpecialPickupShippingCost = merchant.SpecialPickupShippingCost,
                 StoreName = merchant.StoreName,
                 BranchName = branch?.name
@@ -765,7 +765,7 @@ namespace Application.Services
         private async Task<MerchantResponseDto> MapMerchantWithIncludes(Merchant merchant)
         {
             var ordersAfterMapper = _mapper.Map<List<DisplayOrderDTO>>(merchant.orders);
-            var packagesAfterMapper = _mapper.Map<List<SpecialPackageDTO>>(merchant.SpecialPackages);
+            //var packagesAfterMapper = _mapper.Map<List<SpecialPackageDTO>>(merchant.SpecialPackages);
             var branch = await branchRepository.GetElement(b => b.id == merchant.user.BranchId);
             var MerchantResponseDto = new MerchantResponseDto()
             {
@@ -779,7 +779,7 @@ namespace Application.Services
                 orders = ordersAfterMapper,
                 //PasswordHash = merchant.user.PasswordHash,
                 PhoneNumber = merchant.user.PhoneNumber,
-                SpecialPackages = packagesAfterMapper,
+                SpecialPackages = MapSpecialPackages(merchant.SpecialPackages, merchant),
                 SpecialPickupShippingCost = merchant.SpecialPickupShippingCost,
                 StoreName = merchant.StoreName,
                 UserName = merchant.user.UserName,
@@ -787,6 +787,18 @@ namespace Application.Services
             };
 
             return MerchantResponseDto;
+        }
+
+        private List<SpecialPackageDTO> MapSpecialPackages(List<SpecialPackages> specialPackages, Merchant merchant)
+        {
+            return  specialPackages.Select(sp => new SpecialPackageDTO()
+                    {
+                        cityName = merchant.city.name,
+                        governorateName = merchant.governorate.name,
+                        MerchantName = merchant.user.FullName,
+                        ShippingPrice = sp.ShippingPrice,
+                        Id = sp.Id
+                    }).ToList();
         }
 
         //private List<MerchantResponseDto> MapMerchants(List<Merchant> merchants)
@@ -897,7 +909,7 @@ namespace Application.Services
         {
             var totalCount = await repository.Count();
             var totalPages = await repository.Pages(pageSize);
-            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, m => m.governorate, m => m.city, m => m.user);
+            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, m => m.governorate, m => m.city, m => m.user, m => m.SpecialPackages);
             var list = new List<MerchantResponseDto>();
 
             foreach (var item in objectList)
