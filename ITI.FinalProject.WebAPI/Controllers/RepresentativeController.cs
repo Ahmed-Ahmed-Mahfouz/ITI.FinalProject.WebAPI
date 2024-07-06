@@ -85,7 +85,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns the specified representative", Type = typeof(RepresentativeDisplayDTO))]
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<RepresentativeDisplayDTO>> GetRepresentativeById(string id)
         {
             if (await CheckRole(PowerTypes.Read))
