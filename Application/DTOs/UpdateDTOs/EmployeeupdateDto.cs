@@ -16,7 +16,8 @@ namespace Application.DTOs.UpdateDTOs
         public virtual string PhoneNumber { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
-        public string PasswordHash { get; set; }
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
         public Status Status { get; set; }
         public string role { get; set; }
 
