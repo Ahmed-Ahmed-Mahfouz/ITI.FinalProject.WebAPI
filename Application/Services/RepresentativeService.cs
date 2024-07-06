@@ -514,6 +514,20 @@ namespace Application.Services
                 return new ResultUser { Message = errors };
             }
 
+            result = await _userManager.AddToRoleAsync(user, "Representative");
+
+            if (!result.Succeeded)
+            {
+                string errors = string.Empty;
+
+                foreach (var error in result.Errors)
+                {
+                    errors += $"{error.Description},";
+                }
+
+                return new ResultUser { Message = errors };
+            }
+
             return new ResultUser
             {
                 Email = user.Email,
@@ -529,7 +543,7 @@ namespace Application.Services
         {
             var totalCount = await repository.Count();
             var totalPages = await repository.Pages(pageSize);
-            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter);
+            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, r => r.user, r => r.governorates);
 
             return new PaginationDTO<RepresentativeDisplayDTO>()
             {

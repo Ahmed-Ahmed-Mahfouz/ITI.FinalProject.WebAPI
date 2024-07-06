@@ -35,9 +35,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         //public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, OrderFilterDTO? orderFilterDTO = null)
         public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, OrderStatus? orderStatus = null, DateTime? startDate = null, DateTime? endDate = null)
         {
-            var roles = await roleManager.Roles.Include(r => r.RolePowers).ToListAsync();
-
-            if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Read) == null)
+            if (await CheckRole(PowerTypes.Read, true, true))
             {
                 return Unauthorized();
             }
@@ -84,9 +82,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<DisplayOrderDTO>> GetOrder(int id)
         {
-            var roles = await roleManager.Roles.Include(r => r.RolePowers).ToListAsync();
-
-            if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Read) == null)
+            if (await CheckRole(PowerTypes.Read, true, true))
             {
                 return Unauthorized();
             }
@@ -104,12 +100,12 @@ namespace ITI.FinalProject.WebAPI.Controllers
         // POST: api/Orders
         [SwaggerOperation(Summary = "This Endpoint inserts a new order in the db", Description = "")]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
+        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
         [SwaggerResponse(204, "Confirms that the order was inserted successfully", Type = typeof(void))]
         [HttpPost]
         public async Task<IActionResult> PostOrder([FromBody] InsertOrderDTO orderDTO)
         {
-            if (!User.IsInRole("Merchant"))
+            if (await CheckRole(PowerTypes.Create, false, false))
             {
                 return Unauthorized();
             }
@@ -134,17 +130,15 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         // PUT: api/Orders/5
         [SwaggerOperation(Summary = "This Endpoint updates the specified order", Description = "")]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
-        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given order object", Type = typeof(void))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
+        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given order object", Type = typeof(string))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
+        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
         [SwaggerResponse(204, "Confirms that the order was updated successfully", Type = typeof(void))]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOrder(int id, UpdateOrderDTO orderDTO)
         {
-            var roles = await roleManager.Roles.Include(r => r.RolePowers).ToListAsync();
-
-            if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Update) == null)
+            if (await CheckRole(PowerTypes.Update, true, true))
             {
                 return Unauthorized();
             }
@@ -180,16 +174,14 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         // DELETE: api/Orders/5
         [SwaggerOperation(Summary = "This Endpoint deletes the specified order", Description = "")]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
+        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
         [SwaggerResponse(204, "Confirms that the order was deleted successfully", Type = typeof(void))]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
-            var roles = await roleManager.Roles.Include(r => r.RolePowers).ToListAsync();
-
-            if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Delete) == null)
+            if (await CheckRole(PowerTypes.Delete, true, true))
             {
                 return Unauthorized();
             }
@@ -216,6 +208,76 @@ namespace ITI.FinalProject.WebAPI.Controllers
             }
 
             return Accepted(result.Message);
+        }
+
+        private async Task<bool> CheckRole(PowerTypes powerType, bool isAdminAllowed, bool isRepresentativeAllowed)
+        {
+            var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role == null)
+            {
+                return true;
+            }
+
+            if (role == "Merchant")
+            {
+                return false;
+            }
+
+            if (isAdminAllowed)
+            {                
+                if (role == "Admin")
+                {
+                    return false;
+                }
+            }
+
+            if (isRepresentativeAllowed)
+            {
+                if (role == "Representative")
+                {
+                    return false;
+                }
+            }
+
+            var rolePowers = await roleManager.Roles.Include(r => r.RolePowers).Where(r => r.Name == role).FirstOrDefaultAsync();
+
+            if (rolePowers == null)
+            {
+                return true;
+            }
+
+            string controllerName = ControllerContext.ActionDescriptor.ControllerName;
+
+            switch (powerType)
+            {
+                case PowerTypes.Create:
+                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Create) ?? false)
+                    {
+                        return true;
+                    }
+                    break;
+                case PowerTypes.Read:
+                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Read) ?? false)
+                    {
+                        return true;
+                    }
+                    break;
+                case PowerTypes.Update:
+                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Update) ?? false)
+                    {
+                        return true;
+                    }
+                    break;
+                case PowerTypes.Delete:
+                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Delete) ?? false)
+                    {
+                        return true;
+                    }
+                    break;
+            }
+
+            return false;
         }
     }
 }

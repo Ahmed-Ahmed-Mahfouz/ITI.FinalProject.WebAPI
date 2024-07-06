@@ -95,7 +95,7 @@ namespace Domain.Services
                 UserType = Domain.Enums.UserType.Employee,
             };
 
-            var resultUser = await AddUser(userAdded);
+            var resultUser = await AddUser(userAdded, ObjectDTO.role);
 
             if (resultUser.Message != null)
             {
@@ -197,6 +197,31 @@ namespace Domain.Services
                 {
                     Succeeded = false,
                     Message = "Error updating the user"
+                };
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            identityResult = await _userManager.RemoveFromRolesAsync(user, roles);
+
+            if (!identityResult.Succeeded)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error updating the user role"
+                };
+            }
+
+
+            identityResult = await _userManager.AddToRoleAsync(user, ObjectDTO.role);
+
+            if (!identityResult.Succeeded)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error updating the user role"
                 };
             }
 
@@ -331,7 +356,7 @@ namespace Domain.Services
             return employeeDTOs;
         }
 
-        public async Task<ResultUser> AddUser(UserDto userDto)
+        public async Task<ResultUser> AddUser(UserDto userDto, string role)
         {
             if (await _userManager.FindByEmailAsync(userDto.Email) != null)
                 return new ResultUser { Message = "Email is Already registered!" };
@@ -363,7 +388,27 @@ namespace Domain.Services
                 return new ResultUser { Message = errors };
             }
 
-            return new ResultUser { Message = null, UserId = user.Id };
+            result = await _userManager.AddToRoleAsync(user, role);
+
+            if (!result.Succeeded)
+            {
+                string errors = string.Empty;
+
+                foreach (var error in result.Errors)
+                {
+                    errors += $"{error.Description},";
+                }
+
+                return new ResultUser { Message = errors };
+            }
+
+            return new ResultUser 
+            {
+                Email = user.Email,
+                IsAuthenticated = true,
+                Username = user.Email,
+                UserId = user.Id
+            };
         }
 
         public async Task<PaginationDTO<EmployeeReadDto>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Employee, bool>> filter)

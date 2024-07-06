@@ -3,6 +3,7 @@ using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -34,9 +35,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SettingsDTO>>> GetSettingsList()
         {
-            var roles = await GetRoles();
-
-            if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Read) == null)
+            if (await CheckRole(PowerTypes.Read))
             {
                 return Unauthorized();
             }
@@ -60,9 +59,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<SettingsDTO>> GetSettings(int id)
         {
-            var roles = await GetRoles();
-
-            if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Read) == null)
+            if (await CheckRole(PowerTypes.Read))
             {
                 return Unauthorized();
             }
@@ -80,14 +77,12 @@ namespace ITI.FinalProject.WebAPI.Controllers
         // POST: api/Settings
         [SwaggerOperation(Summary = "This Endpoint inserts a new settings in the db", Description = "")]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
+        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
         [SwaggerResponse(204, "Confirms that the settings was inserted successfully", Type = typeof(void))]
         [HttpPost]
         public async Task<IActionResult> PostSettings([FromBody] SettingsInsertDTO settingsInsertDTO)
         {
-            var roles = await GetRoles();
-
-            if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Create) == null)
+            if (await CheckRole(PowerTypes.Create))
             {
                 return Unauthorized();
             }
@@ -111,17 +106,15 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         // PUT: api/Settings/5
         [SwaggerOperation(Summary = "This Endpoint updates the specified settings", Description = "")]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
-        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given settings object", Type = typeof(void))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
+        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given settings object", Type = typeof(string))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
+        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
         [SwaggerResponse(204, "Confirms that the settings was updated successfully", Type = typeof(void))]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSettings(int id, SettingsUpdateDTO settingsUpdateDTO)
         {
-            var roles = await GetRoles();
-
-            if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Update) == null)
+            if (await CheckRole(PowerTypes.Update))
             {
                 return Unauthorized();
             }
@@ -157,16 +150,14 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         // DELETE: api/Settings/5
         [SwaggerOperation(Summary = "This Endpoint deletes the specified settings", Description = "")]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
+        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
         [SwaggerResponse(204, "Confirms that the settings was deleted successfully", Type = typeof(void))]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSettings(int id)
         {
-            var roles = await GetRoles();
-
-            if (roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) == null || roles.FirstOrDefault(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value)?.RolePowers.FirstOrDefault(rp => rp.Power == Domain.Enums.PowerTypes.Delete) == null)
+            if (await CheckRole(PowerTypes.Delete))
             {
                 return Unauthorized();
             }
@@ -195,20 +186,58 @@ namespace ITI.FinalProject.WebAPI.Controllers
             return Accepted(result.Message);
         }
 
-        private async Task<List<ApplicationRoles>> GetRoles()
+        private async Task<bool> CheckRole(PowerTypes powerType)
         {
-            var roleList = await roleManager.Roles.Include(r => r.RolePowers).Where(r => r.Name != "Admin" && r.Name != "Merchant" && r.Name != "Representative").ToListAsync();
+            var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-            //var rolesStringBuilder = new StringBuilder();
+            if (role == null)
+            {
+                return true;
+            }
 
-            //rolesStringBuilder.Append(roleList[0].Name);
+            if (role == "Admin")
+            {
+                return false;
+            }
 
-            //for (int i = 1; i < roleList.Count; i++)
-            //{
-            //    rolesStringBuilder.Append($",{roleList[i].Name}");
-            //}
+            var rolePowers = await roleManager.Roles.Include(r => r.RolePowers).Where(r => r.Name == role).FirstOrDefaultAsync();
 
-            return roleList;
+            if (rolePowers == null)
+            {
+                return true;
+            }
+
+            string controllerName = ControllerContext.ActionDescriptor.ControllerName;
+
+            switch (powerType)
+            {
+                case PowerTypes.Create:
+                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Create) ?? false)
+                    {
+                        return true;
+                    }
+                    break;
+                case PowerTypes.Read:
+                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Read) ?? false)
+                    {
+                        return true;
+                    }
+                    break;
+                case PowerTypes.Update:
+                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Update) ?? false)
+                    {
+                        return true;
+                    }
+                    break;
+                case PowerTypes.Delete:
+                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Delete) ?? false)
+                    {
+                        return true;
+                    }
+                    break;
+            }
+
+            return false;
         }
     }
 }

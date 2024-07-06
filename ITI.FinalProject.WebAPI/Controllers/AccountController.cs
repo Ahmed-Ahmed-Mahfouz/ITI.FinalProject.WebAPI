@@ -1,5 +1,9 @@
-﻿using Application.DTOs.InsertDTOs;
+﻿using Application.DTOs.DisplayDTOs;
+using Application.DTOs.InsertDTOs;
+using Application.DTOs.UpdateDTOs;
+using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -20,14 +24,22 @@ namespace ITI.FinalProject.WebAPI.Controllers
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly RoleManager<ApplicationRoles> roleManager;
+        private readonly IPaginationService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string> service;
         private readonly IConfiguration configuration;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, RoleManager<ApplicationRoles> roleManager)
+        public AccountController
+            (
+            UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, 
+            IConfiguration configuration, 
+            RoleManager<ApplicationRoles> roleManager,
+            IPaginationService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string> service
+            )
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.configuration = configuration;
             this.roleManager = roleManager;
+            this.service = service;
         }
 
         [SwaggerOperation(
@@ -79,8 +91,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             identityRes = await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, r[0]));
 
-
-            cl = claims.FirstOrDefault(c => c.Type == "Id");
+            cl = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
             if (cl != null)
             {
@@ -89,9 +100,59 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             var id = await userManager.GetUserIdAsync(user);
 
-            identityRes = await userManager.AddClaimAsync(user, new Claim("Id", id));
+            identityRes = await userManager.AddClaimAsync(user, new Claim(ClaimTypes.NameIdentifier, id));
 
-            cl = claims.FirstOrDefault(c => c.Type == "UserName");
+            foreach (Tables power in Enum.GetValues(typeof(Tables)))
+            {
+                cl = claims.FirstOrDefault(c => c.Type == $"RolePowers{power}");
+
+                if (cl != null)
+                {
+                    identityRes = await userManager.RemoveClaimAsync(user, cl);
+                }
+            }
+
+            var roles = await service.GetAllObjects();
+
+            var role = roles.FirstOrDefault(ro => ro.RoleName == r[0]);
+
+            if (role != null)
+            {
+                var rps = await service.GetObject(rp => rp.RoleId == role.RoleId);
+
+                if (rps != null && rps.Powers != null)
+                {                    
+                    foreach (var power in rps.Powers)
+                    {
+                        var validtions = new StringBuilder();
+
+                        if (power.Create)
+                        {
+                            validtions.Append("Create ");
+                        }
+
+                        if (power.Update)
+                        {
+                            validtions.Append("Update ");
+                        }
+
+                        if (power.Delete)
+                        {
+                            validtions.Append("Delete ");
+                        }
+
+                        if (power.Read)
+                        {
+                            validtions.Append("Read ");
+                        }
+
+                        identityRes = await userManager.AddClaimAsync(user, new Claim($"RolePowers{power}", validtions.ToString()));
+                    }
+                }
+            }
+
+
+            cl = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
 
             if (cl != null)
             {
@@ -100,7 +161,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             var userName = await userManager.GetUserNameAsync(user);
 
-            identityRes = await userManager.AddClaimAsync(user, new Claim("UserName", userName ?? ""));
+            identityRes = await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, userName ?? ""));
 
             cl = claims.FirstOrDefault(c => c.Type == "ExpireDate");
 
