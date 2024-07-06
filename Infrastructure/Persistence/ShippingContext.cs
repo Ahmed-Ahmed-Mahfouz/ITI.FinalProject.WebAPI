@@ -31,7 +31,7 @@ namespace Infrastructure.Persistence
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.Entity<RolePowers>().HasKey("Power", "RoleId");
+            builder.Entity<RolePowers>().HasKey("TableName", "RoleId");
             builder.Entity<GovernorateRepresentatives>().HasKey("representativeId", "governorateId");
 
             builder.Entity<City>()
