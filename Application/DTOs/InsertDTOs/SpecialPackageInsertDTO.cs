@@ -11,6 +11,6 @@ namespace Application.DTOs.InsertDTOs
         public decimal ShippingPrice { get; set; }
         public int cityId { get; set; }
         public int governorateId { get; set; }
-        public string MerchantId { get; set; }
+        //public string MerchantId { get; set; }
     }
 }
