@@ -18,7 +18,7 @@ namespace Infrastructure.Persistence.Repositories
             this.db = db;
         }
 
-        public async Task<List<T>> GetAllElements(Expression<Func<Application.DTOs.DisplayDTOs.BranchDisplayDTO, object>>[] includes)
+        public async Task<List<T>> GetAllElements()
         {
             return await db.Set<T>().ToListAsync();
         }
@@ -50,6 +50,30 @@ namespace Infrastructure.Persistence.Repositories
             }
 
             return await query.ToListAsync();
+        }
+
+        public async Task<List<T>> GetElementsWithoutTracking()
+        {
+            return await db.Set<T>().AsNoTracking().ToListAsync();
+        }
+
+        public async Task<List<T>> GetElementsWithoutTracking(Expression<Func<T, bool>> filter)
+        {
+            return await db.Set<T>().AsNoTracking().Where(filter).ToListAsync();
+        }
+
+        public async Task<List<T>> GetElementsWithoutTracking(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includes)
+        {
+            var element = db.Set<T>().Where(filter);
+
+            var query = element.AsQueryable();
+
+            foreach (var item in includes)
+            {
+                query = query.Include(item);
+            }
+
+            return await query.AsNoTracking().ToListAsync();
         }
 
         public async Task<T?> GetElement(Expression<Func<T, bool>> filter)

@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Application.DTOs.DisplayDTOs;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,6 @@ namespace Application.DTOs.UpdateDTOs
     {
         public string RoleId { get; set; }
         public string RoleName { get; set; }
-        public List<PowerTypes> Powers { get; set; }
+        public List<PowersDTO> Powers { get; set; }
     }
 }

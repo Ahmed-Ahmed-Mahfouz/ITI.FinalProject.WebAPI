@@ -514,6 +514,20 @@ namespace Application.Services
                 return new ResultUser { Message = errors };
             }
 
+            result = await _userManager.AddToRoleAsync(user, "Representative");
+
+            if (!result.Succeeded)
+            {
+                string errors = string.Empty;
+
+                foreach (var error in result.Errors)
+                {
+                    errors += $"{error.Description},";
+                }
+
+                return new ResultUser { Message = errors };
+            }
+
             return new ResultUser
             {
                 Email = user.Email,

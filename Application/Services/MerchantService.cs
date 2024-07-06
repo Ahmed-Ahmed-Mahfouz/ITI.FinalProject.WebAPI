@@ -449,6 +449,8 @@ namespace Application.Services
                 };
             }
 
+
+
             foreach (var specialPackage in ObjectDTO.SpecialPackages)
             {                
                 saveResult = spRepository.Add(new SpecialPackages() {
@@ -854,6 +856,20 @@ namespace Application.Services
             };
 
             var result = await _userManager.CreateAsync(user, userDto.Password);
+            if (!result.Succeeded)
+            {
+                string errors = string.Empty;
+
+                foreach (var error in result.Errors)
+                {
+                    errors += $"{error.Description},";
+                }
+
+                return new ResultUser { Message = errors };
+            }
+
+            result = await _userManager.AddToRoleAsync(user, "Merchant");
+
             if (!result.Succeeded)
             {
                 string errors = string.Empty;

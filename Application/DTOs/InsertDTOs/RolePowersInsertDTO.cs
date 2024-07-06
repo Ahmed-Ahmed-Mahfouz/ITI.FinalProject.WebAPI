@@ -10,6 +10,6 @@ namespace Application.DTOs.InsertDTOs
     public class RolePowersInsertDTO
     {
         public string RoleName { get; set; }
-        public List<PowerTypes> Powers { get; set; }
+        //public List<PowerTypes> Powers { get; set; }
     }
 }

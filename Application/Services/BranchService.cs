@@ -149,9 +149,9 @@ namespace Domain.Services
         public async Task<ModificationResultDTO> InsertObject(BranchInsertDTO ObjectDTO)
         {
             Branch branch = new Branch() {
-                id = 0,
+                //id = 0,
                 name = ObjectDTO.name,
-                addingDate = ObjectDTO.addingDate,
+                addingDate = DateTime.Now,
                 cityId = ObjectDTO.cityId,
                 status = ObjectDTO.status
             };
@@ -207,7 +207,7 @@ namespace Domain.Services
             //Branch branch = new Branch();
             branch.id = ObjectDTO.id;
             branch.name = ObjectDTO.name;
-            branch.addingDate = ObjectDTO.addingDate;
+            //branch.addingDate = ObjectDTO.addingDate;
             branch.cityId = ObjectDTO.cityId;
             branch.status = ObjectDTO.status;
 

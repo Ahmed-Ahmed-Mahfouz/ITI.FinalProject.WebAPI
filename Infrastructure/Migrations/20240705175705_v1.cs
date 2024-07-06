@@ -98,11 +98,15 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Power = table.Column<int>(type: "int", nullable: false)
+                    TableName = table.Column<int>(type: "int", nullable: false),
+                    Create = table.Column<bool>(type: "bit", nullable: false),
+                    Delete = table.Column<bool>(type: "bit", nullable: false),
+                    Update = table.Column<bool>(type: "bit", nullable: false),
+                    Read = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RolePowers", x => new { x.Power, x.RoleId });
+                    table.PrimaryKey("PK_RolePowers", x => new { x.TableName, x.RoleId });
                     table.ForeignKey(
                         name: "FK_RolePowers_AspNetRoles_RoleId",
                         column: x => x.RoleId,

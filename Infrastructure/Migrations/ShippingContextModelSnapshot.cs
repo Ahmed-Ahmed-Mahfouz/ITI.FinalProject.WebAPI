@@ -415,13 +415,25 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.RolePowers", b =>
                 {
-                    b.Property<int>("Power")
+                    b.Property<int>("TableName")
                         .HasColumnType("int");
 
                     b.Property<string>("RoleId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Power", "RoleId");
+                    b.Property<bool>("Create")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Read")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Update")
+                        .HasColumnType("bit");
+
+                    b.HasKey("TableName", "RoleId");
 
                     b.HasIndex("RoleId");
 
