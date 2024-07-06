@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Merchant : ApplicationUser
+    public class Merchant
     {
         public string? StoreName { get; set; } 
         [ForeignKey("governorate")]
@@ -25,9 +25,9 @@ namespace Domain.Entities
 
         //public decimal? RefusedOrderPercentage { get; set; }
 
-        //[ForeignKey("user")]
-        //[Key]
-        //public string userId { get; set; } = string.Empty;
+        [ForeignKey("user")]
+        [Key]
+        public string userId { get; set; }
 
         public City city { get; set; } 
         public Governorate governorate { get; set; } 

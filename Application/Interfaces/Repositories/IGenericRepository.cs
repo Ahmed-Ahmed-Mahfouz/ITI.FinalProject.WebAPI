@@ -9,13 +9,19 @@ namespace Application.Interfaces.Repositories
 {
     public interface IGenericRepository<T> where T : class
     {
-        public Task<List<T>> GetAllElements(Expression<Func<DTOs.DisplayDTOs.BranchDisplayDTO, object>>[] includes);
+        public Task<List<T>> GetAllElements();
 
         public Task<List<T>> GetAllElements(Expression<Func<T, bool>> filter);
 
         public Task<List<T>> GetAllElements(params Expression<Func<T, object>>[] includes);
 
         public Task<List<T>> GetAllElements(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includes);
+
+        public Task<List<T>> GetElementsWithoutTracking();
+        
+        public Task<List<T>> GetElementsWithoutTracking(Expression<Func<T, bool>> filter);
+        
+        public Task<List<T>> GetElementsWithoutTracking(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includes);
 
         public Task<T?> GetElement(Expression<Func<T, bool>> filter);
 

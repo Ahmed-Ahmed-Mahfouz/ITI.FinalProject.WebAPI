@@ -64,7 +64,7 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("BranchId")
+                    b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -102,10 +102,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNo")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
@@ -503,17 +499,60 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.RolePowers", b =>
                 {
-                    b.Property<int>("Power")
+                    b.Property<int>("TableName")
                         .HasColumnType("int");
 
                     b.Property<string>("RoleId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Power", "RoleId");
+                    b.Property<bool>("Create")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Read")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Update")
+                        .HasColumnType("bit");
+
+                    b.HasKey("TableName", "RoleId");
 
                     b.HasIndex("RoleId");
 
                     b.ToTable("RolePowers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AdditionalFeePerKg")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("BaseWeight")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("FifteenDayShippingCost")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("OrdinaryShippingCost")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("TwentyFourHoursShippingCost")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("VillageDeliveryFee")
+                        .HasColumnType("money");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Settings");
                 });
 
             modelBuilder.Entity("Domain.Entities.Shipping", b =>
@@ -739,9 +778,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Branch", "branch")
                         .WithMany("users")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BranchId");
 
                     b.Navigation("branch");
                 });
@@ -796,6 +833,31 @@ namespace Infrastructure.Migrations
                     b.Navigation("governorate");
 
                     b.Navigation("representative");
+                });
+
+
+            modelBuilder.Entity("Domain.Entities.Merchant", b =>
+                {
+                    b.HasOne("Domain.Entities.City", "city")
+                        .WithMany("cityMerchants")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Domain.Entities.Governorate", "governorate")
+                        .WithMany("governorateMerchants")
+                        .HasForeignKey("GovernorateId");
+
+                    b.HasOne("Domain.Entities.ApplicationUser", "user")
+                        .WithOne("merchant")
+                        .HasForeignKey("Domain.Entities.Merchant", "userId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("city");
+
+                    b.Navigation("governorate");
+
+                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>
@@ -863,8 +925,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Representative", b =>
                 {
                     b.HasOne("Domain.Entities.ApplicationUser", "user")
-                        .WithMany()
-                        .HasForeignKey("userId")
+                        .WithOne("representative")
+                        .HasForeignKey("Domain.Entities.Representative", "userId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -991,6 +1053,12 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("employee")
                         .IsRequired();
+
+                    b.Navigation("merchant")
+                        .IsRequired();
+
+                    b.Navigation("representative")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.Branch", b =>
@@ -1049,7 +1117,6 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("orders");
                 });
-#pragma warning restore 612, 618
         }
     }
 }

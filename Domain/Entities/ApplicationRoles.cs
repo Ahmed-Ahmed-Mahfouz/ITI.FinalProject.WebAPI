@@ -9,9 +9,7 @@ namespace Domain.Entities
 {
     public class ApplicationRoles:IdentityRole<string>
     {
-        public List<RolePowers> RolePowers { get; set; }
-
-        //Not Added to DB YET
         public DateTime TimeOfAddition { get; set; }
+        public List<RolePowers> RolePowers { get; set; }
     }
 }

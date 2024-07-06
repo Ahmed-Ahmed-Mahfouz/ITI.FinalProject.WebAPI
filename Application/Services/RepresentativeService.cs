@@ -451,9 +451,9 @@ namespace Application.Services
                 UserFullName = representative.user.FullName,
                 UserAddress = representative.user.Address,
                 Email = representative.user.Email,
-                UserPhoneNo = representative.user.PhoneNo,
+                UserPhoneNo = representative.user.PhoneNumber,
                 UserStatus = representative.user.Status,
-                UserBranchId = representative.user.BranchId,
+                UserBranchId = (int)representative.user.BranchId!,
                 UserType = representative.user.UserType,
                 GovernorateIds = representative.governorates.Select(x => x.governorateId).ToList()
             };
@@ -470,9 +470,9 @@ namespace Application.Services
                 UserFullName = r.user.FullName,
                 UserAddress = r.user.Address,
                 Email = r.user.Email,
-                UserPhoneNo = r.user.PhoneNo,
+                UserPhoneNo = r.user.PhoneNumber,
                 UserStatus = r.user.Status,
-                UserBranchId = r.user.BranchId,
+                UserBranchId = (int)r.user.BranchId!,
                 UserType = r.user.UserType,
                 GovernorateIds = r.governorates.Select(x => x.governorateId).ToList()
 
@@ -496,12 +496,26 @@ namespace Application.Services
                 FullName = userDto.FullName,
                 UserType = userDto.UserType,
                 Status = userDto.Status,
-                PhoneNo = userDto.PhoneNo,
+                PhoneNumber = userDto.PhoneNo,
                 Address = userDto.Address,
                 BranchId = userDto.BranchId
             };
 
             var result = await _userManager.CreateAsync(user, userDto.Password);
+            if (!result.Succeeded)
+            {
+                string errors = string.Empty;
+
+                foreach (var error in result.Errors)
+                {
+                    errors += $"{error.Description},";
+                }
+
+                return new ResultUser { Message = errors };
+            }
+
+            result = await _userManager.AddToRoleAsync(user, "Representative");
+
             if (!result.Succeeded)
             {
                 string errors = string.Empty;
@@ -525,9 +539,18 @@ namespace Application.Services
 
         }
 
-        public Task<(List<RepresentativeDisplayDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        public async Task<PaginationDTO<RepresentativeDisplayDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Representative, bool>> filter)
         {
-            throw new NotImplementedException();
+            var totalCount = await repository.Count();
+            var totalPages = await repository.Pages(pageSize);
+            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, r => r.user, r => r.governorates);
+
+            return new PaginationDTO<RepresentativeDisplayDTO>()
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = MapRepresentatives(objectList.ToList())
+            };
         }
     }
 }

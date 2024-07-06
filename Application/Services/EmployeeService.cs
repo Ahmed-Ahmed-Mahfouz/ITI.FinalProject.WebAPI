@@ -177,7 +177,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+
 using System.Threading.Tasks;
+
+using Application.DTOs;
+
 
 namespace Application.Services
 {
@@ -261,7 +265,11 @@ namespace Application.Services
                 UserType = Domain.Enums.UserType.Employee,
             };
 
+
             var resultUser = await AddUser(userAdded);
+
+            var resultUser = await AddUser(userAdded, ObjectDTO.role);
+
 
             if (resultUser.Message != null)
             {
@@ -366,9 +374,17 @@ namespace Application.Services
                 };
             }
 
+
             var employee = await repository.GetElement(e => e.userId == user.Id);
 
             if (employee == null)
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            identityResult = await _userManager.RemoveFromRolesAsync(user, roles);
+
+            if (!identityResult.Succeeded)
+
             {
                 return new ModificationResultDTO()
                 {
@@ -551,6 +567,225 @@ namespace Application.Services
         //{
         //    throw new NotImplementedException();
         //}
+
+                    Message = "Error updating the user role"
+                };
+            }
+
+
+            identityResult = await _userManager.AddToRoleAsync(user, ObjectDTO.role);
+
+            if (!identityResult.Succeeded)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error updating the user role"
+                };
+            }
+
+            var employee = await repository.GetElement(e => e.userId == user.Id);
+
+            if (employee == null)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Employee doesn't exist in the db"
+                };
+            }
+
+            mapper.Map(ObjectDTO, employee);
+            var result = repository.Edit(employee);
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error updating the employee"
+                };
+            }
+
+            result = await SaveChangesForObject();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving changes"
+                };
+            }
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = true
+            };
+        }
+
+        public async Task<ModificationResultDTO> DeleteObject(string ObjectId)
+        {
+            var employee = await repository.GetElement(e => e.userId == ObjectId);
+
+            if (employee == null)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Employee doesn't exist in the db"
+                };
+            }
+
+            var result = repository.Delete(employee);
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error deleting the employee"
+                };
+            }
+
+            result = await SaveChangesForObject();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving changes"
+                };
+            }
+
+            var user = await _userManager.FindByIdAsync(ObjectId);
+
+            if (user == null)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "User doesn't exist in the db"
+                };
+            }
+
+            var identityResult = await _userManager.DeleteAsync(user);
+
+            if (identityResult.Succeeded)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = true
+                };
+            }
+
+            return new ModificationResultDTO()
+            {
+                Succeeded = false,
+                Message = "Error deleting user"
+            };
+        }
+
+        public async Task<bool> SaveChangesForObject()
+        {
+            var result = await unit.SaveChanges();
+            return result;
+        }
+
+        private EmployeeReadDto MapEmployee(Employee employee)
+        {
+            var employeeDTO = new EmployeeReadDto()
+            {
+                FullName = employee.user.FullName,
+                Address = employee.user.Address,
+                PhoneNumber = employee.user.PhoneNumber,
+                UserName = employee.user.UserName,
+                Email = employee.user.Email,
+                Status = employee.user.Status,
+                role = employee.user.UserType.ToString()
+            };
+
+            return employeeDTO;
+        }
+
+        private List<EmployeeReadDto> MapEmployees(List<Employee> employees)
+        {
+            var employeeDTOs = employees.Select(e => MapEmployee(e)).ToList();
+            return employeeDTOs;
+        }
+
+        public async Task<ResultUser> AddUser(UserDto userDto, string role)
+        {
+            if (await _userManager.FindByEmailAsync(userDto.Email) != null)
+                return new ResultUser { Message = "Email is Already registered!" };
+
+            if (await _userManager.FindByNameAsync(userDto.FullName.Trim().Replace(' ', '_')) != null)
+                return new ResultUser { Message = "UserName is Already registered!" };
+
+            var user = new ApplicationUser
+            {
+                UserName = userDto.FullName.Trim().Replace(' ', '_'),
+                Email = userDto.Email,
+                FullName = userDto.FullName,
+                UserType = userDto.UserType,
+                Status = userDto.Status,
+                PhoneNumber = userDto.PhoneNo,
+                Address = userDto.Address
+            };
+
+            var result = await _userManager.CreateAsync(user, userDto.Password);
+            if (!result.Succeeded)
+            {
+                string errors = string.Empty;
+
+                foreach (var error in result.Errors)
+                {
+                    errors += $"{error.Description}{Environment.NewLine}";
+                }
+
+                return new ResultUser { Message = errors };
+            }
+
+            result = await _userManager.AddToRoleAsync(user, role);
+
+            if (!result.Succeeded)
+            {
+                string errors = string.Empty;
+
+                foreach (var error in result.Errors)
+                {
+                    errors += $"{error.Description},";
+                }
+
+                return new ResultUser { Message = errors };
+            }
+
+            return new ResultUser 
+            {
+                Email = user.Email,
+                IsAuthenticated = true,
+                Username = user.Email,
+                UserId = user.Id
+            };
+        }
+
+        public async Task<PaginationDTO<EmployeeReadDto>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Employee, bool>> filter)
+        {
+            var totalCount = await repository.Count();
+            var totalPages = await repository.Pages(pageSize);
+            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, e => e.user);
+            var mappedEmployees = MapEmployees(objectList.ToList());
+
+
+            return new PaginationDTO<EmployeeReadDto>()
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = mappedEmployees
+            };
+        }
+
     }
 }
 

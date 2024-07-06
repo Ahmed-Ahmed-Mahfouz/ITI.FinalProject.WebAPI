@@ -18,7 +18,7 @@ namespace Application.DTOs.InsertDTOs
         public string UserPhoneNo { get; set; }
         public Status UserStatus { get; set; }
         public int UserBranchId { get; set; }
-        public UserType UserType { get; set; }
+        //public UserType UserType { get; set; }
         public List<int> GovernorateIds { get; set; }
     }
 }

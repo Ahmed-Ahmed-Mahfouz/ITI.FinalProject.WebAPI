@@ -5,7 +5,9 @@ using Application.Interfaces;
 using Application.Interfaces.ApplicationServices;
 using Application.Interfaces.Repositories;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,64 +32,72 @@ namespace Application.Services
 
         public async Task<List<RolePowersDTO>> GetAllObjects()
         {
-            var rolePowers = await repository.GetAllElements();
+            //var rolePowers = await repository.GetAllElements();
 
-            return await MapRolePowers(rolePowers);
+            //return await MapRolePowers(rolePowers);
+
+            var roles = await roleManager.Roles.ToListAsync();
+
+            return MapRoles(roles);
         }
 
         public async Task<List<RolePowersDTO>> GetAllObjects(params Expression<Func<RolePowers, object>>[] includes)
         {
-            var rolePowers = await repository.GetAllElements(includes);
+            //var rolePowers = await repository.GetAllElements(includes);
 
-            return await MapRolePowers(rolePowers);
+            //return await MapRolePowers(rolePowers);
+
+            var roles = await roleManager.Roles.ToListAsync();
+
+            return MapRoles(roles);
         }
 
         public async Task<RolePowersDTO?> GetObject(Expression<Func<RolePowers, bool>> filter)
         {
-            var rolePower = await repository.GetElement(filter);
+            var rolePowers = await repository.GetAllElements(filter);
 
-            if (rolePower == null)
+            if (rolePowers == null)
             {
                 return null;
             }
 
-            return await MapRolePower(rolePower);
+            return await MapRolePowers(rolePowers);
         }
 
         public async Task<RolePowersDTO?> GetObject(Expression<Func<RolePowers, bool>> filter, params Expression<Func<RolePowers, object>>[] includes)
         {
-            var rolePower = await repository.GetElement(filter, includes);
+            var rolePowers = await repository.GetAllElements(filter, includes);
 
-            if (rolePower == null)
+            if (rolePowers == null)
             {
                 return null;
             }
 
-            return await MapRolePower(rolePower);
+            return await MapRolePowers(rolePowers);
         }
 
         public async Task<RolePowersDTO?> GetObjectWithoutTracking(Expression<Func<RolePowers, bool>> filter)
         {
-            var rolePower = await repository.GetElementWithoutTracking(filter);
+            var rolePower = await repository.GetElementsWithoutTracking(filter);
 
             if (rolePower == null)
             {
                 return null;
             }
 
-            return await MapRolePower(rolePower);
+            return await MapRolePowers(rolePower);
         }
 
         public async Task<RolePowersDTO?> GetObjectWithoutTracking(Expression<Func<RolePowers, bool>> filter, params Expression<Func<RolePowers, object>>[] includes)
         {
-            var rolePower = await repository.GetElementWithoutTracking(filter, includes);
+            var rolePower = await repository.GetElementsWithoutTracking(filter, includes);
 
             if (rolePower == null)
             {
                 return null;
             }
 
-            return await MapRolePower(rolePower);
+            return await MapRolePowers(rolePower);
         }
 
         public async Task<ModificationResultDTO> InsertObject(RolePowersInsertDTO rolePowersInsertDTO)
@@ -102,12 +112,16 @@ namespace Application.Services
 
             if (identityResult.Succeeded)
             {
-                foreach (var power in rolePowersInsertDTO.Powers)
+                foreach (Tables power in Enum.GetValues(typeof(Tables)))
                 {
                     var result = repository.Add(new RolePowers()
                     {
                         RoleId = role.Id,
-                        Power = power
+                        TableName = power,
+                        Create = false,
+                        Delete = false,
+                        Read = false,
+                        Update = false
                     });
 
                     if (result == false)
@@ -155,7 +169,7 @@ namespace Application.Services
             {
                 foreach (var power in rolePowersUpdateDTO.Powers)
                 {
-                    var rolePower = await repository.GetElement(rp => rp.RoleId == rolePowersUpdateDTO.RoleId);
+                    var rolePower = await repository.GetElement(rp => rp.RoleId == rolePowersUpdateDTO.RoleId && rp.TableName == power.TableName);
 
                     if (rolePower == null)
                     {
@@ -166,8 +180,11 @@ namespace Application.Services
                         };
                     }
 
-                    rolePower.Power = power;
-
+                    rolePower.Create = power.Create;
+                    rolePower.Delete = power.Delete;
+                    rolePower.Update = power.Update;
+                    rolePower.Read = power.Read;
+                    
                     var result = repository.Edit(rolePower);
 
                     if (result == false)
@@ -246,47 +263,108 @@ namespace Application.Services
             return result;
         }
 
-        private async Task<List<RolePowersDTO>> MapRolePowers(List<RolePowers> rolePowers)
+        private async Task<RolePowersDTO> MapRolePowers(List<RolePowers> rolePowers)
         {
 
-            //var rolePowersDTO = rolePowers.Select(g => new RolePowersDTO() { RoleId = g.RoleId, }).ToList();
+            //foreach (var rolePower in rolePowers)
+            //{            
 
+            //if (role == null || role.Name == "Admin" || role.Name == "Merchant" || role.Name == "Representative")
+            //{
+            //    re
+            //}
+
+            var role = await roleManager.FindByIdAsync(rolePowers[0].RoleId);
+                
+            if (role == null)
+            {
+                return new RolePowersDTO();
+            }
+
+            var powers = rolePowers.Select(rp => new PowersDTO() { TableName = rp.TableName, Create = rp.Create, Update = rp.Update, Delete = rp.Delete, Read = rp.Read}).ToList();
+
+            return new RolePowersDTO()
+            {
+                RoleId = role.Id,
+                RoleName = role.Name ?? "RoleName",
+                TimeOfAddtion = role.TimeOfAddition,
+                Powers = powers
+            };
+        }
+
+        //private async Task<RolePowersDTO> MapRolePower(RolePowers rolePower)
+        //{
+        //    var role = await roleManager.FindByIdAsync(rolePower.RoleId);
+
+        //    if (role == null || role.Name == "Admin" || role.Name == "Merchant" || role.Name == "Representative")
+        //    {
+        //        return new RolePowersDTO();
+        //    }
+
+        //    var powers = new List<PowersDTO>()
+        //    {
+        //        new PowersDTO()
+        //        {
+        //            TableName = rolePower.TableName,
+        //            Create = rolePower.Create,
+        //            Delete = rolePower.Delete,
+        //            Read = rolePower.Read,
+        //            Update = rolePower.Update
+        //        }
+        //    };
+
+        //    var RolePowerDTO = new RolePowersDTO()
+        //    {
+        //        RoleId = rolePower.RoleId,
+        //        RoleName = role.Name ?? "RoleName",
+        //        TimeOfAddtion = role.TimeOfAddition,
+        //        Powers = 
+        //    };
+
+        //    return RolePowerDTO;
+        //}
+
+        private List<RolePowersDTO> MapRoles(List<ApplicationRoles> roles)
+        {
             var rolePowersDTO = new List<RolePowersDTO>();
 
-            foreach (var item in rolePowers)
+            foreach (var role in roles)
             {
-                var role = await roleManager.FindByIdAsync(item.RoleId);
+                if (role == null || role.Name == "Admin" || role.Name == "Merchant" || role.Name == "Representative")
+                {
+                    continue;
+                }
 
                 rolePowersDTO.Add(new RolePowersDTO()
                 {
-                    RoleId = item.RoleId,
-                    RoleName = role.Name,
-                    TimeOfAddtion = role.TimeOfAddition,
-                    Power = item.Power
+                    RoleId = role.Id,
+                    RoleName = role.Name ?? "RoleName",
+                    TimeOfAddtion = role.TimeOfAddition
                 });
             }
 
             return rolePowersDTO;
         }
 
-        private async Task<RolePowersDTO> MapRolePower(RolePowers rolePower)
-        {
-            var role = await roleManager.FindByIdAsync(rolePower.RoleId);
 
-            var RolePowerDTO = new RolePowersDTO()
+        public Task<PaginationDTO<RolePowersDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<RolePowers, bool>> filter)
+        {
+            //var totalCount = await repository.Count();
+            //var totalPages = await repository.Pages(pageSize);
+            //var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter);
+            //var rolePowers = await MapRolePowers(objectList.ToList());
+
+            var totalCount = roleManager.Roles.Count();
+            var totalPages = (int)Math.Ceiling((double)(totalCount) / pageSize);
+            var objectList = roleManager.Roles.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            var roles = MapRoles(objectList.ToList());
+
+            return Task.FromResult(new PaginationDTO<RolePowersDTO>()
             {
-                RoleId = rolePower.RoleId,
-                RoleName = role.Name,
-                TimeOfAddtion = role.TimeOfAddition,
-                Power = rolePower.Power
-            };
-
-            return RolePowerDTO;
-        }
-
-        public Task<(List<RolePowersDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
-        {
-            throw new NotImplementedException();
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = roles
+            });
         }
     }
 }

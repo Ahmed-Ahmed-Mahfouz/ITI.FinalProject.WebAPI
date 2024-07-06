@@ -10,7 +10,10 @@ using Application.DTOs.UpdateDTOs;
 using Application.Interfaces;
 using Application.Interfaces.ApplicationServices;
 using Application.Interfaces.Repositories;
+using Azure;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Domain.Services
 {
@@ -146,9 +149,9 @@ namespace Domain.Services
         public async Task<ModificationResultDTO> InsertObject(BranchInsertDTO ObjectDTO)
         {
             Branch branch = new Branch() {
-                id = 0,
+                //id = 0,
                 name = ObjectDTO.name,
-                addingDate = ObjectDTO.addingDate,
+                addingDate = DateTime.Now,
                 cityId = ObjectDTO.cityId,
                 status = ObjectDTO.status
             };
@@ -204,7 +207,7 @@ namespace Domain.Services
             //Branch branch = new Branch();
             branch.id = ObjectDTO.id;
             branch.name = ObjectDTO.name;
-            branch.addingDate = ObjectDTO.addingDate;
+            //branch.addingDate = ObjectDTO.addingDate;
             branch.cityId = ObjectDTO.cityId;
             branch.status = ObjectDTO.status;
 
@@ -276,9 +279,40 @@ namespace Domain.Services
             };
         }
 
-        public Task<(List<BranchDisplayDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        public async Task<PaginationDTO<BranchDisplayDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Branch, bool>> filter)
         {
-            throw new NotImplementedException();
+            //var objectList = await GetAllObjects();
+            //var query = objectList.AsQueryable();
+            //var totalCount = query.Count();
+            //var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+            //query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            //objectList = await query.ToListAsync();
+            //return (objectList, totalCount);
+
+            var totalCount = await branchRepo.Count();
+            var totalPages = await branchRepo.Pages(pageSize);
+            var objectList = await branchRepo.GetPaginatedElements(pageNumber, pageSize, filter);
+            List<BranchDisplayDTO> branchsDTO = new List<BranchDisplayDTO>();
+
+            foreach (var item in objectList)
+            {
+                branchsDTO.Add(
+                    new BranchDisplayDTO
+                    {
+                        id = item.id,
+                        name = item.name,
+                        addingDate = item.addingDate,
+                        cityId = item.cityId,
+                        status = item.status
+                    }
+                );
+            }
+            return new PaginationDTO<BranchDisplayDTO>()
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = branchsDTO
+            };
         }
     }
 }

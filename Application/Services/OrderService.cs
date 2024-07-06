@@ -10,6 +10,7 @@ using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -153,19 +154,25 @@ namespace Application.Services
             return await _unitOfWork.SaveChanges();
         }
 
-        public async Task<(List<DisplayOrderDTO>, int)> GetPaginatedOrders(int pageNumber, int pageSize)
+        public async Task<PaginationDTO<DisplayOrderDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Order, bool>> filter)
         {
             var totalOrders = await _repository.Count(); 
-            var orders = await _repository.GetPaginatedElements(pageNumber, pageSize); 
+            var totalPages = await _repository.Pages(pageSize);
+            var orders = await _repository.GetPaginatedElements(pageNumber, pageSize, filter); 
             var mappedOrders = _mapper.Map<List<DisplayOrderDTO>>(orders);
-            return (mappedOrders, totalOrders);
+            return new PaginationDTO<DisplayOrderDTO>()
+            {
+                TotalCount = totalOrders,
+                TotalPages = totalPages,
+                List = mappedOrders
+            };
         }
 
         public async Task<decimal> CalculateShipmentCost(Order order)
         {
             var settings = (await _settingsRepository.GetAllElements())[0];
             var city = await _cityRepository.GetElement(c => c.id == order.CityId);
-            var merchant = await _merchantRepository.GetElement(m => m.Id == order.MerchantId, c => c.SpecialPackages);
+            var merchant = await _merchantRepository.GetElement(m => m.userId == order.MerchantId, c => c.SpecialPackages);
             var shipping = await _shippingRepository.GetElement(s => s.Id == order.ShippingId);
             var orderType = order.Type;
             var shippingType = shipping!.ShippingType;
