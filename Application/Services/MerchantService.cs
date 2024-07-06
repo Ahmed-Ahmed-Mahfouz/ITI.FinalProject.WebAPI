@@ -791,14 +791,14 @@ namespace Application.Services
 
         private List<SpecialPackageDTO> MapSpecialPackages(List<SpecialPackages> specialPackages, Merchant merchant)
         {
-            return specialPackages.Select(sp => new SpecialPackageDTO()
-            {
-                cityName = merchant.city.name,
-                governorateName = merchant.governorate.name,
-                MerchantName = merchant.user.FullName,
-                ShippingPrice = sp.ShippingPrice,
-                Id = sp.Id
-            }).ToList();
+            return  specialPackages.Select(sp => new SpecialPackageDTO()
+                    {
+                        cityName = merchant.city.name,
+                        governorateName = merchant.governorate.name,
+                        MerchantName = merchant.user.FullName,
+                        ShippingPrice = sp.ShippingPrice,
+                        Id = sp.Id
+                    }).ToList();
         }
 
         //private List<MerchantResponseDto> MapMerchants(List<Merchant> merchants)
@@ -909,7 +909,7 @@ namespace Application.Services
         {
             var totalCount = await repository.Count();
             var totalPages = await repository.Pages(pageSize);
-            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, m => m.governorate, m => m.city, m => m.user);
+            var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, m => m.governorate, m => m.city, m => m.user, m => m.SpecialPackages);
             var list = new List<MerchantResponseDto>();
 
             foreach (var item in objectList)
