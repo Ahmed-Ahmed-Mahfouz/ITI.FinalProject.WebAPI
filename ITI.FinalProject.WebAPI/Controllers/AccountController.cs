@@ -4,6 +4,7 @@ using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
 using Domain.Enums;
+using ITI.FinalProject.WebAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -48,9 +49,9 @@ namespace ITI.FinalProject.WebAPI.Controllers
         )]
         [SwaggerResponse(400, "The user name or email or password weren't given", Type = typeof(void))]
         [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(void))]
-        [SwaggerResponse(200, "Confirms that the user was loggedin successfully", Type = typeof(string))]
+        [SwaggerResponse(200, "Confirms that the user was loggedin successfully", Type = typeof(LoginResponseDTO))]
         [HttpPost("/api/login")]
-        public async Task<ActionResult<string>> Login(LoginDTO userLoginDTO)
+        public async Task<ActionResult<LoginResponseDTO>> Login(LoginDTO userLoginDTO)
         {
             if (userLoginDTO == null)
             {
@@ -208,9 +209,14 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             //if (identityResult.Succeeded)
             //{
+
                 await signInManager.SignInAsync(user, false);
 
-                return Ok(givenToken);
+                return Ok(new LoginResponseDTO()
+                {
+                    Token = givenToken
+                });
+
             //}
 
             //return Accepted();

@@ -23,7 +23,7 @@ namespace Application.DTOs.DisplayDTOs
         public string Email { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
-        public double? CostPerRefusedOrder { get; set; }
+        //public double? CostPerRefusedOrder { get; set; }
         public string BranchName { get; set; }
         public string CityName { get; set; }
         public string GovernorateName { get; set; }
