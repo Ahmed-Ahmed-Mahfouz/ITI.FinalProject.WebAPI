@@ -26,14 +26,28 @@ namespace ITI.FinalProject.WebAPI.Controllers
             this.roleManager = roleManager;
         }
 
-        // GET: api/Orders
-        [SwaggerOperation(Summary = "This Endpoint returns a list of orders",Description = "")]
+        [SwaggerOperation(Summary = "This Endpoint returns a list of all orders", Description = "")]
         [SwaggerResponse(404, "There weren't any orders in the database", Type = typeof(void))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(200, "Returns A list of orders", Type = typeof(PaginationDTO<DisplayOrderDTO>))]
+        [SwaggerResponse(200, "Returns a list of all orders", Type = typeof(List<DisplayOrderDTO>))]
         [HttpGet]
-        //public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, OrderFilterDTO? orderFilterDTO = null)
-        public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, OrderStatus? orderStatus = null, DateTime? startDate = null, DateTime? endDate = null)
+        public async Task<ActionResult<List<DisplayOrderDTO>>> GetAllOrders()
+        {
+            var orders = await _orderService.GetAllObjects();
+            if (orders == null || !orders.Any())
+            {
+                return NotFound("There weren't any orders in the database");
+            }
+            return Ok(orders);
+        }
+
+        // GET: api/Orders
+        [SwaggerOperation(Summary = "This Endpoint returns a list of orders with pagination", Description = "")]
+        [SwaggerResponse(404, "There weren't any orders in the database", Type = typeof(void))]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
+        [SwaggerResponse(200, "Returns a list of orders with pagination", Type = typeof(PaginationDTO<DisplayOrderDTO>))]
+        [HttpGet("/api/OrderPage")]
+        public async Task<ActionResult<PaginationDTO<DisplayOrderDTO>>> GetPage([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] OrderStatus? orderStatus = null, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
         {
             if (await CheckRole(PowerTypes.Read, true, true))
             {
@@ -105,7 +119,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> PostOrder([FromBody] InsertOrderDTO orderDTO)
         {
-            if (await CheckRole(PowerTypes.Create, false, false))
+            if (await CheckRole(PowerTypes.Create, true, false))
             {
                 return Unauthorized();
             }
@@ -214,6 +228,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         {
             var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
+
             if (role == null)
             {
                 return true;
@@ -252,25 +267,25 @@ namespace ITI.FinalProject.WebAPI.Controllers
             switch (powerType)
             {
                 case PowerTypes.Create:
-                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Create) ?? false)
+                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Create) ?? true)
                     {
                         return true;
                     }
                     break;
                 case PowerTypes.Read:
-                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Read) ?? false)
+                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Read) ?? true)
                     {
                         return true;
                     }
                     break;
                 case PowerTypes.Update:
-                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Update) ?? false)
+                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Update) ?? true)
                     {
                         return true;
                     }
                     break;
                 case PowerTypes.Delete:
-                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Delete) ?? false)
+                    if ((!rolePowers.RolePowers.FirstOrDefault(rp => rp.TableName.ToString() == controllerName)?.Delete) ?? true)
                     {
                         return true;
                     }

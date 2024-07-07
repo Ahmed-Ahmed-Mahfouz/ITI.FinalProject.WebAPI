@@ -78,7 +78,7 @@ namespace Application.Services
             var order = _mapper.Map<Order>(orderDTO);
             
             order.ShippingCost = await CalculateShipmentCost(order);
-
+            order.Date = DateTime.Now;
             var result =  _repository.Add(order);
 
             if (result == false)
