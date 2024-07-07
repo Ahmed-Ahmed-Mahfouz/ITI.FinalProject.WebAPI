@@ -11,7 +11,7 @@ namespace Application.DTOs.UpdateDTOs
     {
         public int Id { get; set; }
         public string? ClientName { get; set; }
-        public DateTime? Date { get; set; }
+        //public DateTime? Date { get; set; }
         public string? Phone { get; set; }
         public string? Phone2 { get; set; }
         public string? Email { get; set; }

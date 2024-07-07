@@ -10,7 +10,7 @@ namespace Application.DTOs.InsertDTOs
     public class InsertOrderDTO
     {
         public string ClientName { get; set; }
-        public DateTime Date { get; set; }
+        //public DateTime Date { get; set; }
         public string Phone { get; set; }
         public string? Phone2 { get; set; }
         public string? Email { get; set; }
