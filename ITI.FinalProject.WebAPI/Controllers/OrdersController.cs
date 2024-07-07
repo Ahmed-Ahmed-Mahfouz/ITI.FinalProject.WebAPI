@@ -105,7 +105,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> PostOrder([FromBody] InsertOrderDTO orderDTO)
         {
-            if (await CheckRole(PowerTypes.Create, false, false))
+            if (await CheckRole(PowerTypes.Create, true, false))
             {
                 return Unauthorized();
             }
