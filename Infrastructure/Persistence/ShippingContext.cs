@@ -25,7 +25,6 @@ namespace Infrastructure.Persistence
         public DbSet<Representative> Representatives { get; set; }
         public DbSet<RolePowers> RolePowers { get; set; }
         public DbSet<Settings> Settings { get; set; }
-        public DbSet<Shipping> Shippings { get; set; }
         public DbSet<SpecialPackages> SpecialPackages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -33,6 +32,7 @@ namespace Infrastructure.Persistence
             base.OnModelCreating(builder);
             builder.Entity<RolePowers>().HasKey("TableName", "RoleId");
             builder.Entity<GovernorateRepresentatives>().HasKey("representativeId", "governorateId");
+            builder.Entity<SpecialPackages>().HasKey("MerchantId", "cityId");
 
             builder.Entity<City>()
                 .HasOne(c => c.governorate)
@@ -62,12 +62,6 @@ namespace Infrastructure.Persistence
                 .HasOne(o => o.merchant)
                 .WithMany(m => m.orders)
                 .HasForeignKey(o => o.MerchantId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            builder.Entity<Order>()
-                .HasOne(o => o.shipping)
-                .WithMany(s => s.Orders)
-                .HasForeignKey(o => o.ShippingId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Order>()
@@ -120,8 +114,8 @@ namespace Infrastructure.Persistence
 
             builder.Entity<SpecialPackages>()
                 .HasOne(s => s.cityPackages)
-                .WithOne(c => c.citySpecialPackages)
-                .HasForeignKey<SpecialPackages>(s => s.cityId)
+                .WithMany(c => c.citySpecialPackages)
+                .HasForeignKey(s => s.cityId)
                 .OnDelete(DeleteBehavior.NoAction);
 
         }

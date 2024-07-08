@@ -104,6 +104,7 @@ namespace Application.Services
         {
             var role = new ApplicationRoles()
             {
+                Id = Guid.NewGuid().ToString(),
                 Name = rolePowersInsertDTO.RoleName,
                 TimeOfAddition = DateTime.Now
             };

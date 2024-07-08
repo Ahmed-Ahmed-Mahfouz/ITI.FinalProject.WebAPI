@@ -59,20 +59,6 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Shippings",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Price = table.Column<decimal>(type: "money", nullable: false),
-                    ShippingType = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Shippings", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -350,16 +336,14 @@ namespace Infrastructure.Migrations
                 name: "SpecialPackages",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ShippingPrice = table.Column<decimal>(type: "money", nullable: false),
                     cityId = table.Column<int>(type: "int", nullable: false),
-                    governorateId = table.Column<int>(type: "int", nullable: false),
-                    MerchantId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    MerchantId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ShippingPrice = table.Column<decimal>(type: "money", nullable: false),
+                    governorateId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SpecialPackages", x => x.Id);
+                    table.PrimaryKey("PK_SpecialPackages", x => new { x.MerchantId, x.cityId });
                     table.ForeignKey(
                         name: "FK_SpecialPackages_Cities_cityId",
                         column: x => x.cityId,
@@ -416,15 +400,17 @@ namespace Infrastructure.Migrations
                     PaymentType = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
+                    ShippingType = table.Column<int>(type: "int", nullable: false),
                     OrderMoneyReceived = table.Column<decimal>(type: "money", nullable: true),
                     ShippingMoneyReceived = table.Column<decimal>(type: "money", nullable: true),
                     ShippingCost = table.Column<decimal>(type: "money", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "money", nullable: false),
+                    TotalWeight = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MerchantId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     GovernorateId = table.Column<int>(type: "int", nullable: false),
                     CityId = table.Column<int>(type: "int", nullable: false),
-                    ShippingId = table.Column<int>(type: "int", nullable: false),
                     BranchId = table.Column<int>(type: "int", nullable: false),
-                    RepresentativeId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    RepresentativeId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -454,11 +440,6 @@ namespace Infrastructure.Migrations
                         column: x => x.RepresentativeId,
                         principalTable: "Representatives",
                         principalColumn: "userId");
-                    table.ForeignKey(
-                        name: "FK_Orders_Shippings_ShippingId",
-                        column: x => x.ShippingId,
-                        principalTable: "Shippings",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -581,11 +562,6 @@ namespace Infrastructure.Migrations
                 column: "RepresentativeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_ShippingId",
-                table: "Orders",
-                column: "ShippingId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Products_OrderId",
                 table: "Products",
                 column: "OrderId");
@@ -598,18 +574,12 @@ namespace Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_SpecialPackages_cityId",
                 table: "SpecialPackages",
-                column: "cityId",
-                unique: true);
+                column: "cityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SpecialPackages_governorateId",
                 table: "SpecialPackages",
                 column: "governorateId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SpecialPackages_MerchantId",
-                table: "SpecialPackages",
-                column: "MerchantId");
         }
 
         /// <inheritdoc />
@@ -659,9 +629,6 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Representatives");
-
-            migrationBuilder.DropTable(
-                name: "Shippings");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

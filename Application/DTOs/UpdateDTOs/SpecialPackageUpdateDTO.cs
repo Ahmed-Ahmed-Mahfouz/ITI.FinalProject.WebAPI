@@ -8,7 +8,7 @@ namespace Application.DTOs.UpdateDTOs
 {
     public class SpecialPackageUpdateDTO
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
         public decimal ShippingPrice { get; set; }
         public int cityId { get; set; }
         public int governorateId { get; set; }
