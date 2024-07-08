@@ -27,7 +27,6 @@ namespace Application
             services.AddScoped<IPaginationService<Employee, EmployeeReadDto, EmployeeAddDto, EmployeeupdateDto, string>, EmployeeService>();
             //services.AddScoped<IGenericService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int>, OrderService>();
             services.AddScoped<IGenericService<Product, DisplayProductDTO, InsertProductDTO, UpdateProductDTO, int>, ProductService>();
-            services.AddScoped<IGenericService<Shipping, DisplayShippingDTO, InsertShippingDTO, UpdateShippingDTO, int>, ShippingService>();
             services.AddScoped<IGenericService<Settings, SettingsDTO, SettingsInsertDTO, SettingsUpdateDTO, int>, SettingsService>();
 
             services.AddScoped<IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int>, Application.Services.OrderService>();

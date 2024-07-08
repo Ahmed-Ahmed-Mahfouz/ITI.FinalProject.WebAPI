@@ -26,8 +26,7 @@ namespace Application.DTOs.DisplayDTOs
         public string GovernorateName { get; set; }
         public string CityName { get; set; }
         public string BranchName { get; set; }
-        public string ShippingType { get; set; }
-        public string RepresentativeName { get; set; }
+        public string? RepresentativeName { get; set; }
         public decimal? OrderMoneyReceived { get; set; }
         public decimal? ShippingMoneyReceived { get; set; }
         public decimal ShippingCost { get; set; }
@@ -35,6 +34,7 @@ namespace Application.DTOs.DisplayDTOs
         public OrderStatus Status { get; set; }
         public OrderTypes Type { get; set; }
         public PaymentTypes PaymentType { get; set; }
+        public ShippingTypes ShippingType { get; set; }
 
         public List<DisplayProductDTO> Products { get; set; }
     }

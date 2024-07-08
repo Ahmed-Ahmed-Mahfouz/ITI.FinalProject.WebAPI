@@ -24,7 +24,7 @@ namespace Application.Services
         private readonly IGenericRepository<City> _cityRepository;
         private readonly IGenericRepository<Settings> _settingsRepository;
         private readonly IGenericRepository<Merchant> _merchantRepository;
-        private readonly IGenericRepository<Shipping> _shippingRepository;
+        private readonly IGenericRepository<Product> _productRepository;
 
         public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
         {
@@ -34,7 +34,7 @@ namespace Application.Services
             _cityRepository = _unitOfWork.GetGenericRepository<City>();
             _settingsRepository = _unitOfWork.GetGenericRepository<Settings>();
             _merchantRepository = _unitOfWork.GetGenericRepository<Merchant>();
-            _shippingRepository = _unitOfWork.GetGenericRepository<Shipping>();
+            _productRepository = _unitOfWork.GetGenericRepository<Product>();
         }
 
         public async Task<List<DisplayOrderDTO>> GetAllObjects()
@@ -76,10 +76,10 @@ namespace Application.Services
         public async Task<ModificationResultDTO> InsertObject(InsertOrderDTO orderDTO)
         {
             var order = _mapper.Map<Order>(orderDTO);
-            
+
             order.ShippingCost = await CalculateShipmentCost(order);
             order.Date = DateTime.Now;
-            var result =  _repository.Add(order);
+            var result = _repository.Add(order);
 
             if (result == false)
             {
@@ -87,6 +87,44 @@ namespace Application.Services
                 {
                     Succeeded = false,
                     Message = "Error inserting the order"
+                };
+            }
+
+            result = await _unitOfWork.SaveChanges();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving changes"
+                };
+            }
+
+            foreach (var productDTO in orderDTO.Products)
+            {
+                var product = _mapper.Map<Product>(productDTO);
+                product.OrderId = order.Id;
+                result = _productRepository.Add(product);
+
+                if (result == false)
+                {
+                    return new ModificationResultDTO()
+                    {
+                        Succeeded = false,
+                        Message = "Error inserting the product"
+                    };
+                }
+            }
+
+            result = await _unitOfWork.SaveChanges();
+
+            if (result == false)
+            {
+                return new ModificationResultDTO()
+                {
+                    Succeeded = false,
+                    Message = "Error saving changes"
                 };
             }
 
@@ -158,7 +196,7 @@ namespace Application.Services
         {
             var totalOrders = await _repository.Count(); 
             var totalPages = await _repository.Pages(pageSize);
-            var orders = await _repository.GetPaginatedElements(pageNumber, pageSize, filter); 
+            var orders = await _repository.GetPaginatedElements(pageNumber, pageSize, filter, o => o.merchant, o => o.governorate, o => o.city, o => o.branch, o => o.representative, o => o.Products); 
             var mappedOrders = _mapper.Map<List<DisplayOrderDTO>>(orders);
             return new PaginationDTO<DisplayOrderDTO>()
             {
@@ -173,9 +211,8 @@ namespace Application.Services
             var settings = (await _settingsRepository.GetAllElements())[0];
             var city = await _cityRepository.GetElement(c => c.id == order.CityId);
             var merchant = await _merchantRepository.GetElement(m => m.userId == order.MerchantId, c => c.SpecialPackages);
-            var shipping = await _shippingRepository.GetElement(s => s.Id == order.ShippingId);
             var orderType = order.Type;
-            var shippingType = shipping!.ShippingType;
+            var shippingType = order.ShippingType;
             var totalWeight = order.TotalWeight;
             decimal shippingCost = 0;
 
@@ -228,7 +265,8 @@ namespace Application.Services
             if (totalWeight > settings.BaseWeight)
             {
                 decimal additionalWeight = totalWeight - settings.BaseWeight;
-                shippingCost += additionalWeight * settings.AdditionalFeePerKg;
+                decimal totalAdditionalCost = additionalWeight * settings.AdditionalFeePerKg;
+                shippingCost += totalAdditionalCost;
             }
 
             if (order.ShippingToVillage)
@@ -238,5 +276,13 @@ namespace Application.Services
 
             return shippingCost;
         }
+
+        //public async Task<List<DisplayOrderDTO>> MapOrders(List<Order> orders)
+        //{
+        //    foreach(var order in orders)
+        //    {
+
+        //    }
+        //} 
     }
 }

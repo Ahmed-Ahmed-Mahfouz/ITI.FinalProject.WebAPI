@@ -15,14 +15,17 @@ namespace Application.Mappings
                 .ForMember(dest => dest.MerchantName, opt => opt.MapFrom(src => src.merchant.user.FullName)) //Possible Error
                 .ForMember(dest => dest.GovernorateName, opt => opt.MapFrom(src => src.governorate.name))
                 .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.city.name))
-                .ForMember(dest => dest.ShippingType, opt => opt.MapFrom(src => src.shipping.ShippingType))
                 .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.branch.name))
                 .ForMember(dest => dest.RepresentativeName, opt => opt.MapFrom(src => src.representative.user.FullName)) //Possible Error
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
             CreateMap<InsertOrderDTO, Order>()
-                .ForMember(dest => dest.ShippingCost, opt => opt.MapFrom(src => 0));
+                .ForMember(dest => dest.ShippingCost, opt => opt.MapFrom(src => 0))
+                .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src => src.Products.Sum(p => p.Price * p.Quantity)))
+                .ForMember(dest => dest.TotalWeight, opt => opt.MapFrom(src => src.Products.Sum(p => p.Weight * p.Quantity)));
             CreateMap<UpdateOrderDTO, Order>()
-                .ForMember(dest => dest.ShippingCost, opt => opt.MapFrom(src => 0));
+                .ForMember(dest => dest.ShippingCost, opt => opt.MapFrom(src => 0))
+                .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src => src.Products != null ? src.Products.Sum(p => p.Price * p.Quantity) : 0))
+                .ForMember(dest => dest.TotalWeight, opt => opt.MapFrom(src => src.Products != null ? src.Products.Sum(p => p.Weight * p.Quantity) : 0));
 
             // Product Mappings
             CreateMap<Product, DisplayProductDTO>()
@@ -30,12 +33,6 @@ namespace Application.Mappings
                 .ForMember(dest => dest.ProductStatus, opt => opt.MapFrom(src => src.ProductStatus));
             CreateMap<InsertProductDTO, Product>();
             CreateMap<UpdateProductDTO, Product>();
-
-            // Shipping Mappings
-            CreateMap<Shipping, DisplayShippingDTO>()
-                .ForMember(dest => dest.ShippingType, opt => opt.MapFrom(src => src.ShippingType));
-            CreateMap<InsertShippingDTO, Shipping>();
-            CreateMap<UpdateShippingDTO, Shipping>();
 
 
             // Settings Mappings

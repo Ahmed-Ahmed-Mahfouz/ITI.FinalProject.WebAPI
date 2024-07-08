@@ -595,7 +595,7 @@ namespace Application.Services
 
             foreach (var specialPackage in ObjectDTO.SpecialPackages)
             {
-                var sp = await spRepository.GetElement(sp => sp.Id == specialPackage.Id);
+                var sp = await spRepository.GetElement(sp => sp.MerchantId == specialPackage.MerchantId && sp.cityId == specialPackage.cityId);
 
                 if (sp == null)
                 {
@@ -802,7 +802,7 @@ namespace Application.Services
                         governorateName = merchant.governorate.name,
                         MerchantName = merchant.user.FullName,
                         ShippingPrice = sp.ShippingPrice,
-                        Id = sp.Id
+                        //Id = sp.Id
                     }).ToList();
         }
 

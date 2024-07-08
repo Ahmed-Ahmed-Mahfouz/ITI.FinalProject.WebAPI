@@ -26,6 +26,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             this.roleManager = roleManager;
         }
 
+        // GET: api/Orders
         [SwaggerOperation(Summary = "This Endpoint returns a list of all orders", Description = "")]
         [SwaggerResponse(404, "There weren't any orders in the database", Type = typeof(void))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
@@ -33,7 +34,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<List<DisplayOrderDTO>>> GetAllOrders()
         {
-            var orders = await _orderService.GetAllObjects();
+            if (await CheckRole(PowerTypes.Read, true, true))
+            {
+                return Unauthorized();
+            }
+            var orders = await _orderService.GetAllObjects(o => o.merchant, o => o.governorate, o => o.city, o => o.branch, o => o.representative, o => o.Products);
             if (orders == null || !orders.Any())
             {
                 return NotFound("There weren't any orders in the database");
@@ -41,7 +46,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             return Ok(orders);
         }
 
-        // GET: api/Orders
+        // GET: api/OrderPage
         [SwaggerOperation(Summary = "This Endpoint returns a list of orders with pagination", Description = "")]
         [SwaggerResponse(404, "There weren't any orders in the database", Type = typeof(void))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
@@ -54,7 +59,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            PaginationDTO<DisplayOrderDTO>? orderPaginationDTO;
+            //PaginationDTO<DisplayOrderDTO>? orderPaginationDTO;
 
             //if (orderFilterDTO == null)
             //{
@@ -65,14 +70,16 @@ namespace ITI.FinalProject.WebAPI.Controllers
             //    orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => o.Status == orderFilterDTO.OrderStatus && o.Date > orderFilterDTO.StartDate && o.Date < orderFilterDTO.EndDate);
             //}
 
-            if (orderStatus != null)
-            {
-                orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => o.Status == orderStatus && o.Date > startDate && o.Date < endDate);
-            }
-            else
-            {
-                orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => o.Date > startDate && o.Date < endDate);
-            }
+            //if (orderStatus != null)
+            //{
+            //    orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => o.Status == orderStatus && o.Date > startDate && o.Date < endDate);
+            //}
+            //else
+            //{
+            //    orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => o.Date > startDate && o.Date < endDate);
+            //}
+
+            var orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => (orderStatus != null ? o.Status == orderStatus : true) && (startDate != null ? o.Date > startDate : true) && (endDate != null ? o.Date < endDate : true));
 
 
             if (orderPaginationDTO == null || orderPaginationDTO.List.Count == 0)
@@ -101,7 +108,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            var order = await _orderService.GetObject(o => o.Id == id);
+            var order = await _orderService.GetObject(o => o.Id == id, o => o.merchant, o => o.governorate, o => o.city, o => o.branch, o => o.representative, o => o.Products);
 
             if (order == null)
             {
@@ -128,14 +135,15 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (result.Succeeded)
             {
-                if (await _orderService.SaveChangesForObject())
-                {
-                    return NoContent();
-                }
-                else
-                {
-                    return Accepted("Error saving changes");
-                }
+                //if (await _orderService.SaveChangesForObject())
+                //{
+                //    return NoContent();
+                //}
+                //else
+                //{
+                //    return Accepted("Error saving changes");
+                //}
+                return NoContent();
             }
 
             return Accepted(result.Message);

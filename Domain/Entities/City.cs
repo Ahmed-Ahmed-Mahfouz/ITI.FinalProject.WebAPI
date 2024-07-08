@@ -22,7 +22,7 @@ namespace Domain.Entities
 
         public Branch branch { get; set; }
         public Governorate governorate { get; set; }
-        public SpecialPackages citySpecialPackages { get; set; }
+        public List<SpecialPackages>  citySpecialPackages { get; set; }
         public List<Merchant> cityMerchants { get; set; }
         public List<Order> cityOrders { get; set; }
 

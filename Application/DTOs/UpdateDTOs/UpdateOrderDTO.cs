@@ -29,6 +29,7 @@ namespace Application.DTOs.UpdateDTOs
         public OrderStatus? Status { get; set; }
         public OrderTypes? Type { get; set; }
         public PaymentTypes? PaymentType { get; set; }
+        public ShippingTypes? ShippingType { get; set; }
         public List<UpdateProductDTO>? Products { get; set; }
     }
 }

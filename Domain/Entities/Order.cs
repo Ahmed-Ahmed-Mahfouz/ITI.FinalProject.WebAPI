@@ -19,6 +19,7 @@ namespace Domain.Entities
         public string? Notes { get; set; }
         public string VillageAndStreet { get; set; }
         public bool ShippingToVillage { get; set; }
+        public ShippingTypes ShippingType { get; set; }
         public PaymentTypes PaymentType { get; set; }
         public OrderStatus Status { get; set; }
         public OrderTypes Type { get; set; }
@@ -32,10 +33,9 @@ namespace Domain.Entities
         [Column(TypeName = "money")]
         public decimal ShippingCost { get; set; }
 
-        // Calculated properties
         [Column(TypeName = "money")]
-        public decimal TotalPrice => Products.Sum(p => p.Price * p.Quantity);
-        public decimal TotalWeight => Products.Sum(p => p.Weight * p.Quantity);
+        public decimal TotalPrice { get; set; }
+        public decimal TotalWeight { get; set; }
 
         [ForeignKey("merchant")]
         public string MerchantId { get; set; }
@@ -48,12 +48,11 @@ namespace Domain.Entities
         [ForeignKey("branch")]
         public int BranchId { get; set; }
         [ForeignKey("representative")]
-        public string RepresentativeId { get; set; }
+        public string? RepresentativeId { get; set; }
 
         public Merchant merchant { get; set; }
         public Governorate governorate { get; set; }
         public City city { get; set; }
-        public Shipping shipping { get; set; }
         public Branch branch { get; set; }
         public Representative representative { get; set; }
         public List<Product> Products { get; set; }
