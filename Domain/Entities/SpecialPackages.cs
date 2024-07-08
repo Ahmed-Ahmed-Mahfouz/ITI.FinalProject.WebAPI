@@ -9,7 +9,7 @@ namespace Domain.Entities
 {
     public class SpecialPackages
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
         [Column(TypeName = "money")]
         public decimal ShippingPrice { get; set; }
         [ForeignKey("cityPackages")]

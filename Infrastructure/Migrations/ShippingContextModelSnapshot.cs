@@ -318,14 +318,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RepresentativeId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal>("ShippingCost")
                         .HasColumnType("money");
-
-                    b.Property<int>("ShippingId")
-                        .HasColumnType("int");
 
                     b.Property<decimal?>("ShippingMoneyReceived")
                         .HasColumnType("money");
@@ -333,8 +329,17 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("ShippingToVillage")
                         .HasColumnType("bit");
 
+                    b.Property<int>("ShippingType")
+                        .HasColumnType("int");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("TotalWeight")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -354,8 +359,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("MerchantId");
 
                     b.HasIndex("RepresentativeId");
-
-                    b.HasIndex("ShippingId");
 
                     b.ToTable("Orders");
                 });
@@ -471,52 +474,23 @@ namespace Infrastructure.Migrations
                     b.ToTable("Settings");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Shipping", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("money");
-
-                    b.Property<int>("ShippingType")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Shippings");
-                });
-
             modelBuilder.Entity("Domain.Entities.SpecialPackages", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
                     b.Property<string>("MerchantId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal>("ShippingPrice")
-                        .HasColumnType("money");
 
                     b.Property<int>("cityId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("ShippingPrice")
+                        .HasColumnType("money");
+
                     b.Property<int>("governorateId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("MerchantId", "cityId");
 
-                    b.HasIndex("MerchantId");
-
-                    b.HasIndex("cityId")
-                        .IsUnique();
+                    b.HasIndex("cityId");
 
                     b.HasIndex("governorateId");
 
@@ -743,14 +717,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Representative", "representative")
                         .WithMany("representativeOrders")
                         .HasForeignKey("RepresentativeId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Shipping", "shipping")
-                        .WithMany("Orders")
-                        .HasForeignKey("ShippingId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("branch");
 
@@ -761,8 +728,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("merchant");
 
                     b.Navigation("representative");
-
-                    b.Navigation("shipping");
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -807,8 +772,8 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.City", "cityPackages")
-                        .WithOne("citySpecialPackages")
-                        .HasForeignKey("Domain.Entities.SpecialPackages", "cityId")
+                        .WithMany("citySpecialPackages")
+                        .HasForeignKey("cityId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
@@ -909,8 +874,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("cityOrders");
 
-                    b.Navigation("citySpecialPackages")
-                        .IsRequired();
+                    b.Navigation("citySpecialPackages");
                 });
 
             modelBuilder.Entity("Domain.Entities.Governorate", b =>
@@ -943,11 +907,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("governorates");
 
                     b.Navigation("representativeOrders");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Shipping", b =>
-                {
-                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }
