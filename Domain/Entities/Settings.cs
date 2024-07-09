@@ -10,7 +10,9 @@ namespace Domain.Entities
     public class Settings
     {
         public int Id { get; set; }
+        // Traditional Weight in KGs
         public decimal BaseWeight { get; set; }
+        // Additional Cost for every KG exceed the Traditional Value
         [Column(TypeName = "money")]
         public decimal AdditionalFeePerKg { get; set; }
         [Column(TypeName = "money")]

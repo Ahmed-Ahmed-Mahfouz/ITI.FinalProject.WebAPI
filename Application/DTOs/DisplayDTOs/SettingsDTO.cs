@@ -9,6 +9,7 @@ namespace Application.DTOs.DisplayDTOs
 {
     public class SettingsDTO
     {
+        public int Id { get; set; }
         public decimal BaseWeight { get; set; }
         public decimal AdditionalFeePerKg { get; set; }
         public decimal VillageDeliveryFee { get; set; }
