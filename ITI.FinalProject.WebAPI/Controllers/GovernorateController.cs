@@ -5,6 +5,7 @@ using Application.Interfaces.ApplicationServices;
 using Application.Services;
 using Domain.Entities;
 using Domain.Enums;
+using ITI.FinalProject.WebAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,12 @@ namespace ITI.FinalProject.WebAPI.Controllers
             this.service = service;
             this.roleManager = roleManager;
         }
+
+        //[HttpGet("/api/test")]
+        //public ActionResult test()
+        //{
+        //    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Message" });
+        //}
 
         // GET: api/Governorate
         [SwaggerOperation(
@@ -104,7 +111,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             Description = ""
         )]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         //[SwaggerResponse(201, "Returns the inserted governorate element and the url you can use to get it", Type = typeof(GovernorateDTO))]
         [SwaggerResponse(204, "Confirms that the governorate was inserted successfully", Type = typeof(void))]
         [HttpPost]
@@ -125,11 +132,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
                 else
                 {
-                    return Accepted("Error saving changes");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Error saving changes" });
                 }
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         // PUT api/Governorate/5
@@ -137,10 +144,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Summary = "This Endpoint updates the specified governorate",
             Description = ""
         )]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
-        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given governorate object", Type = typeof(string))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
+        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given governorate object", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the governorate was updated successfully", Type = typeof(void))]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutGovernorate(int id, [FromBody] GovernorateUpdateDTO governorateUpdateDTO)
@@ -152,14 +159,14 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (id != governorateUpdateDTO.id)
             {
-                return BadRequest("Id doesn't match the id in the object");
+                return BadRequest(new ErrorDTO() { Message = "Id doesn't match the id in the object" });
             }
 
             var governorate = await service.GetObjectWithoutTracking(g => g.id == id);
 
             if (governorate == null)
             {
-                return NotFound("Governorate doesn't exist in the db");
+                return NotFound(new ErrorDTO() { Message = "Governorate doesn't exist in the db" });
             }
 
             var result = await service.UpdateObject(governorateUpdateDTO);
@@ -172,11 +179,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
                 else
                 {
-                    return Accepted("Error saving changes");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Error saving changes" });
                 }
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         // DELETE api/Governorate/5
@@ -184,9 +191,9 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Summary = "This Endpoint deletes the specified governorate from the db",
             Description = ""
         )]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the governorate was deleted successfully", Type = typeof(void))]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteGovernorate(int id)
@@ -200,7 +207,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (governorate == null)
             {
-                return NotFound("Governorate doesn't exist in the db");
+                return NotFound(new ErrorDTO() { Message = "Governorate doesn't exist in the db" });
             }
 
             var result = await service.DeleteObject(id);
@@ -213,11 +220,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
                 else
                 {
-                    return Accepted("Error saving changes");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Error saving changes" });
                 }
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         private async Task<bool> CheckRole(PowerTypes powerType)

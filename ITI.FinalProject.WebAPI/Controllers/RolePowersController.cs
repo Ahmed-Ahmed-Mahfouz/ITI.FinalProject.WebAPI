@@ -5,6 +5,7 @@ using Application.Interfaces.ApplicationServices;
 using Application.Services;
 using Domain.Entities;
 using Domain.Enums;
+using ITI.FinalProject.WebAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -106,7 +107,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             Description = ""
         )]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         //[SwaggerResponse(400, "Role name or powers weren't given", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the rolePower was inserted successfully", Type = typeof(void))]
         [HttpPost]
@@ -137,11 +138,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
                 else
                 {
-                    return Accepted("Error saving changes");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Error saving changes" });
                 }
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         // PUT api/RolePowers/fkmc4a2wkmfkmq
@@ -149,10 +150,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Summary = "This Endpoint updates the specified rolePower",
             Description = ""
         )]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
-        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given rolePower object", Type = typeof(string))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
+        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given rolePower object", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the rolePower was updated successfully", Type = typeof(void))]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRolePower(string id, [FromBody] RolePowersUpdateDTO rolePowersUpdateDTO)
@@ -164,14 +165,14 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (id != rolePowersUpdateDTO.RoleId)
             {
-                return BadRequest("Id doesn't match the id in the object");
+                return BadRequest(new ErrorDTO() { Message = "Id doesn't match the id in the object" });
             }
 
             var rolePower = await service.GetObjectWithoutTracking(rp => rp.RoleId == id);
 
             if (rolePower == null)
             {
-                return NotFound("Role Power doesn't exist in the db");
+                return NotFound(new ErrorDTO() { Message = "Role Power doesn't exist in the db" });
             }
 
             var result = await service.UpdateObject(rolePowersUpdateDTO);
@@ -184,11 +185,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
                 else
                 {
-                    return Accepted("Error saving changes");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Error saving changes" });
                 }
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         // DELETE api/RolePowers/fkmc4a2wkmfkmq
@@ -196,9 +197,9 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Summary = "This Endpoint deletes the specified rolePower from the db",
             Description = ""
         )]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the rolePower was deleted successfully", Type = typeof(void))]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRolePower(string id)
@@ -212,7 +213,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (rolePower == null)
             {
-                return NotFound("Role Power doesn't exist in the db");
+                return NotFound(new ErrorDTO() { Message = "Role Power doesn't exist in the db" });
             }
 
             var result = await service.DeleteObject(id);
@@ -225,11 +226,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
                 else
                 {
-                    return Accepted("Error saving changes");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Error saving changes" });
                 }
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         private async Task<bool> CheckRole(PowerTypes powerType)

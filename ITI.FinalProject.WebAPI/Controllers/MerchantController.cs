@@ -5,6 +5,7 @@ using Application.Interfaces;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
 using Domain.Enums;
+using ITI.FinalProject.WebAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -140,7 +141,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Description = ""
         )]
         [SwaggerResponse(200, "Confirms that the merchant was inserted successfully", Type = typeof(MerchantAddDto))]
-        [SwaggerResponse(400, "Validation errors occurred while inserting the merchant", Type = typeof(string))]
+        [SwaggerResponse(400, "Validation errors occurred while inserting the merchant", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [HttpPost]
         public async Task<ActionResult> AddMerchant(MerchantAddDto MerchantAddDto)
@@ -153,7 +154,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             var errors = await merchantService.InsertObject(MerchantAddDto);
             if (errors.Succeeded == true)
                 return Ok(MerchantAddDto);
-            return BadRequest(string.Join(", ", errors.Message));
+            return BadRequest(new ErrorDTO() { Message = string.Join(", ", errors.Message) });
         }
 
         [SwaggerOperation(
@@ -161,7 +162,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Description = ""
         )]
         [SwaggerResponse(200, "Confirms that the merchant was updated successfully", Type = typeof(MerchantResponseDto))]
-        [SwaggerResponse(400, "Validation errors occurred while updating the merchant", Type = typeof(string))]
+        [SwaggerResponse(400, "Validation errors occurred while updating the merchant", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [HttpPut("{MerchantId}")]
         public async Task<IActionResult> UpdateMerchant(string MerchantId, MerchantUpdateDto MerchantUpdateDto)
@@ -178,7 +179,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Ok(updatedMerchant);
             }
             else
-                return BadRequest(string.Join(", ", error.Message));
+                return BadRequest(new ErrorDTO() { Message = string.Join(", ", error.Message) });
         }
 
         [SwaggerOperation(
@@ -186,7 +187,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Description = ""
         )]
         [SwaggerResponse(204, "Confirms that the merchant was deleted successfully", Type = typeof(void))]
-        [SwaggerResponse(400, "The id that was given doesn't exist in the db", Type = typeof(string))]
+        [SwaggerResponse(400, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [HttpDelete("{MerchantId}")]
         public async Task<IActionResult> DeleteMerchant(string MerchantId)
@@ -198,7 +199,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             ModificationResultDTO isDeleted = await merchantService.DeleteObject(MerchantId);
             if (isDeleted.Succeeded == false)
-                return BadRequest(isDeleted.Message);
+                return BadRequest(new ErrorDTO() { Message = isDeleted.Message?? "Merchant Deletion Failed" });
             else
                 return NoContent();
         }

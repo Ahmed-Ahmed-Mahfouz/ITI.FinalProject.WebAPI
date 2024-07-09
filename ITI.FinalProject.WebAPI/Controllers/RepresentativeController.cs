@@ -5,6 +5,7 @@ using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
 using Domain.Enums;
+using ITI.FinalProject.WebAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -110,7 +111,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             Description = ""
         )]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the representative was inserted successfully", Type = typeof(void))]
         [HttpPost]
         public async Task<ActionResult> AddRepresentative([FromBody] RepresentativeInsertDTO RepresentativeInsertDTO)
@@ -132,7 +133,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                     return NoContent();
                 }
 
-                return Accepted(result.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
             }
 
         }
@@ -142,10 +143,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Summary = "This Endpoint updates the specified representative",
             Description = ""
         )]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
-        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given representative object", Type = typeof(string))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
+        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given representative object", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the representative was updated successfully", Type = typeof(void))]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRepresentative(string id, [FromBody] RepresentativeUpdateDTO representativeUpdateDTO)
@@ -157,14 +158,14 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (id != representativeUpdateDTO.Id)
             {
-                return BadRequest("Id doesn't match the id in the object");
+                return BadRequest(new ErrorDTO() { Message = "Id doesn't match the id in the object" });
             }
 
             var representative = await service.GetObjectWithoutTracking(r => r.userId == id, r => r.user, r => r.governorates);
 
             if (representative == null)
             {
-                return NotFound("Representative doesn't exist in the db");
+                return NotFound(new ErrorDTO() { Message = "Representative doesn't exist in the db" });
             }
 
             var result = await service.UpdateObject(representativeUpdateDTO);
@@ -174,7 +175,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return NoContent();
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         // DELETE api/Representative/owcmwmece51cwe5
@@ -182,9 +183,9 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Summary = "This Endpoint deletes the specified representative from the db",
             Description = ""
         )]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the representative was deleted successfully", Type = typeof(void))]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRepresentative(string id)
@@ -198,7 +199,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (representative == null)
             {
-                return NotFound("Representative doesn't exist in the db");
+                return NotFound(new ErrorDTO() { Message = "Representative doesn't exist in the db" });
             }
 
             var result = await service.DeleteObject(id);
@@ -208,7 +209,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return NoContent();
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         private async Task<bool> CheckRole(PowerTypes powerType)

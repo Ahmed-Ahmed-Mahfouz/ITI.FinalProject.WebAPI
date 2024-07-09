@@ -28,7 +28,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
         // GET: api/Orders
         [SwaggerOperation(Summary = "This Endpoint returns a list of all orders", Description = "")]
-        [SwaggerResponse(404, "There weren't any orders in the database", Type = typeof(void))]
+        [SwaggerResponse(404, "There weren't any orders in the database", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Returns a list of all orders", Type = typeof(List<DisplayOrderDTO>))]
         [HttpGet]
@@ -42,7 +42,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             var orders = await _orderService.GetAllObjects();
             if (orders == null || !orders.Any())
             {
-                return NotFound("There weren't any orders in the database");
+                return NotFound(new ErrorDTO() { Message = "There weren't any orders in the database" });
             }
             return Ok(orders);
         }
@@ -122,7 +122,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         // POST: api/Orders
         [SwaggerOperation(Summary = "This Endpoint inserts a new order in the db", Description = "")]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the order was inserted successfully", Type = typeof(void))]
         [HttpPost]
         public async Task<IActionResult> PostOrder([FromBody] InsertOrderDTO orderDTO)
@@ -147,16 +147,16 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return NoContent();
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
             //return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
         }
 
         // PUT: api/Orders/5
         [SwaggerOperation(Summary = "This Endpoint updates the specified order", Description = "")]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
-        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given order object", Type = typeof(string))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
+        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given order object", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the order was updated successfully", Type = typeof(void))]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOrder(int id, UpdateOrderDTO orderDTO)
@@ -168,14 +168,14 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (id != orderDTO.Id)
             {
-                return BadRequest("Id doesn't match the id in the object");
+                return BadRequest(new ErrorDTO() { Message = "Id doesn't match the id in the object" });
             }
 
             var success = await _orderService.GetObjectWithoutTracking(o => o.Id == id);
 
             if (success == null)
             {
-                return NotFound("Order doesn't exist in the db");
+                return NotFound(new ErrorDTO() { Message = "Order doesn't exist in the db" });
             }
 
             var result = await _orderService.UpdateObject(orderDTO);
@@ -188,18 +188,18 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
                 else
                 {
-                    return Accepted("Error saving changes");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Error saving changes" });
                 }
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         // DELETE: api/Orders/5
         [SwaggerOperation(Summary = "This Endpoint deletes the specified order", Description = "")]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the order was deleted successfully", Type = typeof(void))]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
@@ -213,7 +213,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (success == null)
             {
-                return NotFound("Order doesn't exist in the db");
+                return NotFound(new ErrorDTO() { Message = "Order doesn't exist in the db" });
             }
 
             var result = await _orderService.DeleteObject(id);
@@ -226,11 +226,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
                 else
                 {
-                    return Accepted("Error saving changes");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Error saving changes" });
                 }
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         private async Task<bool> CheckRole(PowerTypes powerType, bool isAdminAllowed, bool isRepresentativeAllowed)
