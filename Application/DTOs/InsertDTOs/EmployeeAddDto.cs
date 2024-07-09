@@ -27,5 +27,6 @@ namespace Application.DTOs.InsertDTOs
 
         public string role { get; set; }
 
+        public int branchId { get; set; }
     }
 }

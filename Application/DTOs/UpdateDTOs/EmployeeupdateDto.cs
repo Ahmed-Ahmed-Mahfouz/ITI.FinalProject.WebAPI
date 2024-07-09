@@ -21,5 +21,6 @@ namespace Application.DTOs.UpdateDTOs
         public Status Status { get; set; }
         public string role { get; set; }
 
+        public int branchId { get; set; }
     }
 }

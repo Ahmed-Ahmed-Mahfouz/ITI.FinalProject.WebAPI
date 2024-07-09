@@ -189,6 +189,7 @@ namespace Domain.Services
             }
 
             user.Status = ObjectDTO.Status;
+            user.BranchId = ObjectDTO.branchId;
             identityResult = await _userManager.UpdateAsync(user);
 
             if (!identityResult.Succeeded)
@@ -372,7 +373,8 @@ namespace Domain.Services
                 UserType = userDto.UserType,
                 Status = userDto.Status,
                 PhoneNumber = userDto.PhoneNo,
-                Address = userDto.Address
+                Address = userDto.Address,
+                BranchId = userDto.BranchId
             };
 
             var result = await _userManager.CreateAsync(user, userDto.Password);
