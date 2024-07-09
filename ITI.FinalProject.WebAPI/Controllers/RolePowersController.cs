@@ -68,8 +68,8 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            var paginationDTO = await service.GetPaginatedOrders(pageNumber, pageSize, rp => 1 == 1 );
-            paginationDTO.List = paginationDTO.List.Where(rp => rp.RoleName.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
+            var paginationDTO = await service.GetPaginatedOrders(pageNumber, pageSize, rp => (rp.ApplicationRoles.Name != null) ? rp.ApplicationRoles.Name.Trim().ToLower().Contains(name.Trim().ToLower()) : 1 == 1);
+            //paginationDTO.List = paginationDTO.List.Where(rp => rp.RoleName.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
 
             return Ok(paginationDTO);
         }

@@ -1,4 +1,8 @@
 using Application;
+using Application.DTOs.DisplayDTOs;
+using Application.DTOs.InsertDTOs;
+using Application.DTOs.UpdateDTOs;
+using Application.Interfaces.ApplicationServices;
 using Domain;
 using Domain.Entities;
 using Infrastructure;
@@ -84,6 +88,10 @@ namespace ITI.FinalProject.WebAPI
 
             await EnsureAdminExistsAsync(app);
 
+            await EnsureAdminHasRoleAsync(app);
+
+            await AddDefaultSettingsAsync(app);
+
             await app.RunAsync();
         }
 
@@ -114,13 +122,47 @@ namespace ITI.FinalProject.WebAPI
                     {
                         throw new Exception($"Failed to create user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
                     }
+                    //else
+                    //{
+                    //    result = await userManager.AddToRoleAsync(user, "Admin");
+
+                    //    if (!result.Succeeded)
+                    //    {
+                    //        throw new Exception($"Failed to assign user to role: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    //    }
+                    //}
+                }
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred while creating the user.");
+            }
+        }
+
+        private static async Task EnsureAdminHasRoleAsync(IHost host)
+        {
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
+
+            try
+            {
+                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+                var user = await userManager.FindByNameAsync("admin");
+                if (user != null)
+                {
+                    var result = await userManager.IsInRoleAsync(user, "Admin");
+                    if (result)
+                    {
+                        return;
+                    }
                     else
                     {
-                        result = await userManager.AddToRoleAsync(user, "Admin");
+                        var identityResult = await userManager.AddToRoleAsync(user, "Admin");
 
-                        if (!result.Succeeded)
+                        if (!identityResult.Succeeded)
                         {
-                            throw new Exception($"Failed to assign user to role: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                            throw new Exception($"Failed to assign user to role: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}");
                         }
                     }
                 }
@@ -128,7 +170,7 @@ namespace ITI.FinalProject.WebAPI
             catch (Exception ex)
             {
                 var logger = services.GetRequiredService<ILogger<Program>>();
-                logger.LogError(ex, "An error occurred while creating the user.");
+                logger.LogError(ex, "An error occurred while assigning role to the user.");
             }
         }
 
@@ -207,6 +249,41 @@ namespace ITI.FinalProject.WebAPI
             {
                 var logger = services.GetRequiredService<ILogger<Program>>();
                 logger.LogError(ex, "An error occurred while creating the role.");
+            }
+        }
+
+        private static async Task AddDefaultSettingsAsync(IHost host)
+        {
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
+
+            try
+            {
+                var settingsService = services.GetRequiredService<IGenericService<Settings, SettingsDTO, SettingsInsertDTO, SettingsUpdateDTO, int>>();
+                var settings = await settingsService.GetAllObjects();
+                if (settings == null || settings.Count == 0)
+                {
+                    var newSettings = new SettingsInsertDTO() { BaseWeight = 50, AdditionalFeePerKg = 10, TwentyFourHoursShippingCost = 100, OrdinaryShippingCost = 70, FifteenDayShippingCost = 40, VillageDeliveryFee = 25 };
+                    var result = await settingsService.InsertObject(newSettings);
+                    if (!result.Succeeded)
+                    {
+                        throw new Exception($"Failed to insert settings: {result.Message}");
+                    }
+                    else
+                    {
+                        var flag = await settingsService.SaveChangesForObject();
+
+                        if (!flag)
+                        {
+                            throw new Exception($"Failed to save changes");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred while inserting the default settings.");
             }
         }
     }

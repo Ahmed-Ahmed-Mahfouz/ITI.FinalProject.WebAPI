@@ -198,7 +198,7 @@ namespace Application.Services
 
         public async Task<PaginationDTO<GovernorateDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Governorate, bool>> filter)
         {
-            var totalCount = await repository.Count();
+            var totalCount = await repository.Count(filter);
             var totalPages = await repository.Pages(pageSize);
             var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter);
              

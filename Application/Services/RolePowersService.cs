@@ -347,25 +347,51 @@ namespace Application.Services
             return rolePowersDTO;
         }
 
+        private List<RolePowersDTO> MapRolesFromRolePowers(List<RolePowers> roles)
+        {
+            var rolePowersDTO = new List<RolePowersDTO>();
 
-        public Task<PaginationDTO<RolePowersDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<RolePowers, bool>> filter)
+            foreach (var role in roles)
+            {
+                if (role == null || role.ApplicationRoles.Name == "Admin" || role.ApplicationRoles.Name == "Merchant" || role.ApplicationRoles.Name == "Representative")
+                {
+                    continue;
+                }
+
+                rolePowersDTO.Add(new RolePowersDTO()
+                {
+                    RoleId = role.ApplicationRoles.Id,
+                    RoleName = role.ApplicationRoles.Name ?? "RoleName",
+                    TimeOfAddtion = role.ApplicationRoles.TimeOfAddition
+                });
+            }
+
+            return rolePowersDTO;
+        }
+
+
+        public async Task<PaginationDTO<RolePowersDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<RolePowers, bool>> filter)
         {
             //var totalCount = await repository.Count();
             //var totalPages = await repository.Pages(pageSize);
-            //var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter);
+            var RolePowersList = await repository.GetAllElements(filter, rp => rp.ApplicationRoles);
             //var rolePowers = await MapRolePowers(objectList.ToList());
 
-            var totalCount = roleManager.Roles.Count();
+            //var totalCount = roleManager.Roles.Where(r => r.Name != "Admin" && r.Name != "Representative" && r.Name != "Merchant" && filter.Name == r.Name).Count();
+            RolePowersList = RolePowersList.Where(r => r.ApplicationRoles.Name != "Admin" && r.ApplicationRoles.Name != "Representative" && r.ApplicationRoles.Name != "Merchant").GroupBy(rp => rp.ApplicationRoles.Name).Select(group => group.First()).ToList();
+            var totalCount = RolePowersList.Count();
             var totalPages = (int)Math.Ceiling((double)(totalCount) / pageSize);
-            var objectList = roleManager.Roles.Skip((pageNumber - 1) * pageSize).Take(pageSize);
-            var roles = MapRoles(objectList.ToList());
+            //var objectList = roleManager.Roles.Where(r => r.Name != "Admin" && r.Name != "Representative" && r.Name != "Merchant").Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            //var roles = MapRoles(objectList.ToList());
+            var objectList = RolePowersList.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            var roles = MapRolesFromRolePowers(objectList.ToList());
 
-            return Task.FromResult(new PaginationDTO<RolePowersDTO>()
+            return new PaginationDTO<RolePowersDTO>()
             {
                 TotalCount = totalCount,
                 TotalPages = totalPages,
                 List = roles
-            });
+            };
         }
     }
 }

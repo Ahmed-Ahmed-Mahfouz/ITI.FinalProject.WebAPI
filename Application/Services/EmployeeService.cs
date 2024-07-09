@@ -413,7 +413,7 @@ namespace Domain.Services
 
         public async Task<PaginationDTO<EmployeeReadDto>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Employee, bool>> filter)
         {
-            var totalCount = await repository.Count();
+            var totalCount = await repository.Count(filter);
             var totalPages = await repository.Pages(pageSize);
             var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, e => e.user);
             var mappedEmployees = MapEmployees(objectList.ToList());

@@ -77,6 +77,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return BadRequest("Plaese enter valid password");
             }
 
+            if (user.Status == Status.Inactive)
+            {
+                return BadRequest("User is inactive");
+            }
+
             var claims = await userManager.GetClaimsAsync(user);
 
             var cl = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);

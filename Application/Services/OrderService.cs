@@ -194,7 +194,7 @@ namespace Application.Services
 
         public async Task<PaginationDTO<DisplayOrderDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Order, bool>> filter)
         {
-            var totalOrders = await _repository.Count(); 
+            var totalOrders = await _repository.Count(filter); 
             var totalPages = await _repository.Pages(pageSize);
             var orders = await _repository.GetPaginatedElements(pageNumber, pageSize, filter); 
             var mappedOrders = _mapper.Map<List<DisplayOrderDTO>>(orders);

@@ -289,7 +289,7 @@ namespace Domain.Services
             //objectList = await query.ToListAsync();
             //return (objectList, totalCount);
 
-            var totalCount = await branchRepo.Count();
+            var totalCount = await branchRepo.Count(filter);
             var totalPages = await branchRepo.Pages(pageSize);
             var objectList = await branchRepo.GetPaginatedElements(pageNumber, pageSize, filter);
             List<BranchDisplayDTO> branchsDTO = new List<BranchDisplayDTO>();

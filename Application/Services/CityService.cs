@@ -287,7 +287,7 @@ namespace Domain.Services
 
         public async Task<PaginationDTO<CityDisplayDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<City, bool>> filter)
         {
-            var totalCount = await CityRepo.Count();
+            var totalCount = await CityRepo.Count(filter);
             var totalPages = await CityRepo.Pages(pageSize);
             var objectList = await CityRepo.GetPaginatedElements(pageNumber, pageSize, filter);
             List<CityDisplayDTO> CityDisplayDTO = new List<CityDisplayDTO>();

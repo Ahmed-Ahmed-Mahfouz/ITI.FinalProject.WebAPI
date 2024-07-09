@@ -912,7 +912,7 @@ namespace Application.Services
 
         public async Task<PaginationDTO<MerchantResponseDto>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Merchant, bool>> filter)
         {
-            var totalCount = await repository.Count();
+            var totalCount = await repository.Count(filter);
             var totalPages = await repository.Pages(pageSize);
             var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, m => m.governorate, m => m.city, m => m.user, m => m.SpecialPackages);
             var list = new List<MerchantResponseDto>();
