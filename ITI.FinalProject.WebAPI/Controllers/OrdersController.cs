@@ -82,10 +82,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
             var orderPaginationDTO = await _orderService.GetPaginatedOrders(pageNumber, pageSize, o => (orderStatus != null ? o.Status == orderStatus : true) && (startDate != null ? o.Date > startDate : true) && (endDate != null ? o.Date < endDate : true));
 
 
-            if (orderPaginationDTO == null || orderPaginationDTO.List.Count == 0)
-            {
-                return NotFound();
-            }
+            //if (orderPaginationDTO == null || orderPaginationDTO.List.Count == 0)
+            //{
+            //    return NotFound();
+            //}
 
             //var totalPages = (int)Math.Ceiling(totalOrders / (double)pageSize);
             //Response.Headers.Add("X-Total-Count", totalOrders.ToString());
