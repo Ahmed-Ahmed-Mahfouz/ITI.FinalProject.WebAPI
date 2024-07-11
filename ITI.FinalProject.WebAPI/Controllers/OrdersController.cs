@@ -17,10 +17,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int> _orderService;
+        private readonly IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, NewOrderUpdateDTO, int> _orderService;
         private readonly RoleManager<ApplicationRoles> roleManager;
 
-        public OrdersController(IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int> orderService, RoleManager<ApplicationRoles> roleManager)
+        public OrdersController(IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, NewOrderUpdateDTO, int> orderService, RoleManager<ApplicationRoles> roleManager)
         {
             _orderService = orderService;
             this.roleManager = roleManager;
@@ -39,7 +39,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            var orders = await _orderService.GetAllObjects();
+            var orders = await _orderService.GetAllObjects(o => o.merchant, o => o.city, o => o.branch, o => o.governorate, o => o.representative, o => o.Products);
             if (orders == null || !orders.Any())
             {
                 return NotFound(new ErrorDTO() { Message = "There weren't any orders in the database" });
@@ -109,7 +109,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Unauthorized();
             }
 
-            var order = await _orderService.GetObject(o => o.Id == id);
+            var order = await _orderService.GetObject(o => o.Id == id, o => o.merchant, o => o.city, o => o.branch, o => o.governorate, o => o.representative, o => o.Products);
 
             if (order == null)
             {
@@ -151,34 +151,72 @@ namespace ITI.FinalProject.WebAPI.Controllers
             //return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
         }
 
-        // PUT: api/Orders/5
-        [SwaggerOperation(Summary = "This Endpoint updates the specified order", Description = "")]
+        //// PUT: api/Orders/5
+        //[SwaggerOperation(Summary = "This Endpoint updates the specified order", Description = "")]
+        //[SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
+        //[SwaggerResponse(400, "The id that was given doesn't equal the id in the given order object", Type = typeof(ErrorDTO))]
+        //[SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
+        //[SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
+        //[SwaggerResponse(204, "Confirms that the order was updated successfully", Type = typeof(void))]
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutOrder(int id, UpdateOrderDTO orderDTO)
+        //{
+        //    if (await CheckRole(PowerTypes.Update, true, true))
+        //    {
+        //        return Unauthorized();
+        //    }
+
+        //    if (id != orderDTO.Id)
+        //    {
+        //        return BadRequest(new ErrorDTO() { Message = "Id doesn't match the id in the object" });
+        //    }
+
+        //    var success = await _orderService.GetObjectWithoutTracking(o => o.Id == id);
+
+        //    if (success == null)
+        //    {
+        //        return NotFound(new ErrorDTO() { Message = "Order doesn't exist in the db" });
+        //    }
+
+        //    var result = await _orderService.UpdateObject(orderDTO);
+
+        //    if (result.Succeeded)
+        //    {
+        //        if (await _orderService.SaveChangesForObject())
+        //        {
+        //            return NoContent();
+        //        }
+        //        else
+        //        {
+        //            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Error saving changes" });
+        //        }
+        //    }
+
+        //    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
+        //}
+
+        // DELETE: api/Orders/5
+        [SwaggerOperation(Summary = "This Endpoint deletes the specified order", Description = "")]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
-        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given order object", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
-        [SwaggerResponse(204, "Confirms that the order was updated successfully", Type = typeof(void))]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, UpdateOrderDTO orderDTO)
+        [SwaggerResponse(204, "Confirms that the order was deleted successfully", Type = typeof(void))]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrder(int id)
         {
-            if (await CheckRole(PowerTypes.Update, true, true))
+            if (await CheckRole(PowerTypes.Delete, true, true))
             {
                 return Unauthorized();
             }
 
-            if (id != orderDTO.Id)
-            {
-                return BadRequest(new ErrorDTO() { Message = "Id doesn't match the id in the object" });
-            }
-
-            var success = await _orderService.GetObjectWithoutTracking(o => o.Id == id);
+            var success = await _orderService.GetObjectWithoutTracking(o => o.Id == id, o => o.merchant, o => o.city, o => o.branch, o => o.governorate, o => o.representative, o => o.Products);
 
             if (success == null)
             {
                 return NotFound(new ErrorDTO() { Message = "Order doesn't exist in the db" });
             }
 
-            var result = await _orderService.UpdateObject(orderDTO);
+            var result = await _orderService.DeleteObject(id);
 
             if (result.Succeeded)
             {
@@ -195,28 +233,34 @@ namespace ITI.FinalProject.WebAPI.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
-        // DELETE: api/Orders/5
-        [SwaggerOperation(Summary = "This Endpoint deletes the specified order", Description = "")]
+        // PUT: api/Orders/5
+        [SwaggerOperation(Summary = "This Endpoint updates the specified order", Description = "")]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
+        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given order object", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
-        [SwaggerResponse(204, "Confirms that the order was deleted successfully", Type = typeof(void))]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder(int id)
+        [SwaggerResponse(204, "Confirms that the order was updated successfully", Type = typeof(void))]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutOrder(int id, NewOrderUpdateDTO orderDTO)
         {
-            if (await CheckRole(PowerTypes.Delete, true, true))
+            if (await CheckRole(PowerTypes.Update, true, true))
             {
                 return Unauthorized();
             }
 
-            var success = await _orderService.GetObjectWithoutTracking(o => o.Id == id);
+            if (id != orderDTO.Id)
+            {
+                return BadRequest(new ErrorDTO() { Message = "Id doesn't match the id in the object" });
+            }
+
+            var success = await _orderService.GetObjectWithoutTracking(o => o.Id == id, o => o.merchant, o => o.city, o => o.branch, o => o.governorate, o => o.representative, o => o.Products);
 
             if (success == null)
             {
                 return NotFound(new ErrorDTO() { Message = "Order doesn't exist in the db" });
             }
 
-            var result = await _orderService.DeleteObject(id);
+            var result = await _orderService.UpdateObject(orderDTO);
 
             if (result.Succeeded)
             {

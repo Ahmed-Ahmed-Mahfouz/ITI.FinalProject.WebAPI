@@ -18,7 +18,7 @@ using Application.DTOs;
 
 namespace Application.Services
 {
-    public class RepresentativeService:IPaginationService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,RepresentativeUpdateDTO,string>
+    public class RepresentativeService:IPaginationService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,RepresentativeUpdateDTO,string>, IDropDownOptionsService<Representative, string>
     {
         //public RepresentativeDisplayDTO MapToDTO(Representative representative)
         //{
@@ -50,6 +50,18 @@ namespace Application.Services
             this._userManager = userManager;
             this.repository = unit.GetPaginationRepository<Representative>();
             this.GovRepo = unit.GetPaginationRepository<GovernorateRepresentatives>();
+        }
+
+        public async Task<List<OptionDTO<string>>> GetOptions(params Expression<Func<Representative, object>>[] includes)
+        {
+            var options = await repository.GetAllElements(includes);
+            return options.Select(o => new OptionDTO<string>() { Id = o.userId, Name = o.user.FullName }).ToList();
+        }
+
+        public async Task<List<OptionDTO<string>>> GetOptions(Expression<Func<Representative, bool>> filter, params Expression<Func<Representative, object>>[] includes)
+        {
+            var options = await repository.GetAllElements(filter, includes);
+            return options.Select(o => new OptionDTO<string>() { Id = o.userId, Name = o.user.FullName }).ToList();
         }
 
         public async Task<List<RepresentativeDisplayDTO>> GetAllObjects()

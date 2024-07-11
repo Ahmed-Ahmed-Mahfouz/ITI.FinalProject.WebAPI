@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class GovernorateService: IPaginationService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int>
+    public class GovernorateService: IPaginationService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int>, IDropDownOptionsService<Governorate, int>
     {
         private readonly IUnitOfWork unit;
         private readonly IPaginationRepository<Governorate> repository;
@@ -24,6 +24,18 @@ namespace Application.Services
             this.unit = unit;
             this.repository = unit.GetPaginationRepository<Governorate>();
 
+        }
+
+        public async Task<List<OptionDTO<int>>> GetOptions(params Expression<Func<Governorate, object>>[] includes)
+        {
+            var options = await repository.GetAllElements(includes);
+            return options.Select(o => new OptionDTO<int>() { Id = o.id, Name = o.name }).ToList();
+        }
+
+        public async Task<List<OptionDTO<int>>> GetOptions(Expression<Func<Governorate, bool>> filter, params Expression<Func<Governorate, object>>[] includes)
+        {
+            var options = await repository.GetAllElements(filter, includes);
+            return options.Select(o => new OptionDTO<int>() { Id = o.id, Name = o.name }).ToList();
         }
 
         public async Task<List<GovernorateDTO>> GetAllObjects()

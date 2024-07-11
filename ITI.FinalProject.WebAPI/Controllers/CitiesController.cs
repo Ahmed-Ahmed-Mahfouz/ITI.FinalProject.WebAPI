@@ -21,11 +21,36 @@ namespace ITI.FinalProject.WebAPI.Controllers
     {
         IPaginationService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> CityServ;
         private readonly RoleManager<ApplicationRoles> roleManager;
+        private readonly IDropDownOptionsService<City, int> optionsService;
 
-        public CitiesController(IPaginationService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> _CityServ, RoleManager<ApplicationRoles> roleManager)
+        public CitiesController(
+            IPaginationService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> _CityServ, RoleManager<ApplicationRoles> roleManager,
+            IDropDownOptionsService<City, int> optionsService
+            )
         {
             CityServ = _CityServ;
             this.roleManager = roleManager;
+            this.optionsService = optionsService;
+        }
+
+        [SwaggerOperation(
+        Summary = "This Endpoint returns city options",
+            Description = ""
+        )]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
+        [SwaggerResponse(200, "Returns A list of options", Type = typeof(List<OptionDTO<int>>))]
+        [HttpGet("/api/cityOptions")]
+        public async Task<ActionResult<List<OptionDTO<int>>>> GetOptions()
+        {
+            var roles = roleManager.Roles.ToList();
+            if (roles.Where(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value).Count() == 0)
+            {
+                return Unauthorized();
+            }
+
+            var options = await optionsService.GetOptions(o => o.status == Status.Active);
+
+            return Ok(options);
         }
 
         [SwaggerOperation(

@@ -13,11 +13,12 @@ using Application.Interfaces.Repositories;
 using Azure;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Domain.Services
 {
-    public class BranchService : IPaginationService<Branch,BranchDisplayDTO,BranchInsertDTO,BranchUpdateDTO,int>
+    public class BranchService : IPaginationService<Branch,BranchDisplayDTO,BranchInsertDTO,BranchUpdateDTO,int>, IDropDownOptionsService<Branch, int>
     {
         public IPaginationRepository<Branch> branchRepo;
         public IUnitOfWork unit;
@@ -25,6 +26,18 @@ namespace Domain.Services
         {
             branchRepo= _unit.GetPaginationRepository<Branch>(); 
             unit = _unit;
+        }
+
+        public async Task<List<OptionDTO<int>>> GetOptions(params Expression<Func<Branch, object>>[] includes)
+        {
+            var options = await branchRepo.GetAllElements(includes);
+            return options.Select(o => new OptionDTO<int>() { Id = o.id, Name = o.name }).ToList();
+        }
+
+        public async Task<List<OptionDTO<int>>> GetOptions(Expression<Func<Branch, bool>> filter, params Expression<Func<Branch, object>>[] includes)
+        {
+            var options = await branchRepo.GetAllElements(filter, includes);
+            return options.Select(o => new OptionDTO<int>() { Id = o.id, Name = o.name }).ToList();
         }
        
         public async Task<List<BranchDisplayDTO>> GetAllObjects()

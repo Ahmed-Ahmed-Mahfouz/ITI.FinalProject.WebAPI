@@ -21,11 +21,37 @@ namespace ITI.FinalProject.WebAPI.Controllers
     {
         IPaginationService<Branch, BranchDisplayDTO, BranchInsertDTO, BranchUpdateDTO,int> branchServ;
         private readonly RoleManager<ApplicationRoles> roleManager;
+        private readonly IDropDownOptionsService<Branch, int> optionsService;
 
-        public BranchesController(IPaginationService<Branch, BranchDisplayDTO, BranchInsertDTO, BranchUpdateDTO,int> _branchServ, RoleManager<ApplicationRoles> roleManager)
+        public BranchesController(
+            IPaginationService<Branch, BranchDisplayDTO, BranchInsertDTO, BranchUpdateDTO,int> _branchServ, RoleManager<ApplicationRoles> roleManager,
+            IDropDownOptionsService<Branch, int> optionsService
+            )
         {
             branchServ = _branchServ;
             this.roleManager = roleManager;
+            this.optionsService = optionsService;
+        }
+
+
+        [SwaggerOperation(
+        Summary = "This Endpoint returns branch options",
+            Description = ""
+        )]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
+        [SwaggerResponse(200, "Returns A list of options", Type = typeof(List<OptionDTO<int>>))]
+        [HttpGet("/api/branchOptions")]
+        public async Task<ActionResult<List<OptionDTO<int>>>> GetOptions()
+        {
+            var roles = roleManager.Roles.ToList();
+            if (roles.Where(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value).Count() == 0)
+            {
+                return Unauthorized();
+            }
+
+            var options = await optionsService.GetOptions(o => o.status == Status.Active);
+
+            return Ok(options);
         }
 
         [SwaggerOperation(

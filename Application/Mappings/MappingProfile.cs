@@ -48,6 +48,8 @@ namespace Application.Mappings
                 .ForMember(dest => dest.MerchantName, opt => opt.MapFrom(src => src.merchantSpecialPackage.user.FullName)); //Possible Error
             //CreateMap<sp>
 
+            //CreateMap<EmployeeAddDto, Employee>();
+
         }
     }
 }

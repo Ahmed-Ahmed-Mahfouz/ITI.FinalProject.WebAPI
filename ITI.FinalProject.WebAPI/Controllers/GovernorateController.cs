@@ -21,11 +21,36 @@ namespace ITI.FinalProject.WebAPI.Controllers
     {
         private readonly IPaginationService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int> service;
         private readonly RoleManager<ApplicationRoles> roleManager;
+        private readonly IDropDownOptionsService<Governorate, int> optionsService;
 
-        public GovernorateController(IPaginationService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int> service, RoleManager<ApplicationRoles> roleManager)
+        public GovernorateController(
+            IPaginationService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int> service, RoleManager<ApplicationRoles> roleManager,
+            IDropDownOptionsService<Governorate, int> optionsService
+            )
         {
             this.service = service;
             this.roleManager = roleManager;
+            this.optionsService = optionsService;
+        }
+
+        [SwaggerOperation(
+        Summary = "This Endpoint returns governorate options",
+            Description = ""
+        )]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
+        [SwaggerResponse(200, "Returns A list of options", Type = typeof(List<OptionDTO<int>>))]
+        [HttpGet("/api/governorateOptions")]
+        public async Task<ActionResult<List<OptionDTO<int>>>> GetOptions()
+        {
+            var roles = roleManager.Roles.ToList();
+            if (roles.Where(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value).Count() == 0)
+            {
+                return Unauthorized();
+            }
+
+            var options = await optionsService.GetOptions(o => o.status == Status.Active);
+
+            return Ok(options);
         }
 
         //[HttpGet("/api/test")]

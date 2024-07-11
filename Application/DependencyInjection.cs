@@ -30,9 +30,15 @@ namespace Application
             //services.AddScoped<IGenericService<Shipping, DisplayShippingDTO, InsertShippingDTO, UpdateShippingDTO, int>, ShippingService>();
             services.AddScoped<IGenericService<Settings, SettingsDTO, SettingsInsertDTO, SettingsUpdateDTO, int>, SettingsService>();
 
-            services.AddScoped<IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int>, Application.Services.OrderService>();
+            services.AddScoped<IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, NewOrderUpdateDTO, int>, Application.Services.OrderService>();
             services.AddScoped<IPaginationService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO, int>, CityService>();
             services.AddScoped<IPaginationService<Branch, BranchDisplayDTO, BranchInsertDTO, BranchUpdateDTO, int>, BranchService>();
+
+            services.AddScoped<IDropDownOptionsService<Governorate, int>, GovernorateService>();
+            services.AddScoped<IDropDownOptionsService<City, int>, CityService>();
+            services.AddScoped<IDropDownOptionsService<Branch, int>, BranchService>();
+            services.AddScoped<IDropDownOptionsService<Representative, string>, RepresentativeService>();
+            services.AddScoped<IDropDownOptionsService<ApplicationRoles, string>, RolePowersService>();
 
             return services;
         }

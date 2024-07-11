@@ -161,7 +161,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Summary = "This Endpoint updates the specified merchant",
         Description = ""
         )]
-        [SwaggerResponse(200, "Confirms that the merchant was updated successfully", Type = typeof(MerchantResponseDto))]
+        [SwaggerResponse(204, "Confirms that the merchant was updated successfully", Type = typeof(void))]
         [SwaggerResponse(400, "Validation errors occurred while updating the merchant", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [HttpPut("{MerchantId}")]
@@ -175,8 +175,9 @@ namespace ITI.FinalProject.WebAPI.Controllers
             ModificationResultDTO error = await merchantService.UpdateObject(MerchantUpdateDto);
             if (error.Succeeded == true)
             {
-                MerchantResponseDto? updatedMerchant = await merchantService.GetObject(m => m.userId == MerchantId);
-                return Ok(updatedMerchant);
+                //MerchantResponseDto? updatedMerchant = await merchantService.GetObject(m => m.userId == MerchantId);
+                //return Ok(updatedMerchant);
+                return NoContent();
             }
             else
                 return BadRequest(new ErrorDTO() { Message = string.Join(", ", error.Message) });

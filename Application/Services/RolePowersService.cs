@@ -14,10 +14,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Application.Services
 {
-    public class RolePowersService : IPaginationService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string>
+    public class RolePowersService : IPaginationService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string>, IDropDownOptionsService<ApplicationRoles, string>
     {
         private readonly IUnitOfWork unit;
         private readonly RoleManager<ApplicationRoles> roleManager;
@@ -30,6 +31,29 @@ namespace Application.Services
             repository = unit.GetPaginationRepository<RolePowers>();
         }
 
+        public async Task<List<OptionDTO<string>>> GetOptions(params Expression<Func<ApplicationRoles, object>>[] includes)
+        {
+            var query =  roleManager.Roles;
+
+            foreach (var item in includes)
+            {
+                query = query.Include(item);
+            }
+
+            return await query.Select(o => new OptionDTO<string>() { Id = o.Id, Name = o.Name ?? "" }).ToListAsync();
+        }
+
+        public async Task<List<OptionDTO<string>>> GetOptions(Expression<Func<ApplicationRoles, bool>> filter, params Expression<Func<ApplicationRoles, object>>[] includes)
+        {
+            var query = roleManager.Roles.Where(filter);
+
+            foreach (var item in includes)
+            {
+                query = query.Include(item);
+            }
+
+            return await query.Select(o => new OptionDTO<string>() { Id = o.Id, Name = o.Name ?? "" }).ToListAsync();
+        }
         public async Task<List<RolePowersDTO>> GetAllObjects()
         {
             //var rolePowers = await repository.GetAllElements();

@@ -14,7 +14,7 @@ using Domain.Entities;
 
 namespace Domain.Services
 {
-    public class CityService : IPaginationService<City,CityDisplayDTO,CityInsertDTO,CityUpdateDTO,int>
+    public class CityService : IPaginationService<City,CityDisplayDTO,CityInsertDTO,CityUpdateDTO,int>, IDropDownOptionsService<City, int>
     {
         public IPaginationRepository<City> CityRepo;
         public IUnitOfWork Unit;
@@ -23,7 +23,19 @@ namespace Domain.Services
             CityRepo= unit.GetPaginationRepository<City>(); 
             Unit = unit;
         }
-        
+
+        public async Task<List<OptionDTO<int>>> GetOptions(params Expression<Func<City, object>>[] includes)
+        {
+            var options = await CityRepo.GetAllElements(includes);
+            return options.Select(o => new OptionDTO<int>() { Id = o.id, Name = o.name }).ToList();
+        }
+
+        public async Task<List<OptionDTO<int>>> GetOptions(Expression<Func<City, bool>> filter, params Expression<Func<City, object>>[] includes)
+        {
+            var options = await CityRepo.GetAllElements(filter, includes);
+            return options.Select(o => new OptionDTO<int>() { Id = o.id, Name = o.name }).ToList();
+        }
+
 
         public async Task<List<CityDisplayDTO>> GetAllObjects()
         {
@@ -215,6 +227,7 @@ namespace Domain.Services
             City.normalShippingCost = ObjectDTO.normalShippingCost;
             City.pickupShippingCost = ObjectDTO.pickupShippingCost;
             City.status = ObjectDTO.status;
+            City.governorateId = ObjectDTO.governorateId;
 
             var result = CityRepo.Edit(City);
 

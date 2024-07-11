@@ -93,6 +93,7 @@ namespace Domain.Services
                 PhoneNo = ObjectDTO.PhoneNumber,
                 Status = ObjectDTO.Status,
                 UserType = Domain.Enums.UserType.Employee,
+                BranchId = ObjectDTO.branchId
             };
 
             var resultUser = await AddUser(userAdded, ObjectDTO.role);
@@ -106,8 +107,12 @@ namespace Domain.Services
                 };
             }
 
-            var employee = mapper.Map<Employee>(ObjectDTO);
-            employee.userId = resultUser.UserId;
+            //var employee = mapper.Map<Employee>(ObjectDTO);
+            var employee = new Employee()
+            {
+                userId = resultUser.UserId
+            };
+            //employee.userId = resultUser.UserId;
 
             var employeeResult = repository.Add(employee);
 

@@ -22,11 +22,35 @@ namespace ITI.FinalProject.WebAPI.Controllers
     {
         private readonly IPaginationService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string> service;
         private readonly RoleManager<ApplicationRoles> roleManager;
+        private readonly IDropDownOptionsService<ApplicationRoles, string> optionsService;
 
-        public RolePowersController(IPaginationService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string> service, RoleManager<ApplicationRoles> roleManager)
+        public RolePowersController(IPaginationService<RolePowers, RolePowersDTO, RolePowersInsertDTO, RolePowersUpdateDTO, string> service, RoleManager<ApplicationRoles> roleManager,
+            IDropDownOptionsService<ApplicationRoles, string> optionsService 
+            )
         {
             this.service = service;
             this.roleManager = roleManager;
+            this.optionsService = optionsService;
+        }
+
+        [SwaggerOperation(
+        Summary = "This Endpoint returns role options",
+            Description = ""
+        )]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
+        [SwaggerResponse(200, "Returns A list of options", Type = typeof(List<OptionDTO<string>>))]
+        [HttpGet("/api/roleOptions")]
+        public async Task<ActionResult<List<OptionDTO<string>>>> GetOptions()
+        {
+            var roles = roleManager.Roles.ToList();
+            if (roles.Where(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value).Count() == 0)
+            {
+                return Unauthorized();
+            }
+
+            var options = await optionsService.GetOptions(o => o.Name != "Admin" && o.Name != "Merchant" && o.Name != "Representative");
+
+            return Ok(options);
         }
 
         // GET: api/RolePowers

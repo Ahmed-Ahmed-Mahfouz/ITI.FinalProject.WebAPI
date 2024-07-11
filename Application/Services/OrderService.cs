@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class OrderService : IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, UpdateOrderDTO, int>
+    public class OrderService : IPaginationService<Order, DisplayOrderDTO, InsertOrderDTO, NewOrderUpdateDTO, int>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -25,6 +25,7 @@ namespace Application.Services
         private readonly IGenericRepository<Settings> _settingsRepository;
         private readonly IGenericRepository<Merchant> _merchantRepository;
         private readonly IGenericRepository<Product> _productRepository;
+        private readonly IGenericRepository<Representative> _representativeRepository;
 
         public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
         {
@@ -35,30 +36,73 @@ namespace Application.Services
             _settingsRepository = _unitOfWork.GetGenericRepository<Settings>();
             _merchantRepository = _unitOfWork.GetGenericRepository<Merchant>();
             _productRepository = _unitOfWork.GetGenericRepository<Product>();
+            _representativeRepository = _unitOfWork.GetGenericRepository<Representative>();
         }
 
         public async Task<List<DisplayOrderDTO>> GetAllObjects()
         {
             var orders = await _repository.GetAllElements();
-            return _mapper.Map<List<DisplayOrderDTO>>(orders);
+            var mappedOrders = _mapper.Map<List<DisplayOrderDTO>>(orders);
+            for (var i = 0; i < orders.Count; i++)
+            {
+                var mechant = await _merchantRepository.GetElement(m => m.userId == orders[i].MerchantId, m => m.user);
+                mappedOrders[i].MerchantName = mechant?.user.FullName ?? "";
+
+                var representative = await _representativeRepository.GetElement(r => r.userId == orders[i].RepresentativeId, r => r.user);
+                mappedOrders[i].RepresentativeName = representative?.user.FullName ?? "";
+            }
+
+            return mappedOrders;
         }
 
         public async Task<List<DisplayOrderDTO>> GetAllObjects(params System.Linq.Expressions.Expression<Func<Order, object>>[] includes)
         {
             var orders = await _repository.GetAllElements(includes);
-            return _mapper.Map<List<DisplayOrderDTO>>(orders);
+            var mappedOrders = _mapper.Map<List<DisplayOrderDTO>>(orders);
+            for (var i = 0; i < orders.Count; i++)
+            {
+                var mechant = await _merchantRepository.GetElement(m => m.userId == orders[i].MerchantId, m => m.user);
+                mappedOrders[i].MerchantName = mechant?.user.FullName ?? "";
+
+                var representative = await _representativeRepository.GetElement(r => r.userId == orders[i].RepresentativeId, r => r.user);
+                mappedOrders[i].RepresentativeName = representative?.user.FullName ?? "";
+            }
+
+            return mappedOrders;
         }
 
         public async Task<DisplayOrderDTO?> GetObject(System.Linq.Expressions.Expression<Func<Order, bool>> filter)
         {
             var order = await _repository.GetElement(filter);
-            return _mapper.Map<DisplayOrderDTO>(order);
+            var mappedOrder = _mapper.Map<DisplayOrderDTO>(order);
+
+            if (order != null)
+            {                
+                var mechant = await _merchantRepository.GetElement(m => m.userId == order.MerchantId, m => m.user);
+                mappedOrder.MerchantName = mechant?.user.FullName ?? "";
+
+                var representative = await _representativeRepository.GetElement(r => r.userId == order.RepresentativeId, r => r.user);
+                mappedOrder.RepresentativeName = representative?.user.FullName ?? "";
+            }
+        
+            return mappedOrder;
         }
 
         public async Task<DisplayOrderDTO?> GetObject(System.Linq.Expressions.Expression<Func<Order, bool>> filter, params System.Linq.Expressions.Expression<Func<Order, object>>[] includes)
         {
             var order = await _repository.GetElement(filter, includes);
-            return _mapper.Map<DisplayOrderDTO>(order);
+            var mappedOrder = _mapper.Map<DisplayOrderDTO>(order);
+
+            if (order != null)
+            {
+                var mechant = await _merchantRepository.GetElement(m => m.userId == order.MerchantId, m => m.user);
+                mappedOrder.MerchantName = mechant?.user.FullName ?? "";
+
+                var representative = await _representativeRepository.GetElement(r => r.userId == order.RepresentativeId, r => r.user);
+                mappedOrder.RepresentativeName = representative?.user.FullName ?? "";
+            }
+
+            return mappedOrder;
         }
 
         public async Task<DisplayOrderDTO?> GetObjectWithoutTracking(System.Linq.Expressions.Expression<Func<Order, bool>> filter)
@@ -134,13 +178,22 @@ namespace Application.Services
             };
         }
 
-        public async Task<ModificationResultDTO> UpdateObject(UpdateOrderDTO orderDTO)
+        public async Task<ModificationResultDTO> UpdateObject(NewOrderUpdateDTO orderDTO)
         {
-            var order = _mapper.Map<Order>(orderDTO);
+            //var order = _mapper.Map<Order>(orderDTO);
 
-            order.ShippingCost = await CalculateShipmentCost(order);
+            var order = await _repository.GetElement(o => o.Id == orderDTO.Id, o => o.merchant, o => o.city, o => o.branch, o => o.governorate, o => o.representative, o => o.Products);
 
-            var result = _repository.Edit(order);
+            //order.ShippingCost = await CalculateShipmentCost(order);
+
+            order!.Status = orderDTO.OrderStatus;
+
+            if (orderDTO.RepresentativeId != null && orderDTO.RepresentativeId != "")
+            {
+                order!.RepresentativeId = orderDTO.RepresentativeId;
+            }
+
+            var result = _repository.Edit(order!);
 
             if (result == false)
             {
@@ -196,8 +249,19 @@ namespace Application.Services
         {
             var totalOrders = await _repository.Count(filter); 
             var totalPages = await _repository.Pages(pageSize);
-            var orders = await _repository.GetPaginatedElements(pageNumber, pageSize, filter); 
+            var orderList = await _repository.GetPaginatedElements(pageNumber, pageSize, filter, o => o.merchant, o => o.city, o => o.branch, o => o.governorate, o => o.representative, o => o.Products);
+            var orders = orderList.ToList();
             var mappedOrders = _mapper.Map<List<DisplayOrderDTO>>(orders);
+
+            for (var i = 0; i < orders.Count; i++)
+            {
+                var mechant = await _merchantRepository.GetElement(m => m.userId == orders[i].MerchantId, m => m.user);
+                mappedOrders[i].MerchantName = mechant?.user.FullName ?? "";
+
+                var representative = await _representativeRepository.GetElement(r => r.userId == orders[i].RepresentativeId, r => r.user);
+                mappedOrders[i].RepresentativeName = representative?.user.FullName ?? "";
+            }
+
             return new PaginationDTO<DisplayOrderDTO>()
             {
                 TotalCount = totalOrders,
