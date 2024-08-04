@@ -4,6 +4,7 @@ using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
 using Domain.Enums;
+using ITI.FinalProject.WebAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -75,7 +76,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         // POST: api/Products
         [SwaggerOperation(Summary = "This Endpoint inserts a new product in the db", Description = "")]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the product was inserted successfully", Type = typeof(void))]
         [HttpPost]
         public async Task<IActionResult> PostProduct(InsertProductDTO productDTO)
@@ -95,19 +96,19 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
                 else
                 {
-                    return Accepted("Error saving changes");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Error saving changes" });
                 }
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         // PUT: api/Products/5
         [SwaggerOperation(Summary = "This Endpoint updates the specified product", Description = "")]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
-        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given product object", Type = typeof(string))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
+        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given product object", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the product was updated successfully", Type = typeof(void))]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProduct(int id, UpdateProductDTO productDTO)
@@ -119,14 +120,14 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (id != productDTO.Id)
             {
-                return BadRequest("Id doesn't match the id in the object");
+                return BadRequest(new ErrorDTO() { Message = "Id doesn't match the id in the object" });
             }
 
             var success = await _productService.GetObjectWithoutTracking(p => p.Id == id);
 
             if (success == null)
             {
-                return NotFound("Product doesn't exist in the db");
+                return NotFound(new ErrorDTO() { Message = "Product doesn't exist in the db" });
             }
 
             var result = await _productService.UpdateObject(productDTO);
@@ -139,18 +140,18 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
                 else
                 {
-                    return Accepted("Error saving changes");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Error saving changes" });
                 }
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         // DELETE: api/Products/5
         [SwaggerOperation(Summary = "This Endpoint deletes the specified product", Description = "")]
-        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(string))]
+        [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the product was deleted successfully", Type = typeof(void))]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
@@ -164,7 +165,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (success == null)
             {
-                return NotFound("Product doesn't exist in the db");
+                return NotFound(new ErrorDTO() { Message = "Product doesn't exist in the db" });
             }
 
             var result = await _productService.DeleteObject(id);
@@ -177,11 +178,11 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 }
                 else
                 {
-                    return Accepted("Error saving changes");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = "Error saving changes" });
                 }
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         private async Task<bool> CheckRole(PowerTypes powerType, bool isAdminAllowed, bool isRepresentativeAllowed)

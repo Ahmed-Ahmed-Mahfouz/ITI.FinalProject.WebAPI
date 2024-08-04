@@ -36,7 +36,5 @@ namespace Application.Interfaces.Repositories
         public bool Edit(T element);
 
         public bool Delete(T element);  
-
-        //public Task<bool> SaveChanges();
     }
 }

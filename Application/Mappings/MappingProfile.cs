@@ -3,6 +3,7 @@ using Domain.Entities;
 using Application.DTOs.DisplayDTOs;
 using Application.DTOs.InsertDTOs;
 using Application.DTOs.UpdateDTOs;
+using Microsoft.Data.SqlClient;
 
 namespace Application.Mappings
 {
@@ -10,13 +11,12 @@ namespace Application.Mappings
     {
         public MappingProfile()
         {
-            // Order Mappings
             CreateMap<Order, DisplayOrderDTO>()
-                .ForMember(dest => dest.MerchantName, opt => opt.MapFrom(src => src.merchant.user.FullName)) //Possible Error
+                .ForMember(dest => dest.MerchantName, opt => opt.MapFrom(src => src.merchant.user.FullName))
                 .ForMember(dest => dest.GovernorateName, opt => opt.MapFrom(src => src.governorate.name))
                 .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.city.name))
                 .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.branch.name))
-                .ForMember(dest => dest.RepresentativeName, opt => opt.MapFrom(src => src.representative.user.FullName)) //Possible Error
+                .ForMember(dest => dest.RepresentativeName, opt => opt.MapFrom(src => src.representative.user.FullName))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
             CreateMap<InsertOrderDTO, Order>()
                 .ForMember(dest => dest.ShippingCost, opt => opt.MapFrom(src => 0))
@@ -25,7 +25,7 @@ namespace Application.Mappings
             CreateMap<UpdateOrderDTO, Order>()
                 .ForMember(dest => dest.ShippingCost, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src => src.Products != null ? src.Products.Sum(p => p.Price * p.Quantity) : 0))
-                .ForMember(dest => dest.TotalWeight, opt => opt.MapFrom(src => src.Products != null ? src.Products.Sum(p => p.Weight * p.Quantity) : 0));
+                .ForMember(dest => dest.TotalWeight, opt => opt.MapFrom(src => src.Products != null ? src.Products.Sum(p => p.Weight * p.Quantity) : 0 ));
 
             // Product Mappings
             CreateMap<Product, DisplayProductDTO>()
@@ -44,8 +44,7 @@ namespace Application.Mappings
             CreateMap<SpecialPackages, SpecialPackageDTO>()
                 .ForMember(dest => dest.governorateName, opt => opt.MapFrom(src => src.governoratePackages.name))
                 .ForMember(dest => dest.cityName, opt => opt.MapFrom(src => src.cityPackages.name))
-                .ForMember(dest => dest.MerchantName, opt => opt.MapFrom(src => src.merchantSpecialPackage.user.FullName)); //Possible Error
-            //CreateMap<sp>
+                .ForMember(dest => dest.MerchantName, opt => opt.MapFrom(src => src.merchantSpecialPackage.user.FullName));
 
         }
     }

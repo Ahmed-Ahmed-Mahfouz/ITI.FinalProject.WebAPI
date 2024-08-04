@@ -5,6 +5,7 @@ using Application.Interfaces;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
 using Domain.Enums;
+using ITI.FinalProject.WebAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -97,12 +98,12 @@ namespace ITI.FinalProject.WebAPI.Controllers
             }
             return Ok(employeeReadDto);
         }
-        //POST
+        
         [SwaggerOperation(
         Summary = "This Endpoint inserts an employee element in the db",
         Description = ""
         )]
-        [SwaggerResponse(400, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the employee was inserted successfully", Type = typeof(void))]
         [HttpPost]
@@ -123,16 +124,16 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 {
                     return NoContent();
                 }
-                return Accepted(result.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
             }
 
         }
-        //DELETE
+        
         [SwaggerOperation(
         Summary = "This Endpoint deletes the specified employee from the db",
         Description = ""
         )]
-        [SwaggerResponse(400, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(400, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the employee was deleted successfully", Type = typeof(void))]
         [HttpDelete]
@@ -151,7 +152,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new ErrorDTO() { Message = ex.Message });
             }
         }
 
@@ -159,9 +160,10 @@ namespace ITI.FinalProject.WebAPI.Controllers
         Summary = "This Endpoint updates the specified employee",
         Description = ""
         )]
-        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given employee object", Type = typeof(string))]
+        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given employee object", Type = typeof(ErrorDTO))]
+        [SwaggerResponse(404, "Employee doesn't exist in the db", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(204, "Confirms that the employee was updated successfully", Type = typeof(void))]
         [HttpPut]
         [Route("{id}")]
@@ -174,14 +176,14 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (id != employeeupdateDto.Id)
             {
-                return BadRequest("Id doesn't match the id in the object");
+                return BadRequest(new ErrorDTO() { Message = "Id doesn't match the id in the object" });
             }
 
-            var employee = await employeeService.GetObjectWithoutTracking(e => e.userId == id);
+            var employee = await employeeService.GetObjectWithoutTracking(e => e.userId == id, e => e.user);
 
             if (employee == null)
             {
-                return NotFound("Representative doesn't exist in the db");
+                return NotFound(new ErrorDTO() { Message = "Employee doesn't exist in the db" });
             }
 
             var result = await employeeService.UpdateObject(employeeupdateDto);
@@ -191,7 +193,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return NoContent();
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         private async Task<bool> CheckRole(PowerTypes powerType)

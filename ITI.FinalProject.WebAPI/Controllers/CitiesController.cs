@@ -4,6 +4,7 @@ using Application.DTOs.UpdateDTOs;
 using Application.Interfaces.ApplicationServices;
 using Domain.Entities;
 using Domain.Enums;
+using ITI.FinalProject.WebAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -20,11 +21,36 @@ namespace ITI.FinalProject.WebAPI.Controllers
     {
         IPaginationService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> CityServ;
         private readonly RoleManager<ApplicationRoles> roleManager;
+        private readonly IDropDownOptionsService<City, int> optionsService;
 
-        public CitiesController(IPaginationService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> _CityServ, RoleManager<ApplicationRoles> roleManager)
+        public CitiesController(
+            IPaginationService<City, CityDisplayDTO, CityInsertDTO, CityUpdateDTO,int> _CityServ, RoleManager<ApplicationRoles> roleManager,
+            IDropDownOptionsService<City, int> optionsService
+            )
         {
             CityServ = _CityServ;
             this.roleManager = roleManager;
+            this.optionsService = optionsService;
+        }
+
+        [SwaggerOperation(
+        Summary = "This Endpoint returns city options",
+            Description = ""
+        )]
+        [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
+        [SwaggerResponse(200, "Returns A list of options", Type = typeof(List<OptionDTO<int>>))]
+        [HttpGet("/api/cityOptions")]
+        public async Task<ActionResult<List<OptionDTO<int>>>> GetOptions()
+        {
+            var roles = roleManager.Roles.ToList();
+            if (roles.Where(r => r.Name == User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value).Count() == 0)
+            {
+                return Unauthorized();
+            }
+
+            var options = await optionsService.GetOptions(o => o.status == Status.Active);
+
+            return Ok(options);
         }
 
         [SwaggerOperation(
@@ -98,7 +124,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(400, "Something went wrong, please check your request", Type = typeof(void))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(204, "Confirms that the city was inserted successfully", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [HttpPost]
         public async Task <ActionResult> AddCity(CityInsertDTO City)
         {
@@ -114,9 +140,8 @@ namespace ITI.FinalProject.WebAPI.Controllers
             {
                 return Created();
             }
-            return Accepted(result.Message);
 
-
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         [SwaggerOperation(
@@ -126,7 +151,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
         [SwaggerResponse(200, "Confirms that the city was deleted successfully", Type = typeof(ModificationResultDTO))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
 
         [HttpDelete]
         public async Task<ActionResult> DeleteCity(int id)
@@ -148,7 +173,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Ok(result);
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         [SwaggerOperation(
@@ -156,9 +181,9 @@ namespace ITI.FinalProject.WebAPI.Controllers
            Description = ""
         )]
         [SwaggerResponse(404, "The id that was given doesn't exist in the db", Type = typeof(void))]
-        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given city object", Type = typeof(string))]
+        [SwaggerResponse(400, "The id that was given doesn't equal the id in the given city object", Type = typeof(ErrorDTO))]
         [SwaggerResponse(401, "Unauthorized", Type = typeof(void))]
-        [SwaggerResponse(202, "Something went wrong, please try again later", Type = typeof(string))]
+        [SwaggerResponse(500, "Something went wrong, please try again later", Type = typeof(ErrorDTO))]
         [SwaggerResponse(200, "Confirms that the city was updated successfully", Type = typeof(CityUpdateDTO))]
 
         [HttpPut("{id}")]
@@ -171,7 +196,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
 
             if (city == null || id != city.id)
             {
-                return BadRequest("Id doesn't match the id in the object");
+                return BadRequest(new ErrorDTO() {  Message = "Id doesn't match the id in the object" });
             }
             CityDisplayDTO? cityDisplay = await CityServ.GetObjectWithoutTracking(c => c.id == id);
             if (cityDisplay == null)
@@ -185,7 +210,7 @@ namespace ITI.FinalProject.WebAPI.Controllers
                 return Ok(city);
             }
 
-            return Accepted(result.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ErrorDTO() { Message = result.Message ?? "Something went wrong, please try again later" });
         }
 
         private async Task<bool> CheckRole(PowerTypes powerType)

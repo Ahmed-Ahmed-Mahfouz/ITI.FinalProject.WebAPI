@@ -11,7 +11,6 @@ namespace Application.DTOs.DisplayDTOs
     {
         public string RoleId { get; set; }
         public string RoleName { get; set; }
-        //public PowerTypes Power { get; set; }
         public DateTime TimeOfAddtion { get; set; }
         public List<PowersDTO>? Powers { get; set; }
     }

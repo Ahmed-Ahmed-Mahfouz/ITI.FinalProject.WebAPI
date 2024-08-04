@@ -8,7 +8,6 @@ namespace Application.DTOs.DisplayDTOs
 {
     public class SpecialPackageDTO
     {
-        //public int Id { get; set; }
         public decimal ShippingPrice { get; set; }
         public string cityName { get; set; }
         public string governorateName { get; set; }

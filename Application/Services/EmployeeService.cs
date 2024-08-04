@@ -19,6 +19,7 @@ namespace Domain.Services
     {
         private readonly IUnitOfWork unit;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IGenericRepository<Branch> branchRepository;
         private readonly IPaginationRepository<Employee> repository;
         private readonly IMapper mapper;
 
@@ -27,19 +28,20 @@ namespace Domain.Services
             this.unit = unit;
             this._userManager = userManager;
             this.repository = unit.GetPaginationRepository<Employee>();
+            this.branchRepository = unit.GetGenericRepository<Branch>();
             this.mapper = mapper;
         }
 
         public async Task<List<EmployeeReadDto>> GetAllObjects()
         {
             var employees = await repository.GetAllElements();
-            return MapEmployees(employees);
+            return await MapEmployees(employees);
         }
 
         public async Task<List<EmployeeReadDto>> GetAllObjects(params Expression<Func<Employee, object>>[] includes)
         {
             var employees = await repository.GetAllElements(includes);
-            return MapEmployees(employees);
+            return await MapEmployees(employees);
         }
 
         public async Task<EmployeeReadDto?> GetObject(Expression<Func<Employee, bool>> filter)
@@ -49,7 +51,7 @@ namespace Domain.Services
             {
                 return null;
             }
-            return MapEmployee(employee);
+            return await MapEmployee(employee);
         }
 
         public async Task<EmployeeReadDto?> GetObject(Expression<Func<Employee, bool>> filter, params Expression<Func<Employee, object>>[] includes)
@@ -59,7 +61,7 @@ namespace Domain.Services
             {
                 return null;
             }
-            return MapEmployee(employee);
+            return await MapEmployee(employee);
         }
 
         public async Task<EmployeeReadDto?> GetObjectWithoutTracking(Expression<Func<Employee, bool>> filter)
@@ -69,7 +71,7 @@ namespace Domain.Services
             {
                 return null;
             }
-            return MapEmployee(employee);
+            return await MapEmployee(employee);
         }
 
         public async Task<EmployeeReadDto?> GetObjectWithoutTracking(Expression<Func<Employee, bool>> filter, params Expression<Func<Employee, object>>[] includes)
@@ -79,7 +81,7 @@ namespace Domain.Services
             {
                 return null;
             }
-            return MapEmployee(employee);
+            return await MapEmployee(employee);
         }
 
         public async Task<ModificationResultDTO> InsertObject(EmployeeAddDto ObjectDTO)
@@ -93,6 +95,7 @@ namespace Domain.Services
                 PhoneNo = ObjectDTO.PhoneNumber,
                 Status = ObjectDTO.Status,
                 UserType = Domain.Enums.UserType.Employee,
+                BranchId = ObjectDTO.branchId
             };
 
             var resultUser = await AddUser(userAdded, ObjectDTO.role);
@@ -106,8 +109,10 @@ namespace Domain.Services
                 };
             }
 
-            var employee = mapper.Map<Employee>(ObjectDTO);
-            employee.userId = resultUser.UserId;
+            var employee = new Employee()
+            {
+                userId = resultUser.UserId
+            };
 
             var employeeResult = repository.Add(employee);
 
@@ -139,7 +144,7 @@ namespace Domain.Services
 
         public async Task<ModificationResultDTO> UpdateObject(EmployeeupdateDto ObjectDTO)
         {
-            var user = await _userManager.FindByIdAsync(ObjectDTO.UserName);
+            var user = await _userManager.FindByIdAsync(ObjectDTO.Id);
 
             if (user == null)
             {
@@ -150,46 +155,8 @@ namespace Domain.Services
                 };
             }
 
-            user.FullName = ObjectDTO.FullName;
-            var identityResult = await _userManager.ChangePasswordAsync(user, ObjectDTO.OldPassword, ObjectDTO.NewPassword);
-
-            if (!identityResult.Succeeded)
-            {
-                return new ModificationResultDTO()
-                {
-                    Succeeded = false,
-                    Message = "Error changing user password"
-                };
-            }
-
-            var token = await _userManager.GenerateChangeEmailTokenAsync(user, ObjectDTO.Email);
-
-            identityResult = await _userManager.ChangeEmailAsync(user, ObjectDTO.Email, token);
-
-            if (!identityResult.Succeeded)
-            {
-                return new ModificationResultDTO()
-                {
-                    Succeeded = false,
-                    Message = "Error changing user email"
-                };
-            }
-
-            token = await _userManager.GenerateChangePhoneNumberTokenAsync(user, ObjectDTO.PhoneNumber);
-
-            identityResult = await _userManager.ChangePhoneNumberAsync(user, ObjectDTO.PhoneNumber, token);
-
-            if (!identityResult.Succeeded)
-            {
-                return new ModificationResultDTO()
-                {
-                    Succeeded = false,
-                    Message = "Error changing user phone number"
-                };
-            }
-
             user.Status = ObjectDTO.Status;
-            identityResult = await _userManager.UpdateAsync(user);
+            var identityResult = await _userManager.UpdateAsync(user);
 
             if (!identityResult.Succeeded)
             {
@@ -197,65 +164,6 @@ namespace Domain.Services
                 {
                     Succeeded = false,
                     Message = "Error updating the user"
-                };
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-
-            identityResult = await _userManager.RemoveFromRolesAsync(user, roles);
-
-            if (!identityResult.Succeeded)
-            {
-                return new ModificationResultDTO()
-                {
-                    Succeeded = false,
-                    Message = "Error updating the user role"
-                };
-            }
-
-
-            identityResult = await _userManager.AddToRoleAsync(user, ObjectDTO.role);
-
-            if (!identityResult.Succeeded)
-            {
-                return new ModificationResultDTO()
-                {
-                    Succeeded = false,
-                    Message = "Error updating the user role"
-                };
-            }
-
-            var employee = await repository.GetElement(e => e.userId == user.Id);
-
-            if (employee == null)
-            {
-                return new ModificationResultDTO()
-                {
-                    Succeeded = false,
-                    Message = "Employee doesn't exist in the db"
-                };
-            }
-
-            mapper.Map(ObjectDTO, employee);
-            var result = repository.Edit(employee);
-
-            if (result == false)
-            {
-                return new ModificationResultDTO()
-                {
-                    Succeeded = false,
-                    Message = "Error updating the employee"
-                };
-            }
-
-            result = await SaveChangesForObject();
-
-            if (result == false)
-            {
-                return new ModificationResultDTO()
-                {
-                    Succeeded = false,
-                    Message = "Error saving changes"
                 };
             }
 
@@ -334,25 +242,36 @@ namespace Domain.Services
             return result;
         }
 
-        private EmployeeReadDto MapEmployee(Employee employee)
+        private async Task<EmployeeReadDto> MapEmployee(Employee employee)
         {
+            var roles = await _userManager.GetRolesAsync(employee.user);
+            var branch = await branchRepository.GetElement(b => b.id == employee.user.BranchId);
+
             var employeeDTO = new EmployeeReadDto()
             {
+                Id = employee.userId,
                 FullName = employee.user.FullName,
                 Address = employee.user.Address,
-                PhoneNumber = employee.user.PhoneNumber,
-                UserName = employee.user.UserName,
-                Email = employee.user.Email,
+                PhoneNumber = employee.user.PhoneNumber ?? "",
+                UserName = employee.user.UserName?? "",
+                Email = employee.user.Email ?? "",
                 Status = employee.user.Status,
-                role = employee.user.UserType.ToString()
+                role = roles[0],
+                Branch = branch?.name
             };
 
             return employeeDTO;
         }
 
-        private List<EmployeeReadDto> MapEmployees(List<Employee> employees)
+        private async Task<List<EmployeeReadDto>> MapEmployees(List<Employee> employees)
         {
-            var employeeDTOs = employees.Select(e => MapEmployee(e)).ToList();
+            var employeeDTOs = new List<EmployeeReadDto>();
+            foreach (var employee in employees)
+            {
+                var employeeDTO = await MapEmployee(employee);
+                employeeDTOs.Add(employeeDTO);
+            }
+
             return employeeDTOs;
         }
 
@@ -372,7 +291,8 @@ namespace Domain.Services
                 UserType = userDto.UserType,
                 Status = userDto.Status,
                 PhoneNumber = userDto.PhoneNo,
-                Address = userDto.Address
+                Address = userDto.Address,
+                BranchId = userDto.BranchId
             };
 
             var result = await _userManager.CreateAsync(user, userDto.Password);
@@ -413,10 +333,10 @@ namespace Domain.Services
 
         public async Task<PaginationDTO<EmployeeReadDto>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Employee, bool>> filter)
         {
-            var totalCount = await repository.Count();
+            var totalCount = await repository.Count(filter);
             var totalPages = await repository.Pages(pageSize);
             var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, e => e.user);
-            var mappedEmployees = MapEmployees(objectList.ToList());
+            var mappedEmployees = await MapEmployees(objectList.ToList());
 
 
             return new PaginationDTO<EmployeeReadDto>()

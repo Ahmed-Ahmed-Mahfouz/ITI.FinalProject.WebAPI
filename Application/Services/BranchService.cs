@@ -13,11 +13,12 @@ using Application.Interfaces.Repositories;
 using Azure;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Domain.Services
 {
-    public class BranchService : IPaginationService<Branch,BranchDisplayDTO,BranchInsertDTO,BranchUpdateDTO,int>
+    public class BranchService : IPaginationService<Branch,BranchDisplayDTO,BranchInsertDTO,BranchUpdateDTO,int>, IDropDownOptionsService<Branch, int>
     {
         public IPaginationRepository<Branch> branchRepo;
         public IUnitOfWork unit;
@@ -25,6 +26,18 @@ namespace Domain.Services
         {
             branchRepo= _unit.GetPaginationRepository<Branch>(); 
             unit = _unit;
+        }
+
+        public async Task<List<OptionDTO<int>>> GetOptions(params Expression<Func<Branch, object>>[] includes)
+        {
+            var options = await branchRepo.GetAllElements(includes);
+            return options.Select(o => new OptionDTO<int>() { Id = o.id, Name = o.name, DependentId = o.cityId }).ToList();
+        }
+
+        public async Task<List<OptionDTO<int>>> GetOptions(Expression<Func<Branch, bool>> filter, params Expression<Func<Branch, object>>[] includes)
+        {
+            var options = await branchRepo.GetAllElements(filter, includes);
+            return options.Select(o => new OptionDTO<int>() { Id = o.id, Name = o.name, DependentId = o.cityId }).ToList();
         }
        
         public async Task<List<BranchDisplayDTO>> GetAllObjects()
@@ -149,7 +162,6 @@ namespace Domain.Services
         public async Task<ModificationResultDTO> InsertObject(BranchInsertDTO ObjectDTO)
         {
             Branch branch = new Branch() {
-                //id = 0,
                 name = ObjectDTO.name,
                 addingDate = DateTime.Now,
                 cityId = ObjectDTO.cityId,
@@ -204,10 +216,8 @@ namespace Domain.Services
                 };
             }
 
-            //Branch branch = new Branch();
             branch.id = ObjectDTO.id;
             branch.name = ObjectDTO.name;
-            //branch.addingDate = ObjectDTO.addingDate;
             branch.cityId = ObjectDTO.cityId;
             branch.status = ObjectDTO.status;
 
@@ -281,15 +291,7 @@ namespace Domain.Services
 
         public async Task<PaginationDTO<BranchDisplayDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Branch, bool>> filter)
         {
-            //var objectList = await GetAllObjects();
-            //var query = objectList.AsQueryable();
-            //var totalCount = query.Count();
-            //var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
-            //query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
-            //objectList = await query.ToListAsync();
-            //return (objectList, totalCount);
-
-            var totalCount = await branchRepo.Count();
+            var totalCount = await branchRepo.Count(filter);
             var totalPages = await branchRepo.Pages(pageSize);
             var objectList = await branchRepo.GetPaginatedElements(pageNumber, pageSize, filter);
             List<BranchDisplayDTO> branchsDTO = new List<BranchDisplayDTO>();

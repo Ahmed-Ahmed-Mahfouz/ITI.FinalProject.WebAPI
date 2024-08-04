@@ -13,15 +13,11 @@ namespace Domain.Entities
         public string? StoreName { get; set; } 
         [ForeignKey("governorate")]
         public int? GovernorateId { get; set; } 
-        // public virtual Governorate? Governorate { get; set; }
         [ForeignKey("city")]
         public int? CityId { get; set; }
-        //public virtual City? City { get; set; }
         public decimal MerchantPayingPercentageForRejectedOrders { get; set; }
         [Column(TypeName = "money")]
         public decimal? SpecialPickupShippingCost { get; set; }
-
-        //public decimal? RefusedOrderPercentage { get; set; }
 
         [ForeignKey("user")]
         [Key]

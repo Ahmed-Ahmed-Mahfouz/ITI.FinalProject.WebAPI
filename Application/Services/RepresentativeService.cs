@@ -18,27 +18,8 @@ using Application.DTOs;
 
 namespace Application.Services
 {
-    public class RepresentativeService:IPaginationService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,RepresentativeUpdateDTO,string>
+    public class RepresentativeService:IPaginationService<Representative,RepresentativeDisplayDTO,RepresentativeInsertDTO,RepresentativeUpdateDTO,string>, IDropDownOptionsService<Representative, string>
     {
-        //public RepresentativeDisplayDTO MapToDTO(Representative representative)
-        //{
-        //    return new RepresentativeDisplayDTO
-        //    {
-        //        Id= representative.userId,
-        //        DiscountType = representative.DiscountType,
-        //        CompanyPercetage = representative.CompanyPercetage,
-        //        UserFullName = representative.user.FullName,
-        //        UserAddress = representative.user.Address,
-        //        Email= representative.user.Email,
-        //        UserPhoneNo = representative.user.PhoneNo,
-        //        UserStatus = representative.user.Status,
-        //        UserBranchId = representative.user.BranchId,
-        //        UserType = representative.user.UserType,
-        //        GovernorateIds = representative.governorates.Select(x => x.governorateId).ToList()
-
-        //    };
-        //}
-
         private readonly IUnitOfWork unit;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IPaginationRepository<Representative> repository;
@@ -50,6 +31,25 @@ namespace Application.Services
             this._userManager = userManager;
             this.repository = unit.GetPaginationRepository<Representative>();
             this.GovRepo = unit.GetPaginationRepository<GovernorateRepresentatives>();
+        }
+
+        public async Task<List<OptionDTO<string>>> GetOptions(params Expression<Func<Representative, object>>[] includes)
+        {
+            var options = await repository.GetAllElements(includes);
+
+            var governoratesReps = await GovRepo.GetAllElements(g => g.governorate);
+
+            var governorates = governoratesReps.Select(g => g.governorate).ToList();
+
+            var optionList = new List<OptionDTO<string>>();
+
+            return options.Select(o => new OptionDTO<string>() { Id = o.userId, Name = o.user.FullName, DependentIds = o.governorates.Select(gr => gr.governorateId).ToList() }).ToList();
+        }
+
+        public async Task<List<OptionDTO<string>>> GetOptions(Expression<Func<Representative, bool>> filter, params Expression<Func<Representative, object>>[] includes)
+        {
+            var options = await repository.GetAllElements(filter, includes);
+            return options.Select(o => new OptionDTO<string>() { Id = o.userId, Name = o.user.FullName, DependentIds = o.governorates.Select(g => g.governorateId).ToList() }).ToList();
         }
 
         public async Task<List<RepresentativeDisplayDTO>> GetAllObjects()
@@ -210,15 +210,19 @@ namespace Application.Services
 
             user.BranchId = ObjectDTO.UserBranchId;
 
-            var identityResult = await _userManager.ChangePasswordAsync(user, ObjectDTO.OldPassword, ObjectDTO.NewPassword);
+            var identityResult = new IdentityResult();
 
-            if (!identityResult.Succeeded)
+            if (ObjectDTO.OldPassword != null && ObjectDTO.OldPassword != "" && ObjectDTO.NewPassword != null && ObjectDTO.NewPassword != "")
             {
-                return new ModificationResultDTO()
+                identityResult = await _userManager.ChangePasswordAsync(user, ObjectDTO.OldPassword, ObjectDTO.NewPassword);
+                if (!identityResult.Succeeded)
                 {
-                    Succeeded = false,
-                    Message = "Error changing user password"
-                };
+                    return new ModificationResultDTO()
+                    {
+                        Succeeded = false,
+                        Message = "Error changing user password"
+                    };
+                }
             }
 
             var token = await _userManager.GenerateChangeEmailTokenAsync(user, ObjectDTO.Email);
@@ -541,7 +545,7 @@ namespace Application.Services
 
         public async Task<PaginationDTO<RepresentativeDisplayDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Representative, bool>> filter)
         {
-            var totalCount = await repository.Count();
+            var totalCount = await repository.Count(filter);
             var totalPages = await repository.Pages(pageSize);
             var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter, r => r.user, r => r.governorates);
 

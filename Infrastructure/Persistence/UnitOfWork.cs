@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Persistence
 {
-    public class UnitOfWork : IUnitOfWork //<T> where T : class
+    public class UnitOfWork : IUnitOfWork 
     {
         private readonly ShippingContext context;
 
@@ -30,17 +30,6 @@ namespace Infrastructure.Persistence
         {
             return new PaginationRepository<T>(context);
         }
-
-        //private IGenericRepository<Governorate> repository;
-
-        //public IGenericRepository<T> Repository { get 
-        //    {
-
-        //        repository ??= new GenericRepository<T>(context);
-
-        //        return repository;
-        //    } 
-        //}
 
         public async Task<bool> SaveChanges()
         {

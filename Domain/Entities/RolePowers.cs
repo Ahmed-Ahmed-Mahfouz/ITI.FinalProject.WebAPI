@@ -14,7 +14,6 @@ namespace Domain.Entities
         
         [ForeignKey("ApplicationRoles")]
         public string RoleId { get; set; }
-        //public PowerTypes Power { get; set; }
         public Tables TableName { get; set; }
         public bool Create { get; set; }
         public bool Delete { get; set; }

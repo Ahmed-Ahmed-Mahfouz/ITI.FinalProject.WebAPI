@@ -10,12 +10,9 @@ namespace Domain.Entities
 {
     public class Employee
     {
-        //public bool IsActive { get; set; }
-
         [ForeignKey("user")]
         [Key]
         public string userId { get; set; }
-
 
         public ApplicationUser user { get; set; }
     }

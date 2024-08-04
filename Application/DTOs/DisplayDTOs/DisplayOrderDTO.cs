@@ -10,7 +10,6 @@ namespace Application.DTOs.DisplayDTOs
 {
     public class DisplayOrderDTO
     {
-        // Properties
         public int Id { get; set; }
         public string ClientName { get; set; }
         public DateTime Date { get; set; }
@@ -26,15 +25,16 @@ namespace Application.DTOs.DisplayDTOs
         public string GovernorateName { get; set; }
         public string CityName { get; set; }
         public string BranchName { get; set; }
+        public ShippingTypes ShippingType { get; set; }
         public string? RepresentativeName { get; set; }
         public decimal? OrderMoneyReceived { get; set; }
         public decimal? ShippingMoneyReceived { get; set; }
+        public decimal? CompanyProfit { get; set; }
         public decimal ShippingCost { get; set; }
 
         public OrderStatus Status { get; set; }
         public OrderTypes Type { get; set; }
         public PaymentTypes PaymentType { get; set; }
-        public ShippingTypes ShippingType { get; set; }
 
         public List<DisplayProductDTO> Products { get; set; }
     }

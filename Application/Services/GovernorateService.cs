@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class GovernorateService: IPaginationService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int>
+    public class GovernorateService: IPaginationService<Governorate, GovernorateDTO, GovernorateInsertDTO, GovernorateUpdateDTO, int>, IDropDownOptionsService<Governorate, int>
     {
         private readonly IUnitOfWork unit;
         private readonly IPaginationRepository<Governorate> repository;
@@ -24,6 +24,18 @@ namespace Application.Services
             this.unit = unit;
             this.repository = unit.GetPaginationRepository<Governorate>();
 
+        }
+
+        public async Task<List<OptionDTO<int>>> GetOptions(params Expression<Func<Governorate, object>>[] includes)
+        {
+            var options = await repository.GetAllElements(includes);
+            return options.Select(o => new OptionDTO<int>() { Id = o.id, Name = o.name }).ToList();
+        }
+
+        public async Task<List<OptionDTO<int>>> GetOptions(Expression<Func<Governorate, bool>> filter, params Expression<Func<Governorate, object>>[] includes)
+        {
+            var options = await repository.GetAllElements(filter, includes);
+            return options.Select(o => new OptionDTO<int>() { Id = o.id, Name = o.name }).ToList();
         }
 
         public async Task<List<GovernorateDTO>> GetAllObjects()
@@ -88,7 +100,6 @@ namespace Application.Services
             return MapGovernorate(governorate);
         }
 
-        //public Task<bool> InsertObject(GovernorateInsertDTO governorateInsertDTO, out GovernorateDTO governorateDTO)
         public Task<ModificationResultDTO> InsertObject(GovernorateInsertDTO governorateInsertDTO)
         {
             var governorate = new Governorate()
@@ -198,7 +209,7 @@ namespace Application.Services
 
         public async Task<PaginationDTO<GovernorateDTO>> GetPaginatedOrders(int pageNumber, int pageSize, Expression<Func<Governorate, bool>> filter)
         {
-            var totalCount = await repository.Count();
+            var totalCount = await repository.Count(filter);
             var totalPages = await repository.Pages(pageSize);
             var objectList = await repository.GetPaginatedElements(pageNumber, pageSize, filter);
              

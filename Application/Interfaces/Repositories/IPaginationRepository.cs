@@ -13,6 +13,7 @@ namespace Application.Interfaces.Repositories
         Task<IEnumerable<T>> GetPaginatedElements(int pageNumber, int pageSize, Expression<Func<T, bool>> filter);
         Task<IEnumerable<T>> GetPaginatedElements(int pageNumber, int pageSize, Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includes);
         Task<int> Count();
+        Task<int> Count(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includes);
         Task<int> Pages(int pageSize);
     }
 }

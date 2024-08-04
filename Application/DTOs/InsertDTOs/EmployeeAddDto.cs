@@ -13,19 +13,13 @@ namespace Application.DTOs.InsertDTOs
     public class EmployeeAddDto
     {
         public string FullName { get; set; } = string.Empty;
-
         public string Address { get; set; } = string.Empty;
-        public virtual string PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
-
         public string PasswordHash { get; set; }
-
         public Status Status { get; set; }
-
-        public ApplicationUser User { get; set; }
-
         public string role { get; set; }
-
+        public int branchId { get; set; }
     }
 }

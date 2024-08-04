@@ -23,9 +23,9 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<IEnumerable<T>> GetPaginatedElements(int pageNumber, int pageSize, Expression<Func<T, bool>> filter)
         {
             return await _context.Set<T>()
+                                 .Where(filter)
                                  .Skip((pageNumber - 1) * pageSize)
                                  .Take(pageSize)
-                                 .Where(filter)
                                  .ToListAsync();
         }
 
@@ -47,6 +47,18 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<int> Count()
         {
             return await _context.Set<T>().CountAsync();
+        }
+
+        public async Task<int> Count(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includes)
+        {
+            var query = _context.Set<T>().Where(filter);
+
+            foreach (var item in includes)
+            {
+                query = query.Include(item);
+            }
+
+            return await query.CountAsync();
         }
 
         public async Task<int> Pages(int pageSize)

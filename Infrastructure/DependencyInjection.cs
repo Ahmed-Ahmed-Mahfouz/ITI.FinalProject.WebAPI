@@ -17,32 +17,8 @@ namespace Infrastructure
 
             services.AddIdentity<ApplicationUser, ApplicationRoles>().AddEntityFrameworkStores<ShippingContext>().AddDefaultTokenProviders();
 
-            //services.AddIdentity<ApplicationUser>()
-            //    .AddRoles<ApplicationRoles>()
-            //    .AddEntityFrameworkStores<ShippingContext>()
-            //    .AddTokenProvider<AuthenticatorTokenProvider<ApplicationUser>>(TokenOptions.DefaultProvider)
-            //    .AddTokenProvider<EmailTokenProvider<ApplicationUser>>("Email")
-            //    .AddTokenProvider<PhoneNumberTokenProvider<ApplicationUser>>("Phone");
-            //.AddTokenProvider<IUserTwoFactorTokenProvider<ApplicationUser>>("Phone")
-            //.AddTokenProvider<TokenProviderDescriptor>(TokenOptions.DefaultProvider);
-
-
             services.AddScoped<SignInManager<ApplicationUser>>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            //services.AddScoped<IUnitOfWork<Merchant>, UnitOfWork<Merchant>>();
-            //services.AddScoped<IUnitOfWork<Representative>, UnitOfWork<Representative>>();
-            //services.AddScoped<IUnitOfWork<City>, UnitOfWork<City>>();
-            //services.AddScoped<IUnitOfWork<Branch>, UnitOfWork<Branch>>();
-            //services.AddScoped<IUnitOfWork<Governorate>, UnitOfWork<Governorate>>();
-            //services.AddScoped<IUnitOfWork<GovernorateRepresentatives>, UnitOfWork<GovernorateRepresentatives>>();
-            //services.AddScoped<IUnitOfWork<Order>, UnitOfWork<Order>>();
-            //services.AddScoped<IUnitOfWork<Product>, UnitOfWork<Product>>();
-            //services.AddScoped<IUnitOfWork<Payment>, UnitOfWork<Payment>>();
-            //services.AddScoped<IUnitOfWork<RolePowers>, UnitOfWork<RolePowers>>();
-            //services.AddScoped<IUnitOfWork<Shipping>, UnitOfWork<Shipping>>();
-
-            //register Representative Service Layer For Mapping DTO
-            //services.AddScoped<IRepresentativeService, RepresentativeService>();
 
             return services;
         }
